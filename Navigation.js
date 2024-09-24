@@ -7,6 +7,7 @@ import logo from './assets/logo.png';
 import './gesture-handler';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import PropertyScreen from './Screens/PropertyScreen';
+import ProfileScreen from './Screens/ProfileScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -21,17 +22,6 @@ function DrawerNavigation() {
         headerTitleStyle: {
           fontWeight: 'bold',
         },
-        headerTitle: () => (
-          <Image
-            source={logo}
-            style={{ height: 20, resizeMode: 'contain' }}
-          />
-        ),
-        headerRight: () => (
-          <TouchableOpacity onPress={() => alert('Notifications')} style={{ marginRight: 15 }}>
-            <Ionicons name="notifications-outline" size={24} color="#fff" />
-          </TouchableOpacity>
-        ),
         drawerStyle: {
           backgroundColor: '#508D4E',
         },
@@ -49,6 +39,27 @@ function DrawerNavigation() {
           drawerIcon: ({ color }) => (
             <Ionicons name="home-outline" size={24} color={color} />
           ),
+          headerTitle: () => (
+            <Image
+              source={logo}
+              style={{ height: 20, resizeMode: 'contain' }}
+            />
+          ),
+          headerRight: () => (
+            <TouchableOpacity onPress={() => alert('Notifications')} style={{ marginRight: 15 }}>
+              <Ionicons name="notifications-outline" size={24} color="#fff" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Drawer.Screen 
+        name="Profile" 
+        component={ProfileScreen} 
+        options={{
+          drawerIcon: ({ color }) => (
+            <Ionicons name="person-outline" size={24} color={color} />
+          ),
+          title: "Hazem Odeh"
         }} 
       />
     </Drawer.Navigator>
@@ -77,6 +88,7 @@ export default function Navigation() {
           name="Drawer"
           component={DrawerNavigation}
           options={{
+            title: "Home",
             headerShown: false
           }}
         />

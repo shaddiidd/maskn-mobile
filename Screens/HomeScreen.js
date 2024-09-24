@@ -26,7 +26,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchContainer}>
-        <TouchableOpacity style={styles.filterBtn}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
           <Ionicons name="funnel-outline" size={25} color="#fff" />
         </TouchableOpacity>
         <View style={styles.inputContainer}>

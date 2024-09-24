@@ -56,7 +56,7 @@ export default function PropertyScreen() {
           <Ionicons name="eye" size={25} color="#fff" />
           <Text style={styles.wideBtnTxt}>  REQUEST TOUR</Text>
         </TouchableOpacity>
-        <Reviews reviews={reviews} />
+        <Reviews seeAll reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
   );
