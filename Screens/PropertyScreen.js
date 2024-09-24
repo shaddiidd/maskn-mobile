@@ -1,6 +1,7 @@
 import { StyleSheet, SafeAreaView, ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import PaginatedCarousel from '../Components/PaginatedCarousel';
 import { Ionicons } from '@expo/vector-icons';
+import Reviews from '../Components/Reviews';
 
 export default function PropertyScreen() {
   const propertyImages = [
@@ -8,6 +9,10 @@ export default function PropertyScreen() {
     require("../assets/house.png"),
     require("../assets/house.png"),
   ];
+  const reviews = [
+    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
+  ]
 
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
@@ -51,6 +56,7 @@ export default function PropertyScreen() {
           <Ionicons name="eye" size={25} color="#fff" />
           <Text style={styles.wideBtnTxt}>  REQUEST TOUR</Text>
         </TouchableOpacity>
+        <Reviews reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
   );
@@ -114,7 +120,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    height: 50,
+    height: 55,
     borderRadius: 10,
     marginTop: 20,
   },
