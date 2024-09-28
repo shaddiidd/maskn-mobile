@@ -8,7 +8,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from "./Screens/HomeScreen";
 import PropertyScreen from './Screens/PropertyScreen';
 import ProfileScreen from './Screens/ProfileScreen';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import TourRequestsScreen from './Screens/TourRequestsScreen';
 
 const Drawer = createDrawerNavigator();
 
@@ -33,7 +33,7 @@ function CustomDrawerContent({ navigation }) {
           labelStyle={styles.drawerItemLabel}
           style={styles.drawerItem}
           icon={() => <Ionicons name="eye" size={24} color="#fff" />}
-          onPress={() => Alert.alert("Unavailable", "This screen is not ready yet.")}
+          onPress={() => navigation.navigate('TourRequests')}
         />
         <DrawerItem
           label="Rent History"
@@ -159,6 +159,13 @@ export default function Navigation() {
             title: "Property Details"
           }}
         />
+        <Stack.Screen
+          name="TourRequests"
+          component={TourRequestsScreen}
+          options={{
+            title: "Tour Requests"
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
@@ -185,13 +192,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   drawerContent: {
-    paddingTop: 0,
+    padding: 0,
   },
   drawerItem: {
     paddingLeft: 10
   },
   drawerItemLabel: {
-    fontSize: 16,
+    fontSize: 18,
     color: '#fff',
     fontWeight: "bold",
   },
