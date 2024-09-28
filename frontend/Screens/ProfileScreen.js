@@ -14,7 +14,7 @@ export default function ProfileScreen() {
   ]
 
   return (
-    <ScrollView style={{ backgroundColor: "white" }}>
+    <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -27,7 +27,7 @@ export default function ProfileScreen() {
               </View>
             </View>
           </View>
-          <TouchableOpacity style={styles.editBtn}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.editBtn}>
             <Icon name="edit" size={20} color="#fff" />
           </TouchableOpacity>
         </View>
