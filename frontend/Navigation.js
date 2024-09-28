@@ -22,13 +22,6 @@ function CustomDrawerContent({ navigation }) {
 
       <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
         <DrawerItem
-          label="Home"
-          labelStyle={styles.drawerItemLabel}
-          style={styles.drawerItem}
-          icon={() => <Ionicons name="home" size={24} color="#fff" />}
-          onPress={() => navigation.navigate('Home')}
-        />
-        <DrawerItem
           label="My Profile"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
@@ -123,16 +116,6 @@ function DrawerNavigation() {
           ),
         }}
       />
-      <Drawer.Screen 
-        name="Profile" 
-        component={ProfileScreen} 
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons name="person-outline" size={24} color={color} />
-          ),
-          title: "My Profile"
-        }} 
-      />
     </Drawer.Navigator>
   );
 }
@@ -158,6 +141,16 @@ export default function Navigation() {
             title: "Home",
             headerShown: false
           }}
+        />
+        <Stack.Screen 
+          name="Profile" 
+          component={ProfileScreen} 
+          options={{
+            drawerIcon: ({ color }) => (
+              <Ionicons name="person-outline" size={24} color={color} />
+            ),
+            title: "My profile"
+          }} 
         />
         <Stack.Screen
           name="PropertyDetails"
