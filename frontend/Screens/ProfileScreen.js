@@ -130,8 +130,8 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   historyBtnTxt: {
-    fontSize: 18,
-    fontWeight: "500",
+    fontSize: 15,
+    fontWeight: "bold",
     color: "white"
   }
 });

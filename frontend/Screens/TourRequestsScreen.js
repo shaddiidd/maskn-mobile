@@ -1,12 +1,11 @@
-import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, FlatList } from 'react-native';
+import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
 import TourRequestsCard from '../Components/TourRequestsCard';
 
-const requests = [
-  { id: '1', name: "Hazem Odeh", property: "750 SQM Villa", image: require("../assets/hazodeh.png") },
-  { id: '2', name: "Anas Bajawi", property: "750 SQM Villa", image: require("../assets/anas.png") },
-];
-
 export default function TourRequestsScreen() {
+  const requests = [
+    { id: '1', name: "Hazem Odeh", property: "750 SQM Villa", image: require("../assets/hazodeh.png") },
+    { id: '2', name: "Anas Bajawi", property: "750 SQM Villa", image: require("../assets/anas.png") },
+  ];
   return (
     <SafeAreaView style={styles.container}>
       <FlatList

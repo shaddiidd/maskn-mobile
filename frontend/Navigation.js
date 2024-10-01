@@ -1,10 +1,16 @@
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem } from '@react-navigation/drawer';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { Image, TouchableOpacity, View, Text, StyleSheet, SafeAreaView, Alert } from 'react-native';
-import logo from './assets/logo.png';
+import { useContext } from 'react';
+import Context from './Context';
 import './gesture-handler';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import logo from './assets/logo.png';
+
+import SignupScreen from './Screens/Authentication/SignupScreen';
+import SigninScreen from './Screens/Authentication/SigninScreen';
+
 import HomeScreen from "./Screens/HomeScreen";
 import PropertyScreen from './Screens/PropertyScreen';
 import ProfileScreen from './Screens/ProfileScreen';
@@ -13,11 +19,18 @@ import TourRequestsScreen from './Screens/TourRequestsScreen';
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent({ navigation }) {
+  const { logout, user } = useContext(Context);
+
+  const handleNavigation = (screen) => {
+    navigation.closeDrawer();
+    navigation.navigate(screen);
+  };
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.userInfoSection}>
         <Image source={require("./assets/hazodeh.png")} style={styles.profileImage} />
-        <Text style={styles.userName}>Hazem Odeh</Text>
+        <Text style={styles.userName}>{user.name}</Text>
       </View>
 
       <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
@@ -26,38 +39,46 @@ function CustomDrawerContent({ navigation }) {
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => <Ionicons name="person" size={24} color="#fff" />}
-          onPress={() => navigation.navigate('Profile')}
+          onPress={() => handleNavigation('Profile')}
         />
         <DrawerItem
           label="Requested Tours"
           labelStyle={styles.drawerItemLabel}
           style={styles.drawerItem}
           icon={() => <Ionicons name="eye" size={24} color="#fff" />}
-          onPress={() => navigation.navigate('TourRequests')}
+          onPress={() => handleNavigation('TourRequests')}
         />
         <DrawerItem
           label="Rent History"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => <Ionicons name="time" size={24} color="#fff" />}
-          onPress={() => Alert.alert("Unavailable", "This screen is not ready yet.")}
+          onPress={() => {
+            navigation.closeDrawer();
+            Alert.alert("Unavailable", "This screen is not ready yet.");
+          }}
         />
         <DrawerItem
           label="Become a Renter"
           labelStyle={styles.drawerItemLabel}
           style={styles.drawerItem}
           icon={() => <Ionicons name="key" size={24} color="#fff" />}
-          onPress={() => Alert.alert("Unavailable", "This screen is not ready yet.")}
+          onPress={() => {
+            navigation.closeDrawer();
+            Alert.alert("Unavailable", "This screen is not ready yet.");
+          }}
         />
         <DrawerItem
           label="Help"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => <Ionicons name="help-circle" size={24} color="#fff" />}
-          onPress={() => Alert.alert("Unavailable", "This screen is not ready yet.")}
+          onPress={() => {
+            navigation.closeDrawer();
+            Alert.alert("Unavailable", "This screen is not ready yet.");
+          }}
         />
       </DrawerContentScrollView>
-
 
       <View style={styles.separatorContainer}>
         <View style={styles.separator} />
@@ -65,11 +86,24 @@ function CustomDrawerContent({ navigation }) {
 
       <View style={styles.logoutSection}>
         <DrawerItem
+          label="Settings"
+          style={styles.drawerItem}
+          labelStyle={styles.drawerItemLabel}
+          icon={() => <Ionicons name="settings" size={27} color="#fff" />}
+          onPress={() => {
+            navigation.closeDrawer();
+            Alert.alert("Unavailable", "This screen is not ready yet.");
+          }}
+        />
+        <DrawerItem
           label="Logout"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => <Ionicons name="log-out-outline" size={27} color="#fff" />}
-          onPress={() => alert('Logged out')}
+          onPress={() => {
+            navigation.closeDrawer();
+            logout();
+          }}
         />
       </View>
     </SafeAreaView>
@@ -123,7 +157,10 @@ function DrawerNavigation() {
 const Stack = createNativeStackNavigator();
 
 export default function Navigation() {
-  return (
+
+  const { isAuthenticated } = useContext(Context);
+
+  if (isAuthenticated) return (
     <NavigationContainer>
       <Stack.Navigator
           screenOptions={{
@@ -165,6 +202,24 @@ export default function Navigation() {
           options={{
             title: "Tour Requests"
           }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+  else return (
+    <NavigationContainer>
+      <Stack.Navigator
+          screenOptions={{
+            headerShown: false
+          }}
+      >
+        <Stack.Screen
+          name="Signin"
+          component={SigninScreen}
+        />
+        <Stack.Screen
+          name="Signup"
+          component={SignupScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
