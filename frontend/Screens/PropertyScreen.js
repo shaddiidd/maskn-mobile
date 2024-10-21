@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
     width: "70%",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "500",
     width: "90%",
   },
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
   wideBtnTxt: {
-    fontSize: 18,
-    fontWeight: "500",
+    fontSize: 15,
+    fontWeight: "bold",
     color: "white"
   }
 });

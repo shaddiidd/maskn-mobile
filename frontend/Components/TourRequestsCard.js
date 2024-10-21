@@ -20,6 +20,7 @@ const TourRequestsCard = ({ item }) => (
           </TouchableOpacity>
         </View>
       </View>
+      <View style={styles.separator} />
       <TouchableOpacity activeOpacity={0.7}>
         <Text style={styles.viewProfile}>View Profile</Text>
       </TouchableOpacity>
@@ -47,8 +48,8 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     profile_picture: {
-        width: 70,
-        height: 70,
+        width: 60,
+        height: 60,
         borderRadius: 40,
         marginRight: 10,
     },
@@ -58,7 +59,9 @@ const styles = StyleSheet.create({
     },
     property: {
         fontSize: 15,
+        fontWeight: "500",
         color: "grey",
+        marginTop: 2
     },
     actions: {
         flexDirection: "row"
@@ -69,10 +72,16 @@ const styles = StyleSheet.create({
         padding: 5,
         marginLeft: 7
     },
+    separator: {
+      height: 1,
+      width: "100%",
+      backgroundColor: "#D9D9D9",
+      marginTop: 15,
+      marginBottom: 10,
+    },
     viewProfile: {
-        fontSize: 15,
-        fontWeight: "500",
-        color: "#508D4E",
-        marginTop: 10,
+      fontSize: 15,
+      fontWeight: "500",
+      color: "#508D4E",
     }
 });

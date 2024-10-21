@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     alignItems: "center",
     marginTop: 5,
-    marginBottom: 10,
+    marginBottom: 15,
   },
   sortItem: {
     backgroundColor: "#F5F5F5",
