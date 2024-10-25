@@ -2,9 +2,11 @@ const express = require("express")
 const propertyRouter = express.Router();
 const auth = require("../middleware/authentication")
 
-const {addProperty, getAllProperties} = require("../controllers/property")
+const {addProperty, getAllProperties, getPropertyByUserId} = require("../controllers/property")
 
 propertyRouter.post("/addProperty", auth, addProperty)
 propertyRouter.get("/",getAllProperties)
+propertyRouter.get("/", auth, getPropertyByUserId)
+
 
 module.exports = propertyRouter
