@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const userRouter = require("./routes/users");
-const propertyRouter = require("./routes/propertyRoutes");
+const userRouter = require("./routes/usersRouter");
+const propertyRouter = require("./routes/propertyRoute");
 require('./models/db')
 
 require('dotenv').config();
