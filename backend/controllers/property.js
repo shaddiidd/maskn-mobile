@@ -129,7 +129,7 @@ const getMyProperties = (req,res) =>{
 }
 
 const getPropertiesByuserId = (req, res) =>{
-    const userId = req.param.userId
+    const userId = req.params.userId
     const query = `SELECT * FROM properties where user_id = $1`
 
     const placeholder = [userId]
