@@ -103,7 +103,7 @@ const getAllProperties = (req,res) =>{
     })
 }
 
-const getPropertyByUserId = () =>{
+const getPropertyByUserId = (req,res) =>{
     const userId = req.token.userId
 
     const query = `SELECT * FROM properties where user_id = $1`
@@ -112,7 +112,7 @@ const getPropertyByUserId = () =>{
 
     pool
     .query(query, placeholder)
-    .then((res)=>{
+    .then((result)=>{
         res.status(200).json({
             success : true,
             message : `all properites for user ${userId}`,
@@ -125,6 +125,7 @@ const getPropertyByUserId = () =>{
             message : "failed to load the properties",
             error : error
         })
+        console.log(error);
     })
 }
 

@@ -6,7 +6,7 @@ const {addProperty, getAllProperties, getPropertyByUserId} = require("../control
 
 propertyRouter.post("/addProperty", auth, addProperty)
 propertyRouter.get("/",getAllProperties)
-propertyRouter.get("/", auth, getPropertyByUserId)
+propertyRouter.get("/getByUserId", auth, getPropertyByUserId)
 
 
 module.exports = propertyRouter
