@@ -103,4 +103,29 @@ const getAllProperties = (req,res) =>{
     })
 }
 
-module.exports = { addProperty, getAllProperties };
+const getPropertyByUserId = () =>{
+    const userId = req.token.userId
+
+    const query = `SELECT * FROM properties where user_id = $1`
+
+    const placeholder = [userId]
+
+    pool
+    .query(query, placeholder)
+    .then((res)=>{
+        res.status(200).json({
+            success : true,
+            message : `all properites for user ${userId}`,
+            result : result.rows
+        })
+    })
+    .catch((error)=>{
+        res.status(500).json({
+            success : false,
+            message : "failed to load the properties",
+            error : error
+        })
+    })
+}
+
+module.exports = { addProperty, getAllProperties, getPropertyByUserId };
