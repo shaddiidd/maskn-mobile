@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import Context from "../../Context";
 import AuthInput from "../../Components/AuthInput";
 
@@ -7,7 +7,11 @@ export default function SignupScreen({ navigation }) {
   const { auth } = useContext(Context)
   const [page, setPage] = useState(1);
   const [values, setValues] = useState({
-    fullName: {
+    first_name: {
+      value: "",
+      error: false,
+    },
+    last_name: {
       value: "",
       error: false,
     },
@@ -16,6 +20,10 @@ export default function SignupScreen({ navigation }) {
       error: false,
     },
     phoneNumber: {
+      value: "",
+      error: false,
+    },
+    nationality: {
       value: "",
       error: false,
     },
@@ -38,8 +46,12 @@ export default function SignupScreen({ navigation }) {
 
     if (page === 1) {
       // PAGE 1
-      if (!values.fullName.value) {
-        setValues(prev => ({ ...prev, fullName: { ...prev.fullName, error: true } }));
+      if (!values.first_name.value) {
+        setValues(prev => ({ ...prev, first_name: { ...prev.first_name, error: true } }));
+        isValid = false;
+      }
+      if (!values.last_name.value) {
+        setValues(prev => ({ ...prev, last_name: { ...prev.last_name, error: true } }));
         isValid = false;
       }
       if (!values.email.value) {
@@ -70,83 +82,98 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      <View style={styles.header}>
-        <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
-        <View style={styles.paginationContainer}>
-          <View style={[styles.page, { backgroundColor: page === 1 ? "#508D4E": "#D9D9D9" }]} />
-          <View style={[styles.page, { backgroundColor: page === 2 ? "#508D4E": "#D9D9D9" }]} />
+    <KeyboardAvoidingView style={{ flex: 1 }}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        
+        <View style={styles.header}>
+          <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
+          <View style={styles.paginationContainer}>
+            <View style={[styles.page, { backgroundColor: page === 1 ? "#508D4E": "#D9D9D9" }]} />
+            <View style={[styles.page, { backgroundColor: page === 2 ? "#508D4E": "#D9D9D9" }]} />
+          </View>
         </View>
-      </View>
 
-      <View style={{ width: "90%" }}>
-        <Text style={styles.title}>Create an Account</Text>
-        <Text style={styles.subtitle}>Enter your information to sign up</Text>
-        {page === 1 ? (
-          <>
-          <AuthInput
-            placeholder="Full Name"
-            autoCapitalize
-            value={values.fullName.value}
-            setValue={(value) => setValues({...values, fullName: { value, error: false }})}
-            error={values.fullName.error}
-          />
-          <AuthInput
-            placeholder="Email"
-            keyboardType="email-address"
-            value={values.email.value}
-            setValue={(value) => setValues({...values, email: { value, error: false }})}
-            error={values.email.error}
-          />
-          <AuthInput
-            placeholder="Phone Number"
-            keyboardType="numeric"
-            value={values.phoneNumber.value}
-            setValue={(value) => setValues({...values, phoneNumber: { value, error: false }})}
-            error={values.phoneNumber.error}
-          />
-        </>
-        ) : (
-          <>
-          <AuthInput
-            placeholder="National ID"
-            keyboardType="numeric"
-            value={values.nationalID.value}
-            setValue={(value) => setValues({...values, nationalID: { value, error: false }})}
-            error={values.nationalID.error}
-          />
-          <AuthInput
-            placeholder="Date of Birth"
-            value={values.DOB.value}
-            setValue={(value) => setValues({...values, DOB: { value, error: false }})}
-            error={values.DOB.error}
-          />
-          <AuthInput
-            placeholder="Password"
-            password
-            value={values.password.value}
-            setValue={(value) => setValues({...values, password: { value, error: false }})}
-            error={values.password.error}
-          />
+        <View style={{ width: "90%" }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <Text style={styles.title}>Create an Account</Text>
+          <Text style={styles.subtitle}>Enter your information to sign up</Text>
+          {page === 1 ? (
+            <>
+            <AuthInput
+              placeholder="First Name"
+              autoCapitalize
+              value={values.first_name.value}
+              setValue={(value) => setValues({...values, first_name: { value, error: false }})}
+              error={values.first_name.error}
+            />
+            <AuthInput
+              placeholder="Last Name"
+              autoCapitalize
+              value={values.last_name.value}
+              setValue={(value) => setValues({...values, last_name: { value, error: false }})}
+              error={values.last_name.error}
+            />
+            <AuthInput
+              placeholder="Email"
+              keyboardType="email-address"
+              value={values.email.value}
+              setValue={(value) => setValues({...values, email: { value, error: false }})}
+              error={values.email.error}
+            />
+            <AuthInput
+              placeholder="Phone Number"
+              keyboardType="numeric"
+              value={values.phoneNumber.value}
+              setValue={(value) => setValues({...values, phoneNumber: { value, error: false }})}
+              error={values.phoneNumber.error}
+            />
           </>
-        )}
-        <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>{page === 1 ? "NEXT" : "SIGN UP"}</Text>
-        </TouchableOpacity>
-        <Text style={[styles.signupQuestion, { marginTop: 20, textAlign: "center" }]}>
-          By signing up, you agree to our <Text style={{ color: "#508D4E" }}>Terms of Service</Text> and <Text style={{ color: "#508D4E" }}>Privacy Policy</Text>
-          </Text>
-      </View>
+          ) : (
+            <>
+            <AuthInput
+              placeholder="Nationality"
+              value={values.nationality.value}
+              setValue={(value) => setValues({...values, nationality: { value, error: false }})}
+              error={values.nationality.error}
+            />
+            <AuthInput
+              placeholder="National ID"
+              keyboardType="numeric"
+              value={values.nationalID.value}
+              setValue={(value) => setValues({...values, nationalID: { value, error: false }})}
+              error={values.nationalID.error}
+            />
+            <AuthInput
+              placeholder="Date of Birth"
+              value={values.DOB.value}
+              setValue={(value) => setValues({...values, DOB: { value, error: false }})}
+              error={values.DOB.error}
+            />
+            <AuthInput
+              placeholder="Password"
+              password
+              value={values.password.value}
+              setValue={(value) => setValues({...values, password: { value, error: false }})}
+              error={values.password.error}
+            />
+            </>
+          )}
+          <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>{page === 1 ? "NEXT" : "SIGN UP"}</Text>
+          </TouchableOpacity>
+          <Text style={[styles.signupQuestion, { marginTop: 20, textAlign: "center" }]}>
+            By signing up, you agree to our <Text style={{ color: "#508D4E" }}>Terms of Service</Text> and <Text style={{ color: "#508D4E" }}>Privacy Policy</Text>
+            </Text>
+        </View>
 
-      <View style={styles.signupPrompt}>
-        <Text style={styles.signupQuestion}>Already have an account? </Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signin")}>
-            <Text style={styles.signupText}>Sign in</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+        <View style={styles.signupPrompt}>
+          <Text style={styles.signupQuestion}>Already have an account? </Text>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signin")}>
+              <Text style={styles.signupText}>Sign in</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
