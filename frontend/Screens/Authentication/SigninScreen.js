@@ -1,5 +1,5 @@
 import { useContext, useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, Alert } from "react-native";
+import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from "react-native";
 import AuthInput from "../../Components/AuthInput";
 import Context from "../../Context";
 
@@ -35,43 +35,43 @@ export default function SigninScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      
-      <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
+      <SafeAreaView style={styles.container}>
+        <StatusBar barStyle="dark-content" />
+        
+        <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
 
-      <View style={{ width: "90%" }}>
-        <Text style={styles.title}>Sign In</Text>
-        <Text style={styles.subtitle}>Enter your email and password</Text>
-        <AuthInput
-          placeholder="Email"
-          keyboardType="email-address"
-          value={values.email.value}
-          setValue={(value) => setValues({...values, email: { value, error: false }})}
-          error={values.email.error}
-        />
-        <AuthInput
-          placeholder="Password"
-          password
-          value={values.password.value}
-          setValue={(value) => setValues({...values, password: { value, error: false }})}
-          error={values.password.error}
-        />
-        <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
-          <Text style={styles.buttonText}>SIGN IN</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 20 }} activeOpacity={0.7}>
-            <Text style={styles.signupText}>Forgot Password?</Text>
-        </TouchableOpacity>
-      </View>
+        <KeyboardAvoidingView style={{ width: "90%" }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+          <Text style={styles.title}>Sign In</Text>
+          <Text style={styles.subtitle}>Enter your email and password</Text>
+          <AuthInput
+            placeholder="Email"
+            keyboardType="email-address"
+            value={values.email.value}
+            setValue={(value) => setValues({...values, email: { value, error: false }})}
+            error={values.email.error}
+          />
+          <AuthInput
+            placeholder="Password"
+            password
+            value={values.password.value}
+            setValue={(value) => setValues({...values, password: { value, error: false }})}
+            error={values.password.error}
+          />
+          <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>SIGN IN</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 20 }} activeOpacity={0.7}>
+              <Text style={styles.signupText}>Forgot Password?</Text>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
 
-      <View style={styles.signupPrompt}>
-        <Text style={styles.signupQuestion}>Don't have an account? </Text>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signup")}>
-            <Text style={styles.signupText}>Sign up</Text>
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+        <View style={styles.signupPrompt}>
+          <Text style={styles.signupQuestion}>Don't have an account? </Text>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signup")}>
+              <Text style={styles.signupText}>Sign up</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
   );
 }
 
