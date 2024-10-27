@@ -1,155 +1,153 @@
-const pool = require("../models/db")
-
 const addProperty = (req,res) =>{
-    const userId = req.token.userId
-    const {
-        propertyNationalNumber,
-        description,
-        title,
-        address,
-        location,
-        area,        
-        isFurnished,
-        floorNum,
-        bedroomNum,
-        bathroomNum,
-        propertyAge,
-        waterMeterSubscriptionNumber,
-        electricityrMeterReferanceNumber,
-        price,
-        rentalPeriod,
-        MarkAsRented
-    } = req.body
+    // const userId = req.token.userId
+    // const {
+    //     propertyNationalNumber,
+    //     description,
+    //     title,
+    //     address,
+    //     location,
+    //     area,        
+    //     isFurnished,
+    //     floorNum,
+    //     bedroomNum,
+    //     bathroomNum,
+    //     propertyAge,
+    //     waterMeterSubscriptionNumber,
+    //     electricityrMeterReferanceNumber,
+    //     price,
+    //     rentalPeriod,
+    //     MarkAsRented
+    // } = req.body
 
-    const query = `INSERT INTO properties (
-    user_id,
-    property_national_number,
-    description,
-    title,
-    address,
-    location,
-    area,
-    is_furnished,
-    floor_num,
-    bedroom_num,
-    bathroom_num,
-    property_age,
-    water_meter_subscription_number,
-    electricity_meter_reference_number,
-    price,
-    rental_period,
-    mark_as_rented) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17);`
+    // const query = `INSERT INTO properties (
+    // user_id,
+    // property_national_number,
+    // description,
+    // title,
+    // address,
+    // location,
+    // area,
+    // is_furnished,
+    // floor_num,
+    // bedroom_num,
+    // bathroom_num,
+    // property_age,
+    // water_meter_subscription_number,
+    // electricity_meter_reference_number,
+    // price,
+    // rental_period,
+    // mark_as_rented) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17);`
 
-    const placeholder = [
-        userId,
-        propertyNationalNumber,
-        description,
-        title,
-        address,
-        location,
-        area,        
-        isFurnished,
-        floorNum,
-        bedroomNum,
-        bathroomNum,
-        propertyAge,
-        waterMeterSubscriptionNumber,
-        electricityrMeterReferanceNumber,
-        price,
-        rentalPeriod,
-        MarkAsRented
-    ]
+    // const placeholder = [
+    //     userId,
+    //     propertyNationalNumber,
+    //     description,
+    //     title,
+    //     address,
+    //     location,
+    //     area,        
+    //     isFurnished,
+    //     floorNum,
+    //     bedroomNum,
+    //     bathroomNum,
+    //     propertyAge,
+    //     waterMeterSubscriptionNumber,
+    //     electricityrMeterReferanceNumber,
+    //     price,
+    //     rentalPeriod,
+    //     MarkAsRented
+    // ]
 
-    pool
-    .query(query,placeholder)
-    .then((result) => {
-        res.status(200).json({
-          success: true,
-          message: "listed successfully",
-          result: result.rows[0],
-        });
-      })
-    .catch((err)=>{
-        res.status(500).json({
-            success : false,
-            message : 'property cant be listed',
-            err : err  
-        })
-        console.log(err);
-    })
+    // pool
+    // .query(query,placeholder)
+    // .then((result) => {
+    //     res.status(200).json({
+    //       success: true,
+    //       message: "listed successfully",
+    //       result: result.rows[0],
+    //     });
+    //   })
+    // .catch((err)=>{
+    //     res.status(500).json({
+    //         success : false,
+    //         message : 'property cant be listed',
+    //         err : err  
+    //     })
+    //     console.log(err);
+    // })
 }
 
 
 const getAllProperties = (req,res) =>{
-    const query = `SELECT * FROM properties`
+    // const query = `SELECT * FROM properties`
     
-    pool
-    .query(query)
-    .then((result)=>{
-        res.status(200).json({
-            success: true,
-            message : "All properties ",
-            result : result.rows
-        })
-    })
-    .catch((err)=>{
-        res.status(500).json({
-            success : false,
-            message : 'failed to load properties',
-            err : err  
-        })
-        console.log(err);
+    // pool
+    // .query(query)
+    // .then((result)=>{
+    //     res.status(200).json({
+    //         success: true,
+    //         message : "All properties ",
+    //         result : result.rows
+    //     })
+    // })
+    // .catch((err)=>{
+    //     res.status(500).json({
+    //         success : false,
+    //         message : 'failed to load properties',
+    //         err : err  
+    //     })
+    //     console.log(err);
         
-    })
+    // })
 }
 
 const getMyProperties = (req,res) =>{
-    const userId = req.token.userId
+    // const userId = req.token.userId
 
-    const query = `SELECT * FROM properties where user_id = $1`
+    // const query = `SELECT * FROM properties where user_id = $1`
 
-    const placeholder = [userId]
+    // const placeholder = [userId]
 
-    pool
-    .query(query, placeholder)
-    .then((result)=>{
-        res.status(200).json({
-            success : true,
-            message : `all properites for user ${userId}`,
-            result : result.rows
-        })
-    })
-    .catch((error)=>{
-        res.status(500).json({
-            success : false,
-            message : "failed to load the properties",
-            error : error
-        })
-    })
+    // pool
+    // .query(query, placeholder)
+    // .then((result)=>{
+    //     res.status(200).json({
+    //         success : true,
+    //         message : `all properites for user ${userId}`,
+    //         result : result.rows
+    //     })
+    // })
+    // .catch((error)=>{
+    //     res.status(500).json({
+    //         success : false,
+    //         message : "failed to load the properties",
+    //         error : error
+    //     })
+    // })
 }
 
 const getPropertiesByuserId = (req, res) =>{
-    const userId = req.params.userId
-    const query = `SELECT * FROM properties where user_id = $1`
+    // const userId = req.params.userId
+    // const query = `SELECT * FROM properties where user_id = $1`
 
-    const placeholder = [userId]
+    // const placeholder = [userId]
 
-    pool
-    .query(query, placeholder)
-    .then((result)=>{
-        res.status(200).json({
-            success : true,
-            message : `all properites for user ${userId}`,
-            result : result.rows
-        })
-    })
-    .catch((error)=>{
-        res.status(500).json({
-            success : false,
-            message : "failed to load the properties",
-            error : error
-        })
-    })
+    // pool
+    // .query(query, placeholder)
+    // .then((result)=>{
+    //     res.status(200).json({
+    //         success : true,
+    //         message : `all properites for user ${userId}`,
+    //         result : result.rows
+    //     })
+    // })
+    // .catch((error)=>{
+    //     res.status(500).json({
+    //         success : false,
+    //         message : "failed to load the properties",
+    //         error : error
+    //     })
+    // })
 }
 
 module.exports = { addProperty, getAllProperties, getMyProperties,getPropertiesByuserId };

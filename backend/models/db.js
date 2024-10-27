@@ -1,23 +1,21 @@
-const { Pool } = require('pg');
-const pool = new Pool({
-  user: 'maskn_db_owner',
-  host: 'ep-late-dew-a2xnq2r1.eu-central-1.aws.neon.tech',
-  database: 'maskn_db',
-  password: 'VFoMb3P5QlSO',
-  port: 5432, // Default PostgreSQL port
-  ssl: {
-    rejectUnauthorized: false // Ignore SSL certificate errors
-  }
+const { Sequelize } = require("sequelize");
+
+const sequelize = new Sequelize("maskn_db", "maskn_db_owner", "VFoMb3P5QlSO", {
+  host: "ep-late-dew-a2xnq2r1.eu-central-1.aws.neon.tech",
+  dialect: "postgres",
+  port: 5432,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
 });
 
+// Test the connection
+sequelize
+  .authenticate()
+  .then(() => console.log("Connection established successfully."))
+  .catch((error) => console.error("Unable to connect to the database:", error));
 
-pool
-  .connect()
-  .then((res) => {
-    console.log(`DB connected to ${res.database}`);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
-
-module.exports = pool;
+module.exports = sequelize;

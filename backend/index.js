@@ -2,7 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const userRouter = require("./routes/usersRouter");
 const propertyRouter = require("./routes/propertyRoute");
-require('./models/db')
+// require('./models/db')
+require("./models/index")
 
 require('dotenv').config();
 // import articles Router
