@@ -21,7 +21,6 @@ const sginUp = async (req, res) => {
         success: false,
         error: err,
       });
-      console.log(err);
     }
   }
 };

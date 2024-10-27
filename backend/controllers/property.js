@@ -1,4 +1,34 @@
-const addProperty = (req,res) =>{
+const propertyService = require("../services/propertyService")
+
+const addProperty = async(req,res) =>{
+    const user_id = req.token.user_id
+    try {
+        const newProperty = await propertyService.createProperty(req.body, user_id)
+
+        res.status(201).json({
+            success: true,
+            message: "property added successfully",
+            user: newProperty,
+          });
+
+    } catch (error) {
+        // if (err.name === "SequelizeUniqueConstraintError") {
+        //     res.status(409).json({
+        //       success: false,
+        //       message: "The property already exists",
+        //       error: err,
+        //     });
+        //   } else {
+            res.status(500).json({
+              success: false,
+              error: error,
+            });
+          }
+    }
+    
+
+    
+
     // const userId = req.token.userId
     // const {
     //     propertyNationalNumber,
@@ -75,7 +105,7 @@ const addProperty = (req,res) =>{
     //     })
     //     console.log(err);
     // })
-}
+
 
 
 const getAllProperties = (req,res) =>{
