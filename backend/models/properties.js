@@ -6,7 +6,7 @@ const Property = sequelize.define('properties',{
     property_id : {
        type : DataTypes.STRING,
        primaryKey : true,
-       defaultValue : ()=> 'PROP' + Math.floor(10000 + Math.random(90000)) 
+       defaultValue : () => 'PROP' + Math.floor(10000 + Math.random() * 90000) 
     },
     user_id :{
         type :DataTypes.STRING,

@@ -1,183 +1,85 @@
-const propertyService = require("../services/propertyService")
+const propertyService = require("../services/propertyService");
 
-const addProperty = async(req,res) =>{
-    const user_id = req.token.user_id
-    try {
-        const newProperty = await propertyService.createProperty(req.body, user_id)
+const addProperty = async (req, res) => {
+  const user_id = req.token.userId;
 
-        res.status(201).json({
-            success: true,
-            message: "property added successfully",
-            user: newProperty,
-          });
+  try {
+    const newProperty = await propertyService.createProperty(req.body, user_id);
 
-    } catch (error) {
-        // if (err.name === "SequelizeUniqueConstraintError") {
-        //     res.status(409).json({
-        //       success: false,
-        //       message: "The property already exists",
-        //       error: err,
-        //     });
-        //   } else {
-            res.status(500).json({
-              success: false,
-              error: error,
-            });
-          }
-    }
-    
+    res.status(201).json({
+      success: true,
+      message: "property added successfully",
+      user: newProperty,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error,
+    });
+  }
+};
 
-    
+const getAllProperties = async (req, res) => {
+  const result = await propertyService.getAllProperties();
 
-    // const userId = req.token.userId
-    // const {
-    //     propertyNationalNumber,
-    //     description,
-    //     title,
-    //     address,
-    //     location,
-    //     area,        
-    //     isFurnished,
-    //     floorNum,
-    //     bedroomNum,
-    //     bathroomNum,
-    //     propertyAge,
-    //     waterMeterSubscriptionNumber,
-    //     electricityrMeterReferanceNumber,
-    //     price,
-    //     rentalPeriod,
-    //     MarkAsRented
-    // } = req.body
+  if (result) {
+    return res.status(200).json({
+      success: true,
+      message: `all properites`,
+      result: result.data,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "failed to load the properties",
+      error: error,
+    });
+  }
+};
 
-    // const query = `INSERT INTO properties (
-    // user_id,
-    // property_national_number,
-    // description,
-    // title,
-    // address,
-    // location,
-    // area,
-    // is_furnished,
-    // floor_num,
-    // bedroom_num,
-    // bathroom_num,
-    // property_age,
-    // water_meter_subscription_number,
-    // electricity_meter_reference_number,
-    // price,
-    // rental_period,
-    // mark_as_rented) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17);`
+const getMyProperties = async (req, res) => {
+   const userId = req.token.userId
 
-    // const placeholder = [
-    //     userId,
-    //     propertyNationalNumber,
-    //     description,
-    //     title,
-    //     address,
-    //     location,
-    //     area,        
-    //     isFurnished,
-    //     floorNum,
-    //     bedroomNum,
-    //     bathroomNum,
-    //     propertyAge,
-    //     waterMeterSubscriptionNumber,
-    //     electricityrMeterReferanceNumber,
-    //     price,
-    //     rentalPeriod,
-    //     MarkAsRented
-    // ]
+   const result = await propertyService.findPropertiesByuserId(userId)
 
-    // pool
-    // .query(query,placeholder)
-    // .then((result) => {
-    //     res.status(200).json({
-    //       success: true,
-    //       message: "listed successfully",
-    //       result: result.rows[0],
-    //     });
-    //   })
-    // .catch((err)=>{
-    //     res.status(500).json({
-    //         success : false,
-    //         message : 'property cant be listed',
-    //         err : err  
-    //     })
-    //     console.log(err);
-    // })
+   if (result) {
+    return res.status(200).json({
+        success : true,
+        message : `all properites for user ${userId}`,
+        result : result.data
+    })
+   } else {
+    return res.status(403).json({
+            success : false,
+            message : "token is invaild or expierd",
+            error : error
+    })
+   }
+};
 
+const getPropertiesByuserId = async(req, res) => {
+  const userId = req.params.userId
 
+   const result = await propertyService.findPropertiesByuserId(userId)
 
-const getAllProperties = (req,res) =>{
-    // const query = `SELECT * FROM properties`
-    
-    // pool
-    // .query(query)
-    // .then((result)=>{
-    //     res.status(200).json({
-    //         success: true,
-    //         message : "All properties ",
-    //         result : result.rows
-    //     })
-    // })
-    // .catch((err)=>{
-    //     res.status(500).json({
-    //         success : false,
-    //         message : 'failed to load properties',
-    //         err : err  
-    //     })
-    //     console.log(err);
-        
-    // })
+   if (result) {
+    return res.status(200).json({
+        success : true,
+        message : `all properites for user ${userId}`,
+        result : result.data
+    })
+   } else {
+    return res.status(500).json({
+            success : false,
+            message : "failed to load the properties",
+            error : error
+    })
 }
+};
 
-const getMyProperties = (req,res) =>{
-    // const userId = req.token.userId
-
-    // const query = `SELECT * FROM properties where user_id = $1`
-
-    // const placeholder = [userId]
-
-    // pool
-    // .query(query, placeholder)
-    // .then((result)=>{
-    //     res.status(200).json({
-    //         success : true,
-    //         message : `all properites for user ${userId}`,
-    //         result : result.rows
-    //     })
-    // })
-    // .catch((error)=>{
-    //     res.status(500).json({
-    //         success : false,
-    //         message : "failed to load the properties",
-    //         error : error
-    //     })
-    // })
-}
-
-const getPropertiesByuserId = (req, res) =>{
-    // const userId = req.params.userId
-    // const query = `SELECT * FROM properties where user_id = $1`
-
-    // const placeholder = [userId]
-
-    // pool
-    // .query(query, placeholder)
-    // .then((result)=>{
-    //     res.status(200).json({
-    //         success : true,
-    //         message : `all properites for user ${userId}`,
-    //         result : result.rows
-    //     })
-    // })
-    // .catch((error)=>{
-    //     res.status(500).json({
-    //         success : false,
-    //         message : "failed to load the properties",
-    //         error : error
-    //     })
-    // })
-}
-
-module.exports = { addProperty, getAllProperties, getMyProperties,getPropertiesByuserId };
+module.exports = {
+  addProperty,
+  getAllProperties,
+  getMyProperties,
+  getPropertiesByuserId,
+};
