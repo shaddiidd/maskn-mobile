@@ -77,9 +77,32 @@ const getPropertiesByuserId = async(req, res) => {
 }
 };
 
+const updateMyProperty = async(req, res) =>{
+    const userId = req.token.userId
+    const id = req.params.id
+
+        const result = await propertyService.updateMyProperty(req.body, id)
+
+        if(result){
+            return res.status(200).json({
+                success : true,
+                message : `updated property ${result.data.property_id} for ${userId}`,
+                result : result.data
+            })
+        }else{
+            return res.status(500).json({
+                success: false,
+                message: "failed to update the property",
+                error: error,
+              });
+        }
+
+}
+
 module.exports = {
   addProperty,
   getAllProperties,
   getMyProperties,
   getPropertiesByuserId,
+  updateMyProperty
 };
