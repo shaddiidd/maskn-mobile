@@ -1,5 +1,5 @@
 import { StyleSheet, SafeAreaView, FlatList } from 'react-native';
-import TourRequestsCard from '../Components/TourRequestsCard';
+import TourRequestsCard from '../components/TourRequestsCard';
 
 export default function TourRequestsScreen() {
   const requests = [
