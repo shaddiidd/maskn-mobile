@@ -8,13 +8,13 @@ import Context from './Context';
 import './gesture-handler';
 import logo from './assets/logo.png';
 
-import SignupScreen from './Screens/Authentication/SignupScreen';
-import SigninScreen from './Screens/Authentication/SigninScreen';
+import SignupScreen from './screens/authentication/SignupScreen';
+import SigninScreen from './screens/authentication/SigninScreen';
 
-import HomeScreen from "./Screens/HomeScreen";
-import PropertyScreen from './Screens/PropertyScreen';
-import ProfileScreen from './Screens/ProfileScreen';
-import TourRequestsScreen from './Screens/TourRequestsScreen';
+import HomeScreen from "./screens/HomeScreen";
+import PropertyScreen from './screens/PropertyScreen';
+import ProfileScreen from './screens/ProfileScreen';
+import TourRequestsScreen from './screens/TourRequestsScreen';
 
 const Drawer = createDrawerNavigator();
 

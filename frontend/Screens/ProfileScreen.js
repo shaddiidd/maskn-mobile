@@ -1,6 +1,6 @@
 import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import Reviews from "../Components/Reviews";
+import Reviews from "../components/Reviews";
 
 export default function ProfileScreen() {
   const infoItems = [

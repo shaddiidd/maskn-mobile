@@ -20,7 +20,6 @@ export default function PaginatedCarousel({ propertyImages }) {
         onSnapToItem={(index) => setCurrentIndex(index)}
         loop={false}
         pagingEnabled
-        itemSpacing={20}
       />
       <View style={styles.paginationContainer}>
         {propertyImages.map((_, index) => (
@@ -39,7 +38,7 @@ export default function PaginatedCarousel({ propertyImages }) {
 
 const styles = StyleSheet.create({
   container: {
-    height: 350,
+    height: 360,
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -50,10 +49,11 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     backgroundColor: 'grey',
     borderRadius: 15,
+    transform: [{ scale: 1.1 }],
   },
   paginationContainer: {
     flexDirection: 'row',
-    marginTop: 10,
+    marginTop: 20,
     alignItems: "center"
   },
   dot: {

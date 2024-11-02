@@ -1,7 +1,7 @@
 import { StyleSheet, SafeAreaView, ScrollView, View, Text, TouchableOpacity } from 'react-native';
-import PaginatedCarousel from '../Components/PaginatedCarousel';
+import PaginatedCarousel from '../components/PaginatedCarousel';
 import { Ionicons } from '@expo/vector-icons';
-import Reviews from '../Components/Reviews';
+import Reviews from '../components/Reviews';
 
 export default function PropertyScreen() {
   const propertyImages = [
