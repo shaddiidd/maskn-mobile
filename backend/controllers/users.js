@@ -61,4 +61,4 @@ const login = async (req, res) => {
 };
 
 
-module.exports = { sginUp, getallusers, login, resetPassword};
+module.exports = { sginUp, getallusers, login};

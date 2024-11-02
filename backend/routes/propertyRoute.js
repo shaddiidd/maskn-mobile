@@ -4,10 +4,10 @@ const auth = require("../middleware/authentication")
 
 const {addProperty, getAllProperties, getMyProperties, getPropertiesByuserId, updateMyProperty} = require("../controllers/property")
 
-propertyRouter.post("/addProperty", auth, addProperty)
+propertyRouter.post("/add-property", auth, addProperty)
 propertyRouter.get("/",getAllProperties)
-propertyRouter.get("/getByUserId", auth,getMyProperties)
-propertyRouter.get("/:userId", getPropertiesByuserId)
-propertyRouter.put("/updateProperty/:id", auth, updateMyProperty)
+propertyRouter.get("/get-by-user-id", auth,getMyProperties)
+propertyRouter.get("/get-by-user-id/:userId", getPropertiesByuserId)
+propertyRouter.put("/update-property/:id", auth, updateMyProperty)
 
 module.exports = propertyRouter
