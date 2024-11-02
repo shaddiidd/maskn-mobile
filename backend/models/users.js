@@ -42,12 +42,20 @@ const User = sequelize.define('User', {
   },
   email: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
   },
   role_id: {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  reset_token : {
+    type : DataTypes.TEXT,
+    allowNull : true,
+  }, 
+  reset_token_expiration :{
+    type: DataTypes.DATE,
+    allowNull: true,
+  }
 }, {
   timestamps: true,
   createdAt: 'created_at',
