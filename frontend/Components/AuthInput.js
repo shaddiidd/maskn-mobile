@@ -25,6 +25,7 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 10,
     height: 55,
+    width: "100%"
   },
   errorInput: {
     borderColor: "#C6131B",

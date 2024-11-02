@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform } from "react-native";
-import AuthInput from "../../Components/AuthInput";
+import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
+import AuthInput from "../../components/AuthInput";
 import Context from "../../Context";
 
 export default function SigninScreen({ navigation }) {
@@ -35,12 +35,16 @@ export default function SigninScreen({ navigation }) {
   };
 
   return (
-      <SafeAreaView style={styles.container}>
-        <StatusBar barStyle="dark-content" />
-        
+    <KeyboardAvoidingView 
+      style={styles.container} 
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <StatusBar barStyle="dark-content" />
+      
+      <SafeAreaView style={{ flex: 1, width: "100%", alignItems: 'center', justifyContent: 'space-between' }}>
         <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
-
-        <KeyboardAvoidingView style={{ width: "90%" }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        
+        <View style={{ width: "90%", alignItems: 'center' }}>
           <Text style={styles.title}>Sign In</Text>
           <Text style={styles.subtitle}>Enter your email and password</Text>
           <AuthInput
@@ -61,17 +65,18 @@ export default function SigninScreen({ navigation }) {
             <Text style={styles.buttonText}>SIGN IN</Text>
           </TouchableOpacity>
           <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 20 }} activeOpacity={0.7}>
-              <Text style={styles.signupText}>Forgot Password?</Text>
+            <Text style={styles.signupText}>Forgot Password?</Text>
           </TouchableOpacity>
-        </KeyboardAvoidingView>
+        </View>
 
         <View style={styles.signupPrompt}>
           <Text style={styles.signupQuestion}>Don't have an account? </Text>
           <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signup")}>
-              <Text style={styles.signupText}>Sign up</Text>
+            <Text style={styles.signupText}>Sign up</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -106,6 +111,7 @@ const styles = StyleSheet.create({
     height: 55,
     borderRadius: 10,
     marginTop: 10,
+    width: "100%"
   },
   buttonText: {
     fontSize: 15,

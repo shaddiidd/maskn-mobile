@@ -20,29 +20,40 @@ export default function InfoCard({ property }) {
 
 const styles = StyleSheet.create({
   container: {
-    borderColor: "#D9D9D9",
-    borderWidth: 1,
-    padding: 15,
     alignItems: "center",
     marginVertical: 10,
-    borderRadius: 12
+    borderRadius: 12,
+    width: "90%",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   image: {
+    borderTopLeftRadius: 12,
+    borderTopRightRadius: 12,
     width: "100%",
-    borderRadius: 6,
-    height: 250,
+    height: 200
   },
   title: {
     fontSize: 18,
     width: "100%",
-    marginTop: 15
+    marginTop: 15,
+    paddingHorizontal: 15
   },
   line3: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     width: "100%",
-    marginTop: 10
+    marginTop: 10,
+    marginBottom: 15,
+    paddingHorizontal: 15
   },
   price: {
     fontSize: 18,

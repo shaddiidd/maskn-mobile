@@ -1,5 +1,5 @@
 import { StyleSheet, SafeAreaView, View, FlatList, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
-import InfoCard from "../Components/InfoCard";
+import InfoCard from "../components/InfoCard";
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
@@ -34,23 +34,20 @@ export default function HomeScreen() {
           <Ionicons name="search" size={20} color="#508D4E" />
         </View>
       </View>
-
-      <ScrollView contentContainerStyle={styles.sortContainer} horizontal showsHorizontalScrollIndicator={false}>
-          {sortFilters.map((sortItem) => (
-            <TouchableOpacity onPress={() => sort(sortItem.title)} key={sortItem.id} activeOpacity={0.7} style={[styles.sortItem, sortItem.title === order && styles.selectedSortItem]}>
-              {sortItem.title === order ? <Ionicons name="checkmark" size={20} color="#fff" /> : <></>}
-              <Text style={[styles.sortTxt, sortItem.title === order && styles.selectedSortTxt]}>{sortItem.title === order ? " " : ""}{sortItem.title}</Text>
-            </TouchableOpacity>
-          ))}
+      <ScrollView contentContainerStyle={{ alignItems: "center" }} style={{ flex: 1, width: "100%" }}>
+        {properties?.map((property) => (
+          <InfoCard property={property} />
+        ))}
       </ScrollView>
 
-      <FlatList
+      {/* <FlatList
         style={styles.list}
+        contentContainerStyle={{ alignItems: "center" }}
         showsVerticalScrollIndicator={false}
         data={properties}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
-      />
+      /> */}
     </SafeAreaView>
   );
 }
@@ -118,6 +115,6 @@ const styles = StyleSheet.create({
     color: "white"
   },
   list: {
-    width: "90%",
+    width: "100%",
   },
 });
