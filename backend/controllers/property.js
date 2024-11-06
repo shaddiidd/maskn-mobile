@@ -99,10 +99,34 @@ const updateMyProperty = async(req, res) =>{
 
 }
 
+const deleteProperty = async (req,res) =>{
+    
+    const userId = req.token.user_id
+    
+    const propertyId = req.params.property_id
+
+    const result = await propertyService.deletePropertyService(propertyId, userId)
+
+    if(result){
+        return res.status(200).json({
+            success : true,
+            message : `property ${propertyId} is deleted`,
+            result : result.data
+        })
+    }else{
+        return res.status(500).json({
+            success: false,
+            message: "failed to update the property",
+            error: error,
+          });
+    }
+}
+
 module.exports = {
   addProperty,
   getAllProperties,
   getMyProperties,
   getPropertiesByuserId,
-  updateMyProperty
+  updateMyProperty,
+  deleteProperty
 };

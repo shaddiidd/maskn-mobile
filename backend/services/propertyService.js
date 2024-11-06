@@ -1,3 +1,4 @@
+const { deleteProperty } = require("../controllers/property");
 const Property = require("../models/properties");
 
 const createProperty = (property, user_id) => {
@@ -75,9 +76,23 @@ const updateMyProperty = async (updatedProperty, propertyId) => {
   }
 };
 
+const deletePropertyService = async (propertyId, userId) => {
+  try {
+    const property = await Property.destroy({
+      where: { property_id: propertyId, user_id : userId},
+    });
+    if (property) {
+      return { success: true, data: data };
+    }
+  } catch (error) {
+    return { success: false, error: error };
+  }
+};
+
 module.exports = {
   createProperty,
   getAllProperties,
   findPropertiesByuserId,
   updateMyProperty,
+  deletePropertyService,
 };
