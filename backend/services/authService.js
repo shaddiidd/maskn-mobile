@@ -2,6 +2,7 @@ const User = require("../models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
+const cron = require('node-cron');
 
 const generateResetToken = async (user) => {
   console.log(user);
@@ -16,20 +17,18 @@ const generateResetToken = async (user) => {
   console.log(options);
   
   const secret = process.env.SECRET;
-  console.log(secret);
+
   
   //the rest token gentration
   const resetToken = jwt.sign(payload, secret, options);
-  console.log(resetToken);
+
    
   //assging the generated token to the rest token column in the user table
   user.reset_token = resetToken;
-  console.log(user.reset_token);
   
   //assiging the expiration to the column in the user table
   user.reset_token_expiration = new Date(Date.now() + 3600000);
 
-  console.log(user.user_id);
   
 
   await User.update(
@@ -66,9 +65,33 @@ const verifyResetToken = (token) => {
 
 const updatePassword = async(user, newPassword) =>{
   
+  console.log("this user: ",user);
+  
+
   const hashedPassword = await bcrypt.hash(newPassword, 10);
 
   await User.update({password : hashedPassword ,reset_token : null, reset_token_expiration: null },
-    { where: { user_id: user.userId } })
+    { where: { user_id: user.user_id } })
 }
+
+cron.schedule('0 0 * * *', async () => {
+  try {
+    const users = await User.findAll();
+    const now = new Date();
+
+    await Promise.all(users.map(async (user) => {
+      if (user.resetTokenExpiration && new Date(user.resetTokenExpiration) < now) {
+        user.resetToken = null;
+        user.resetTokenExpiration = null;
+        await user.save();
+      }
+    }));
+
+    console.log('Expired tokens cleared');
+  } catch (error) {
+    console.error('Error clearing expired tokens:', error);
+  }
+});
+
+
 module.exports = { generateResetToken, sendResetEmail, verifyResetToken, updatePassword };

@@ -39,17 +39,17 @@ const resetPassword = async (req, res) => {
       where: {
         user_id: decodedToken.userId,
         reset_token: token,
-        reset_token_expiration: new Date(decodedToken.exp) ,
       },
     });
 
-    if (!user) {
+    if (!user.dataValues) {
       res
         .status(400)
         .json({ success: false, message: "token expiered or invalid" });
     } 
-
-      await authService.updatePassword(user, newPassword);
+        console.log("c user: ",user.dataValues);
+        
+      await authService.updatePassword(user.dataValues, newPassword);
       res.status(200).json({ message: "Password has been reset successfully" });
   } catch (error) {
     console.log(error);
