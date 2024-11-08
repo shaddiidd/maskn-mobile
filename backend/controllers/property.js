@@ -1,8 +1,8 @@
 const propertyService = require("../services/propertyService");
+const userService = require("../services/userService")
 
 const addProperty = async (req, res) => {
   const user_id = req.token.userId;
-
   try {
     const newProperty = await propertyService.createProperty(req.body, user_id);
 
