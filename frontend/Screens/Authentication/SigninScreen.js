@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
 import { StyleSheet, SafeAreaView, Text, View, StatusBar, Image, TouchableOpacity, KeyboardAvoidingView, Platform } from "react-native";
-import AuthInput from "../../components/AuthInput";
+import AuthInput from "../../Components/AuthInput";
 import Context from "../../Context";
 
 export default function SigninScreen({ navigation }) {

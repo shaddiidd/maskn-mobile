@@ -11,7 +11,7 @@ import {
   Platform,
 } from "react-native";
 import Context from "../../Context";
-import AuthInput from "../../components/AuthInput";
+import AuthInput from "../../Components/AuthInput";
 
 export default function SignupScreen({ navigation }) {
   const { auth } = useContext(Context);

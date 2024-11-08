@@ -1,5 +1,5 @@
 import { StyleSheet, SafeAreaView, View, FlatList, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
-import InfoCard from "../components/InfoCard";
+import InfoCard from "../Components/InfoCard";
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 
