@@ -72,6 +72,7 @@ const loginUser = async (credentials) => {
       const payload = {
         userId: user.user_id,
         country: user.nationality,
+        role : user.role_id 
       };
       const options = { expiresIn: "1d" };
       const secret = process.env.SECRET;
@@ -92,9 +93,19 @@ const loginUser = async (credentials) => {
       return { success: false, error: error.message };
     }
   };
+
+  const changeRoleToRenter = async(userId)=>{
+    const result = await User.update({role_id : 2},{where : {user_id : userId}})
+    if(result){
+      return {success : true, message : `the role for ${userId} is changed`}
+    }else{
+      return {success : false , message : "failed to change the role"}
+    }
+  }
   
 module.exports = {
   createUser,
   findAllUsers,
-  loginUser
+  loginUser,
+  changeRoleToRenter
 };

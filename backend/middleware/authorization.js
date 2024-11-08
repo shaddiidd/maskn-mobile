@@ -1,26 +1,36 @@
-// const pool = require("../models/db")
-// const authorization = (string) =>{
-//     return function (req,res,next) {
-//         const role_id = req.token.role;
-//         const placeholder = [role_id, string]
-//         const query = `SELECT * FROM role_permission RP INNER JOIN permissions P ON RP.permission_id = P.id WHERE RP.role_id = ($1) AND P.permission = ($2)`;
+// authorization.js
+const User = require('../models/users');
+const Role = require("../models/roles")
+const Permission = require("../models/permissions")
 
-//         pool
-//         .query(query,placeholder)
-//         .then((result)=>{
-//             if(result.rows.length){
-//                 next();  
-//             }else{
-//                 throw Error
-//             }
-//         })
-//         .catch((err)=>{
-//             res.status(401).json({
-//                 message : "unauthorized",
-//                 error: err
-//             })
-//         })
-//     }
-// }
+const authorization = (requiredPermission) => {
+  return async (req, res, next) => {
+    try {
+      // Assume user role and permissions are attached to `req.user` via authentication
+      const userId = req.token.userId;
 
-// module.exports = authorization
+      // Get user roles and permissions
+      const user = await User.findByPk(userId, {
+        include: {
+          model: Role,
+          as: 'role',
+          include: {
+            model: Permission,
+            as: 'permissions',
+            where: { permission: requiredPermission }, // Check if the user has the required permission
+          },
+        },
+      });
+
+      if (user && user.role && user.role.permissions && user.role.permissions.length > 0) {
+        next(); // User has permission
+      } else {
+        res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+      }
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
+  };
+};
+
+module.exports = authorization;
