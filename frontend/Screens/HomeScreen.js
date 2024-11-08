@@ -1,27 +1,11 @@
 import { StyleSheet, SafeAreaView, View, FlatList, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
 import InfoCard from "../Components/InfoCard";
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function HomeScreen() {
   const [order, setOrder] = useState("New");
-  const properties = [
-    { id: 1, img: require("../assets/house.png"), title: "750 SQM Villa", price: "9999", rating: 4.5 },
-    { id: 2, img: require("../assets/house.png"), title: "850 SQM Villa", price: "10999", rating: 4.7 },
-    { id: 3, img: require("../assets/house.png"), title: "950 SQM Villa", price: "11999", rating: 4.8 },
-  ];
-  const sortFilters = [
-    { id: 1, title: "New" },
-    { id: 2, title: "Price ascending" },
-    { id: 3, title: "Price descending" },
-  ]
-  const sort = (sortItem) => {
-    setOrder(sortItem);
-  }
-
-  const renderItem = ({ item }) => (
-    <InfoCard property={item} />
-  );
+  const [properties, setProperties] = useState([]);
 
   return (
     <SafeAreaView style={styles.container}>
