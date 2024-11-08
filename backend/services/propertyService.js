@@ -1,4 +1,3 @@
-const { deleteProperty } = require("../controllers/property");
 const Property = require("../models/properties");
 
 const createProperty = (property, user_id) => {
