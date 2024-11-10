@@ -82,7 +82,7 @@ const Property = sequelize.define('properties',{
         type :DataTypes.INTEGER,
         allowNull : false, 
     },
-    ad_status_id :{
+    post_status_id :{
         type :DataTypes.STRING,
         references :{
             model : propertyPostStatus,
