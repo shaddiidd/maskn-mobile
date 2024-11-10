@@ -53,8 +53,6 @@ const createUser = async (userData) => {
       name : {firstName : newUser.first_name, lastName : newUser.last_name}
     },
   };
-
-  return newUser;
 };
 
 const findAllUsers = async () => {
