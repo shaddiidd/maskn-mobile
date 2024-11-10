@@ -1,6 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('./db');
 const User = require('./users');
+const propertyPostStatus = require('./propertyPostStatus');
 
 const Property = sequelize.define('properties',{
     property_id : {
@@ -80,7 +81,15 @@ const Property = sequelize.define('properties',{
     mark_as_rented : {
         type :DataTypes.INTEGER,
         allowNull : false, 
-    }, 
+    },
+    ad_status_id :{
+        type :DataTypes.STRING,
+        references :{
+            model : propertyPostStatus,
+            key : "id",
+        },
+        allowNull : false,
+    },
 },{
     timestamps: true,
     paranoid: true,
