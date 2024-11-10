@@ -12,13 +12,12 @@ const createUser = async (userData) => {
     date_of_birth,
     password,
     nationality,
-    rating,
     email,
-    role_id,
   } = userData;
 
   const hashedPassword = await bcrypt.hash(password, 3);
-
+  const role = 1
+  const defualtRating = 5
   const newUser = await User.create({
     username,
     first_name,
@@ -27,10 +26,33 @@ const createUser = async (userData) => {
     date_of_birth,
     password: hashedPassword,
     nationality,
-    rating,
+    rating : defualtRating,
     email,
-    role_id,
+    role_id : role,
   });
+
+  const payload = {
+    userId: newUser.user_id,
+    country: newUser.nationality,
+    role : newUser.role_id 
+  };
+  const options = { expiresIn: "1d" };
+  const secret = process.env.SECRET;
+
+  const token = jwt.sign(payload, secret, options);
+
+  // Return successful response with user data and token
+  return {
+    success: true,
+    data: {
+      newUser,
+      token,
+      userId: newUser.user_id,
+      username: newUser.username, // Adjust to match the field name in your model
+      role: newUser.role_id,
+      name : {firstName : newUser.first_name, lastName : newUser.last_name}
+    },
+  };
 
   return newUser;
 };
@@ -87,6 +109,7 @@ const loginUser = async (credentials) => {
           userId: user.user_id,
           username: user.username, // Adjust to match the field name in your model
           role: user.role_id,
+          name : {firstName : user.first_name, lastName : user.last_name}
         },
       };
     } catch (error) {
