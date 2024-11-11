@@ -81,5 +81,25 @@ const requestToBecomeRenter = async (req, res) =>{
 
 }
 
+const acceptOwnerRequest = async (req, res)=>{
+  const role = req.token.role
+  const requestId = req.params.requestId
 
-module.exports = { signUp, getallusers, login, requestToBecomeRenter};
+  const result = await userService.acceptOwnerRequestService(requestId, role)
+  
+  if(result.success == true){
+    return res.status(200).json({
+      success: true,
+      message: `Request for  has been approved`,
+      data: result.data,
+    });
+  }else{
+    return res.status(500).json({
+      success: false,
+      data: result,
+    });
+  }
+}
+
+
+module.exports = { signUp, getallusers, login, requestToBecomeRenter, acceptOwnerRequest};

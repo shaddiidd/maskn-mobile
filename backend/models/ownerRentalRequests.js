@@ -24,13 +24,20 @@ const OwnersRentalRequest = sequelize.define(
       type: DataTypes.ENUM('pending', 'approved', 'rejected'),
       allowNull: false,
       defaultValue: 'pending',
-    },
+    },created_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
+      updated_at: {
+        type: DataTypes.DATE,
+        allowNull: false,
+        defaultValue: DataTypes.NOW,
+      },
   },
   {
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
     tableName: "owners_rental_request", // Explicitly specify table name
-    timestamps: true, // Disable updatedAt if only createdAt is needed
+    timestamps: false, // Disable updatedAt if only createdAt is needed
   }
 );
 
