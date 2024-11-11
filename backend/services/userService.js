@@ -1,6 +1,7 @@
 const User = require("../models/users");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const OwnersRentalRequest = require("../models/ownerRentalRequests")
 
 
 const createUser = async (userData) => {
@@ -126,10 +127,12 @@ const loginUser = async (credentials) => {
 
   const RequestToBecomeRenterService = async(userId)=>{
 
-    const user = await User.findOne(userId)
-
-    if(user.role_id == 2){
-      
+    const user = await User.findByPk(userId)
+    if(user){
+      const newRequest = await OwnersRentalRequest.create({user_id : userId})
+      return {success : true , data : newRequest}
+    }else{
+      return {success : false , message : "failed to create a request"}
     }
   }
   
