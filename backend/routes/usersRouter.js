@@ -11,6 +11,6 @@ userRouter.get("/",authentication, authorization("Manage Users") ,getallusers)
 userRouter.post("/login", login)
 userRouter.post("/request-to-be-renter",authentication,requestToBecomeRenter)
 userRouter.post("/accept-request/:requestId",authentication, authorization("Manage Users"), acceptOwnerRequest)
-userRouter.get("/get-all-requests",authentication, authorization("Manage Users"),getAllOwnersRequests)
+userRouter.get("/get-all-owner-requests",authentication, authorization("Manage Users"),getAllOwnersRequests)
 
 module.exports = userRouter
