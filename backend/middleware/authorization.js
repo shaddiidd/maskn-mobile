@@ -1,7 +1,7 @@
 // authorization.js
-const User = require('../models/users');
-const Role = require("../models/roles")
-const Permission = require("../models/permissions")
+const User = require("../models/users");
+const Role = require("../models/roles");
+const Permission = require("../models/permissions");
 
 const authorization = (requiredPermission) => {
   return async (req, res, next) => {
@@ -13,22 +13,29 @@ const authorization = (requiredPermission) => {
       const user = await User.findByPk(userId, {
         include: {
           model: Role,
-          as: 'role',
+          as: "role",
           include: {
             model: Permission,
-            as: 'permissions',
+            as: "permissions",
             where: { permission: requiredPermission }, // Check if the user has the required permission
           },
         },
       });
 
-      if (user && user.role && user.role.permissions && user.role.permissions.length > 0) {
+      if (
+        user &&
+        user.role &&
+        user.role.permissions &&
+        user.role.permissions.length > 0
+      ) {
         next(); // User has permission
       } else {
-        res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+        res
+          .status(403)
+          .json({ message: "Forbidden: Insufficient permissions" });
       }
     } catch (error) {
-      res.status(500).json({ message: 'Server error', error: error.message });
+      res.status(500).json({ message: "Server error", error: error.message });
     }
   };
 };
