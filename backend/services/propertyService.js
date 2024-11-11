@@ -17,8 +17,11 @@ const createProperty = (property, user_id) => {
     electricity_meter_reference_number,
     price,
     rental_period,
-    mark_as_rented,
   } = property;
+
+  const post_status = 2;
+
+  const rental_status = 0;
 
   const newProperty = Property.create({
     property_national_number,
@@ -37,7 +40,8 @@ const createProperty = (property, user_id) => {
     electricity_meter_reference_number,
     price,
     rental_period,
-    mark_as_rented,
+    mark_as_rented: rental_status,
+    post_status_id: post_status,
   });
 
   return newProperty;
@@ -45,16 +49,18 @@ const createProperty = (property, user_id) => {
 
 const getAllProperties = async (userRole = null) => {
   console.log(userRole);
-  
+
   try {
     if (userRole == 3) {
       const properites = await Property.findAll();
-      console.log("prop",properites);
-      
+      console.log("prop", properites);
+
       return { success: true, data: properites };
     } else {
-      const properites = await Property.findAll({ where: { post_status_id: 1 } });
-      console.log("prop",properites);
+      const properites = await Property.findAll({
+        where: { post_status_id: 1 },
+      });
+      console.log("prop", properites);
       return { success: true, data: properites };
     }
   } catch (error) {
