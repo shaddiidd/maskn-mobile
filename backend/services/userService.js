@@ -152,10 +152,26 @@ const RequestToBecomeRenterService = async (userId) => {
   }
 };
 
+const getAllOwnersRequestsService = async (role) =>{
+  if(role !== 3){
+    return { success: false, message: "Unauthorized" };
+  }
+  try {
+    const requests = await OwnersRentalRequest.findAll()
+    if (!requests) {
+      return { success: false, message : "unable to load requests" }
+    }
+    return { success: true, data: requests }
+  } catch (error) {
+    return { success: false, error: error.message }
+  }
+}
+
 module.exports = {
   createUser,
   findAllUsers,
   loginUser,
   acceptOwnerRequestService,
   RequestToBecomeRenterService,
+  getAllOwnersRequestsService
 };

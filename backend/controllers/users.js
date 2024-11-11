@@ -101,5 +101,22 @@ const acceptOwnerRequest = async (req, res)=>{
   }
 }
 
+const getAllOwnersRequests = async(req, res)=>{
+  
+  const result = await userService.getAllOwnersRequestsService(req.token.role) 
 
-module.exports = { signUp, getallusers, login, requestToBecomeRenter, acceptOwnerRequest};
+  if(result.success == true){
+    return res.status(200).json({
+      success: true,
+      message: `All owners requests`,
+      data: result.data,
+    });
+  }else{
+    return res.status(500).json({
+      success: false,
+      data: result,
+    });
+  }
+} 
+
+module.exports = { signUp, getallusers, login, requestToBecomeRenter, acceptOwnerRequest,getAllOwnersRequests};
