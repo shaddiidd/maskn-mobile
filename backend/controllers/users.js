@@ -60,5 +60,26 @@ const login = async (req, res) => {
   }
 };
 
+const requestToBecomeRenter = async (req, res) =>{
+  const userId = req.token.userId
 
-module.exports = { signUp, getallusers, login};
+  const result = await userService.RequestToBecomeRenterService(userId)
+
+  if (result) {
+    return res.status(200).json({
+      success: true,
+      message: `Request for ${userId} has been sent`,
+      data: result.data,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: `Request for ${userId} has failed`,
+      data: result.data,
+    });
+  }
+
+}
+
+
+module.exports = { signUp, getallusers, login, requestToBecomeRenter};

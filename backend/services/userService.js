@@ -123,10 +123,20 @@ const loginUser = async (credentials) => {
       return {success : false , message : "failed to change the role"}
     }
   }
+
+  const RequestToBecomeRenterService = async(userId)=>{
+
+    const user = await User.findOne(userId)
+
+    if(user.role_id == 2){
+      
+    }
+  }
   
 module.exports = {
   createUser,
   findAllUsers,
   loginUser,
-  changeRoleToRenter
+  changeRoleToRenter,
+  RequestToBecomeRenterService
 };
