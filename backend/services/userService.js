@@ -167,6 +167,10 @@ const getAllOwnersRequestsService = async (role) =>{
   }
 }
 
+const requestTourByTenant = async (user,propertyId) =>{
+  
+}
+
 module.exports = {
   createUser,
   findAllUsers,
