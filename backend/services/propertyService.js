@@ -1,4 +1,5 @@
 const Property = require("../models/properties");
+const TourRequest = require("../models/tourRequests")
 
 const createProperty = (property, user_id) => {
   const {
@@ -105,10 +106,38 @@ const deletePropertyService = async (propertyId, userId) => {
   }
 };
 
+const requestTourByTenant = async (tenantId,propertyId) =>{
+  console.log("prop",propertyId);
+  
+  try {
+    const requestExist = await TourRequest.findOne({
+      where: {
+        user_id: tenantId,
+        property_id: propertyId,
+      }
+    })
+
+    if (requestExist) {
+      return {success : false, message: "user already have a request"}
+    }
+
+    const newTourRequest = await TourRequest.create({
+      user_id: tenantId,
+      property_id: propertyId
+    }) 
+    console.log("new",newTourRequest);
+    
+    return {success : true , data : newTourRequest}
+  } catch (error) {
+    return {success : false, error :error.message}
+  }
+}
+
 module.exports = {
   createProperty,
   getAllProperties,
   findPropertiesByuserId,
   updateMyProperty,
   deletePropertyService,
+  requestTourByTenant
 };
