@@ -11,7 +11,7 @@ const TourRequest = sequelize.define(
         defaultValue: () => `REQ${Math.floor(100000 + Math.random() * 900000)}`, // Generates REQ + random 6-digit number
       },
       // Foreign key to the Users table (tenant making the request)
-      user_id: {
+      tenant_id: {
         type: DataTypes.TEXT,
         allowNull: false,
         references: {
@@ -37,6 +37,16 @@ const TourRequest = sequelize.define(
       allowNull: false,
       defaultValue: 'pending',
     },
+    owner_id :{
+        type: DataTypes.TEXT,
+        allowNull: false,
+        references: {
+          model: 'users', // Assumes a `users` table exists
+          key: 'user_id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
   },
   {
     sequelize,

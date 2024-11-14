@@ -1,7 +1,10 @@
 const Property = require("../models/properties");
-const TourRequest = require("../models/tourRequests")
+const TourRequest = require("../models/tourRequests");
 
-const createProperty = (property, user_id) => {
+const createProperty = (property, user_id, role) => {
+  if (role !== 2) {
+    return { success: false, message: "Unauthorized" };
+  }
   const {
     property_national_number,
     description,
@@ -106,32 +109,49 @@ const deletePropertyService = async (propertyId, userId) => {
   }
 };
 
-const requestTourByTenant = async (tenantId,propertyId) =>{
-  console.log("prop",propertyId);
-  
+const requestTourByTenant = async (tenantId, propertyId) => {
   try {
+    const property = await Property.findByPk(propertyId);
+
+    if (!property) {
+      return { success: false, message: "Property not found" };
+    }
+
+    const ownerId = property.dataValues.user_id;
+
+    if (tenantId === ownerId) {
+      return { success: false, message: "tour request cant made by owner" };
+    }
     const requestExist = await TourRequest.findOne({
       where: {
-        user_id: tenantId,
+        tenant_id: tenantId,
         property_id: propertyId,
-      }
-    })
+      },
+    });
 
     if (requestExist) {
-      return {success : false, message: "user already have a request"}
+      return { success: false, message: "user already have a request" };
     }
 
     const newTourRequest = await TourRequest.create({
-      user_id: tenantId,
-      property_id: propertyId
-    }) 
-    console.log("new",newTourRequest);
-    
-    return {success : true , data : newTourRequest}
+      tenant_id: tenantId,
+      property_id: propertyId,
+      owner_id: ownerId,
+    });
+
+    return { success: true, data: newTourRequest };
   } catch (error) {
-    return {success : false, error :error.message}
+    return { success: false, error: error.message };
   }
-}
+};
+
+const getOwnerRequestTours = async (ownerId) => {
+
+  const requests = await TourRequest.findAll({ where: { owner_id: ownerId } });
+
+
+
+};
 
 module.exports = {
   createProperty,
@@ -139,5 +159,6 @@ module.exports = {
   findPropertiesByuserId,
   updateMyProperty,
   deletePropertyService,
-  requestTourByTenant
+  requestTourByTenant,
+  getOwnerRequestTours,
 };

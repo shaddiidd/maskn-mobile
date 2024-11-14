@@ -3,8 +3,9 @@ const userService = require("../services/userService")
 
 const addProperty = async (req, res) => {
   const user_id = req.token.userId;
+  const role = req.token.role
   try {
-    const newProperty = await propertyService.createProperty(req.body, user_id);
+    const newProperty = await propertyService.createProperty(req.body, user_id, role);
 
     res.status(201).json({
       success: true,
@@ -171,7 +172,7 @@ const requestTour = async (req,res)=>{
       });
     }
   
-    const statusCode = result.message === "user already have a request" ? 403 : 500;
+    const statusCode = result.message === "user already have a request" || "tour request cant made by owner" ? 403 : 500;
     const errorMessage = result.message || "Failed to make request";
   
     return res.status(statusCode).json({
@@ -188,6 +189,14 @@ const requestTour = async (req,res)=>{
     });
   }
   
+}
+
+const getTourRequests = async() =>{
+
+  const ownerId = req.token.userId
+  const result = await propertyService.getOwnerRequestTours(ownerId)
+
+
 }
 
 module.exports = {
