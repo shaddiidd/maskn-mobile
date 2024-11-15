@@ -146,11 +146,15 @@ const requestTourByTenant = async (tenantId, propertyId) => {
 };
 
 const getOwnerRequestTours = async (ownerId) => {
+  try {
+    const requests = await TourRequest.findAll({
+      where: { owner_id: ownerId },
+    });
 
-  const requests = await TourRequest.findAll({ where: { owner_id: ownerId } });
-
-
-
+    return { success: true, data: requests };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
 };
 
 module.exports = {

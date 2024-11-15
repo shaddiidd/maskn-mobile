@@ -191,11 +191,24 @@ const requestTour = async (req,res)=>{
   
 }
 
-const getTourRequests = async() =>{
+const getTourRequests = async(req, res) =>{
 
   const ownerId = req.token.userId
   const result = await propertyService.getOwnerRequestTours(ownerId)
 
+  if(result.success === true){
+    return res.status(200).json({
+      success: true,
+      message: `all tour requests for ${ownerId}`,
+      result: result.data,
+    })
+  }else{
+    return res.status(500).json({
+      success: false,
+      message: "failed to load the properties",
+      error: error,
+    });
+  }
 
 }
 
@@ -207,5 +220,6 @@ module.exports = {
   updateMyProperty,
   deleteProperty,
   AdminGetAllProperties, 
-  requestTour
+  requestTour,
+  getTourRequests
 };
