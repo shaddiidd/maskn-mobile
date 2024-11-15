@@ -133,6 +133,25 @@ const deleteProperty = async (req, res) => {
   }
 };
 
+const AdminGetAllProperties = async (req, res) => {
+  const userRole = req.token.role
+  const result = await propertyService.getAllProperties(userRole);
+
+  if (result) {
+    return res.status(200).json({
+      success: true,
+      message: `all properites`,
+      result: result.data,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      message: "failed to load the properties",
+      error: error,
+    });
+  }
+};
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -140,4 +159,5 @@ module.exports = {
   getPropertiesByuserId,
   updateMyProperty,
   deleteProperty,
+  AdminGetAllProperties
 };
