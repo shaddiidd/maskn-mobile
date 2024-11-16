@@ -1,5 +1,6 @@
 const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
+const User = require("../models/users")
 
 const createProperty = (property, user_id, role) => {
   if (role !== 2) {
@@ -181,6 +182,46 @@ const acceptTourRequestService = async (ownerId, requestId) => {
   }
 };
 
+const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
+  try {
+    // Fetch the property by primary key
+    const property = await Property.findByPk(propertyId);
+
+    // If property is not found, return an error response
+    if (!property) {
+      return { success: false, message: "Property not found" };
+    }
+
+    // If tenantId is provided and not null
+    if (tenantId) {
+      // Check if an approved tour request exists for the tenant and property
+      const requestExist = await TourRequest.findOne({
+        where: { property_id: propertyId, tenant_id: tenantId, status: "approved" },
+      });
+
+      // If request exists and is approved, include contact information
+      if (requestExist) {
+        const propertyWithContactInfo = await Property.findOne({
+          where: { property_id: propertyId }, // Fixed: Use correct field for `Property` lookup
+          include: [
+            {
+              model: User,
+              attributes: ["phone_number"],
+            },
+          ],
+        });
+
+        return { success: true, data: propertyWithContactInfo };
+      }
+    }
+
+    // Return the property without contact information
+    return { success: true, data: property };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
 
 module.exports = {
   createProperty,
@@ -191,4 +232,5 @@ module.exports = {
   requestTourByTenant,
   getOwnerRequestTours,
   acceptTourRequestService,
+  getPropertyByPropertyIdService,
 };
