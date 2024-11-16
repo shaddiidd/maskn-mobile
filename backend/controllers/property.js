@@ -233,6 +233,38 @@ const acceptTourRequest = async(req,res) =>{
   }
 }
 
+
+const getPropertyForApprovedTenant = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+    const tenantId = req.token.userId;
+
+    // Call the service to fetch the property data
+    const result = await propertyService.getPropertyByPropertyIdService(propertyId, tenantId);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: "Tenant can view contact info",
+        data: result.data, // Return only the relevant data
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch property details",
+      error: result.message || "Unknown error", // Provide meaningful feedback
+    });
+  } catch (error) {
+    console.error("Error in getPropertyForApprovedTenant:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -243,5 +275,6 @@ module.exports = {
   AdminGetAllProperties, 
   requestTour,
   getTourRequests, 
-  acceptTourRequest
+  acceptTourRequest,
+  getPropertyForApprovedTenant
 };
