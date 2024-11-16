@@ -265,6 +265,38 @@ const getPropertyForApprovedTenant = async (req, res) => {
   }
 };
 
+const getPropertyForPublicView = async (req, res) => {
+  try {
+    const { propertyId } = req.params;
+
+    // Call the service to fetch the property data (no tenantId is passed)
+    const result = await propertyService.getPropertyByPropertyIdService(propertyId, null);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: "Property details fetched successfully",
+        data: result.data, // Return only the relevant data
+      });
+    }
+
+    return res.status(400).json({
+      success: false,
+      message: "Unable to fetch property details",
+      error: result.message || "Unknown error", // Provide meaningful feedback
+    });
+  } catch (error) {
+    console.error("Error in getPropertyForPublicView:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+      error: error.message,
+    });
+  }
+};
+
+
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -276,5 +308,6 @@ module.exports = {
   requestTour,
   getTourRequests, 
   acceptTourRequest,
-  getPropertyForApprovedTenant
+  getPropertyForApprovedTenant,
+  getPropertyForPublicView
 };

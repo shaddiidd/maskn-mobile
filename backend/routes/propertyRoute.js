@@ -14,7 +14,8 @@ const {
   requestTour,
   getTourRequests,
   acceptTourRequest,
-  getPropertyForApprovedTenant
+  getPropertyForApprovedTenant,
+  getPropertyForPublicView
 } = require("../controllers/property");
 
 propertyRouter.post(
@@ -33,5 +34,6 @@ propertyRouter.post("/request-tour/:propertyId", auth, requestTour);
 propertyRouter.get("/get-tour-requests", auth, getTourRequests);
 propertyRouter.post("/accept-tour-request/:requestId", auth, acceptTourRequest)
 propertyRouter.get("/get-property-with-contact-info/:propertyId", auth, getPropertyForApprovedTenant)
+propertyRouter.get("/get-property-with-id/:propertyId",getPropertyForPublicView )
 
 module.exports = propertyRouter;
