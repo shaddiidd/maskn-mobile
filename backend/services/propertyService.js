@@ -157,6 +157,31 @@ const getOwnerRequestTours = async (ownerId) => {
   }
 };
 
+const acceptTourRequestService = async (ownerId, requestId) => {
+  try {
+    const requestExist = await TourRequest.findOne({
+      where: { request_id: requestId, owner_id: ownerId },
+    });
+
+    if (requestExist) {
+      const [rowsUpdated, [updatedRequest]] = await TourRequest.update(
+        { status: "approved" },
+        {
+          where: { owner_id: ownerId, request_id: requestId },
+          returning: true, // Fetch the updated record
+        }
+      );
+
+      return { success: true, data: updatedRequest };
+    }
+
+    return { success: false, message: "Request does not exist" };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+
 module.exports = {
   createProperty,
   getAllProperties,
@@ -165,4 +190,5 @@ module.exports = {
   deletePropertyService,
   requestTourByTenant,
   getOwnerRequestTours,
+  acceptTourRequestService,
 };

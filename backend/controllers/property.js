@@ -165,7 +165,7 @@ const requestTour = async (req,res)=>{
   
   try {
     if (result.success) {
-      return res.status(200).json({
+      return res.status(201).json({
         success: true,
         message: `Request tour for property ${propertyId} by user ${tenantId} has been sent`,
         result: result.data,
@@ -212,6 +212,27 @@ const getTourRequests = async(req, res) =>{
 
 }
 
+const acceptTourRequest = async(req,res) =>{
+
+  const ownerId = req.token.userId
+  const requestId = req.params.requestId
+
+  const result = await propertyService.acceptTourRequestService(ownerId, requestId)
+
+  if (result.success === true) {
+    return res.status(200).json({
+      success: true,
+      message: `Request for has been approved by owner ${ownerId}`,
+      data: result.data,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      data: result,
+    });
+  }
+}
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -221,5 +242,6 @@ module.exports = {
   deleteProperty,
   AdminGetAllProperties, 
   requestTour,
-  getTourRequests
+  getTourRequests, 
+  acceptTourRequest
 };

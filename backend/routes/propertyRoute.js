@@ -13,6 +13,7 @@ const {
   AdminGetAllProperties,
   requestTour,
   getTourRequests,
+  acceptTourRequest
 } = require("../controllers/property");
 
 propertyRouter.post(
@@ -29,5 +30,6 @@ propertyRouter.put("/update-property/:id", auth, updateMyProperty);
 propertyRouter.delete("/delete-property/:propertyId", auth, deleteProperty);
 propertyRouter.post("/request-tour/:propertyId", auth, requestTour);
 propertyRouter.get("/get-tour-requests", auth, getTourRequests);
+propertyRouter.post("/accept-tour-request/:requestId", auth, acceptTourRequest)
 
 module.exports = propertyRouter;
