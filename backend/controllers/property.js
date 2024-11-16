@@ -3,8 +3,9 @@ const userService = require("../services/userService")
 
 const addProperty = async (req, res) => {
   const user_id = req.token.userId;
+  const role = req.token.role
   try {
-    const newProperty = await propertyService.createProperty(req.body, user_id);
+    const newProperty = await propertyService.createProperty(req.body, user_id, role);
 
     res.status(201).json({
       success: true,
@@ -152,6 +153,86 @@ const AdminGetAllProperties = async (req, res) => {
   }
 };
 
+const requestTour = async (req,res)=>{
+  const tenantId = req.token.userId
+  const propertyId = req.params.propertyId
+
+  console.log(tenantId);
+  
+  const result = await propertyService.requestTourByTenant(tenantId, propertyId)
+
+  console.log(result);
+  
+  try {
+    if (result.success) {
+      return res.status(201).json({
+        success: true,
+        message: `Request tour for property ${propertyId} by user ${tenantId} has been sent`,
+        result: result.data,
+      });
+    }
+  
+    const statusCode = result.message === "user already have a request" || "tour request cant made by owner" ? 403 : 500;
+    const errorMessage = result.message || "Failed to make request";
+  
+    return res.status(statusCode).json({
+      success: false,
+      message: errorMessage,
+      error: statusCode === 500 ? "An error occurred while processing the request" : undefined,
+    });
+  } catch (error) {
+    // Handle unexpected errors
+    return res.status(500).json({
+      success: false,
+      message: "An unexpected error occurred",
+      error: error.message, // Use the actual error message
+    });
+  }
+  
+}
+
+const getTourRequests = async(req, res) =>{
+
+  const ownerId = req.token.userId
+  const result = await propertyService.getOwnerRequestTours(ownerId)
+
+  if(result.success === true){
+    return res.status(200).json({
+      success: true,
+      message: `all tour requests for ${ownerId}`,
+      result: result.data,
+    })
+  }else{
+    return res.status(500).json({
+      success: false,
+      message: "failed to load the properties",
+      error: error,
+    });
+  }
+
+}
+
+const acceptTourRequest = async(req,res) =>{
+
+  const ownerId = req.token.userId
+  const requestId = req.params.requestId
+
+  const result = await propertyService.acceptTourRequestService(ownerId, requestId)
+
+  if (result.success === true) {
+    return res.status(200).json({
+      success: true,
+      message: `Request for has been approved by owner ${ownerId}`,
+      data: result.data,
+    });
+  } else {
+    return res.status(500).json({
+      success: false,
+      data: result,
+    });
+  }
+}
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -159,5 +240,8 @@ module.exports = {
   getPropertiesByuserId,
   updateMyProperty,
   deleteProperty,
-  AdminGetAllProperties
+  AdminGetAllProperties, 
+  requestTour,
+  getTourRequests, 
+  acceptTourRequest
 };

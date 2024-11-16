@@ -60,10 +60,10 @@ const login = async (req, res) => {
   }
 };
 
-const requestToBecomeRenter = async (req, res) =>{
-  const userId = req.token.userId
+const requestToBecomeRenter = async (req, res) => {
+  const userId = req.token.userId;
 
-  const result = await userService.RequestToBecomeRenterService(userId)
+  const result = await userService.RequestToBecomeRenterService(userId);
 
   if (result) {
     return res.status(200).json({
@@ -78,45 +78,52 @@ const requestToBecomeRenter = async (req, res) =>{
       data: result.data,
     });
   }
+};
 
-}
+const acceptOwnerRequest = async (req, res) => {
+  const role = req.token.role;
+  const requestId = req.params.requestId;
 
-const acceptOwnerRequest = async (req, res)=>{
-  const role = req.token.role
-  const requestId = req.params.requestId
+  const result = await userService.acceptOwnerRequestService(requestId, role);
 
-  const result = await userService.acceptOwnerRequestService(requestId, role)
-  
-  if(result.success == true){
+  if (result.success == true) {
     return res.status(200).json({
       success: true,
       message: `Request for  has been approved`,
       data: result.data,
     });
-  }else{
+  } else {
     return res.status(500).json({
       success: false,
       data: result,
     });
   }
-}
+};
 
-const getAllOwnersRequests = async(req, res)=>{
-  
-  const result = await userService.getAllOwnersRequestsService(req.token.role) 
+const getAllOwnersRequests = async (req, res) => {
+  const result = await userService.getAllOwnersRequestsService(req.token.role);
 
-  if(result.success == true){
+  if (result.success == true) {
     return res.status(200).json({
       success: true,
       message: `All owners requests`,
       data: result.data,
     });
-  }else{
+  } else {
     return res.status(500).json({
       success: false,
       data: result,
     });
   }
-} 
+};
 
-module.exports = { signUp, getallusers, login, requestToBecomeRenter, acceptOwnerRequest,getAllOwnersRequests};
+
+
+module.exports = {
+  signUp,
+  getallusers,
+  login,
+  requestToBecomeRenter,
+  acceptOwnerRequest,
+  getAllOwnersRequests,
+};

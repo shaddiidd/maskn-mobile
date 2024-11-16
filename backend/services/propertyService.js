@@ -1,6 +1,10 @@
 const Property = require("../models/properties");
+const TourRequest = require("../models/tourRequests");
 
-const createProperty = (property, user_id) => {
+const createProperty = (property, user_id, role) => {
+  if (role !== 2) {
+    return { success: false, message: "Unauthorized" };
+  }
   const {
     property_national_number,
     description,
@@ -105,10 +109,86 @@ const deletePropertyService = async (propertyId, userId) => {
   }
 };
 
+const requestTourByTenant = async (tenantId, propertyId) => {
+  try {
+    const property = await Property.findByPk(propertyId);
+
+    if (!property) {
+      return { success: false, message: "Property not found" };
+    }
+
+    const ownerId = property.dataValues.user_id;
+
+    if (tenantId === ownerId) {
+      return { success: false, message: "tour request cant made by owner" };
+    }
+    const requestExist = await TourRequest.findOne({
+      where: {
+        tenant_id: tenantId,
+        property_id: propertyId,
+      },
+    });
+
+    if (requestExist) {
+      return { success: false, message: "user already have a request" };
+    }
+
+    const newTourRequest = await TourRequest.create({
+      tenant_id: tenantId,
+      property_id: propertyId,
+      owner_id: ownerId,
+    });
+
+    return { success: true, data: newTourRequest };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+const getOwnerRequestTours = async (ownerId) => {
+  try {
+    const requests = await TourRequest.findAll({
+      where: { owner_id: ownerId },
+    });
+
+    return { success: true, data: requests };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+const acceptTourRequestService = async (ownerId, requestId) => {
+  try {
+    const requestExist = await TourRequest.findOne({
+      where: { request_id: requestId, owner_id: ownerId },
+    });
+
+    if (requestExist) {
+      const [rowsUpdated, [updatedRequest]] = await TourRequest.update(
+        { status: "approved" },
+        {
+          where: { owner_id: ownerId, request_id: requestId },
+          returning: true, // Fetch the updated record
+        }
+      );
+
+      return { success: true, data: updatedRequest };
+    }
+
+    return { success: false, message: "Request does not exist" };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+
 module.exports = {
   createProperty,
   getAllProperties,
   findPropertiesByuserId,
   updateMyProperty,
   deletePropertyService,
+  requestTourByTenant,
+  getOwnerRequestTours,
+  acceptTourRequestService,
 };
