@@ -111,7 +111,6 @@ const deleteProperty = async (req, res) => {
       userId
     );
 
-    console.log("res",result);
     
     if (result) {
       return res.status(200).json({
@@ -157,11 +156,10 @@ const requestTour = async (req,res)=>{
   const tenantId = req.token.userId
   const propertyId = req.params.propertyId
 
-  console.log(tenantId);
   
   const result = await propertyService.requestTourByTenant(tenantId, propertyId)
 
-  console.log(result);
+
   
   try {
     if (result.success) {

@@ -96,6 +96,9 @@ const loginUser = async (credentials) => {
       userId: user.user_id,
       country: user.nationality,
       role: user.role_id,
+      role: user.role_id,
+      firstName: user.first_name,
+      lastName: user.last_name,
     };
     const options = { expiresIn: "1d" };
     const secret = process.env.SECRET;
@@ -120,7 +123,6 @@ const loginUser = async (credentials) => {
 };
 
 const acceptOwnerRequestService = async (requestId, role) => {
-  console.log(requestId);
 
   if (role !== 3) {
     return { success: false, message: "Unauthorized" };
