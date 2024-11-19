@@ -13,7 +13,6 @@ const Provider = ({ children }) => {
     await AsyncStorage.clear();
     setIsAuthenticated(false);
     setToken("");
-    setUser({});
   };
 
   useEffect(() => {
@@ -29,30 +28,33 @@ const Provider = ({ children }) => {
     fetchToken();
   }, []);
 
-  // useEffect(() => {
-  //   setAuthorizationToken(token);
-  //   if (token !== "") {
-  //     setLoading(true);
-  //     get("user")
-  //       .then((response) => {
-  //         setLoading(false);
-  //         setUser(response);
-  //         setIsAuthenticated(true);
-  //       })
-  //       .catch(() => {
-  //         logout();
-  //       });
-  //   } else {
-  //     setIsAuthenticated(false);
-  //   }
-  // }, [token]);
+  const decodeJWT = () => {
+    if (!token) return;
+    const base64Url = token.split(".")[1];
+    const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split("")
+        .map((c) => "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2))
+        .join("")
+    );
+    return JSON.parse(jsonPayload);
+  };
+
+  useEffect(() => {
+    // if (token) {
+      const decodedToken = decodeJWT();
+      console.log(decodedToken);
+      setUser(decodedToken);
+    // }
+    
+  }, [token]);
 
   const auth = (body) => {
     setLoading(true);
     post("users/login", body)
       .then((response) => {
         setToken(response.data.token);
-        setUser(response.data);
         setIsAuthenticated(true);
         setAuthorizationToken(response.data.token);
         AsyncStorage.setItem("token", response.data.token);
@@ -63,13 +65,12 @@ const Provider = ({ children }) => {
       .finally(() => setLoading(false));
   };
 
-  signUp = (body) => {
+  const signUp = (body) => {
     setLoading(true);
     post("users/signUp", body)
       .then((response) => {
         console.log(response)
-        setToken(response.user.token);
-        setUser(response.user.data.newUser);
+        setToken(response.user.data.token);
         setIsAuthenticated(true);
         setAuthorizationToken(response.user.token);
         AsyncStorage.setItem("token", response.user.token);

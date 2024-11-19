@@ -45,7 +45,7 @@ function CustomDrawerContent({ navigation }) {
           source={require("./assets/hazodeh.png")}
           style={styles.profileImage}
         />
-        <Text style={styles.name}>{user?.name?.firstName} {user?.name?.lastName}</Text>
+        <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
         <Text style={styles.userName}>{user?.username}</Text>
       </View>
 
