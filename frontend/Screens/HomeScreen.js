@@ -1,38 +1,39 @@
-import { StyleSheet, SafeAreaView, View, FlatList, TextInput, TouchableOpacity, Text, ScrollView } from 'react-native';
+import { StyleSheet, SafeAreaView, View, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import InfoCard from "../Components/InfoCard";
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
+import { get } from "../fetch";
 
 export default function HomeScreen() {
-  const [order, setOrder] = useState("New");
   const [properties, setProperties] = useState([]);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
-          <Ionicons name="funnel-outline" size={25} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder='Search' />
-          <Ionicons name="search" size={20} color="#508D4E" />
-        </View>
-      </View>
-      <ScrollView contentContainerStyle={{ alignItems: "center" }} style={{ flex: 1, width: "100%" }}>
-        {properties?.map((property) => (
-          <InfoCard property={property} />
-        ))}
-      </ScrollView>
+  useEffect(() => {
+    get("property")
+      .then((response) => {
+        setProperties(response.result);
+      })
+      .catch((error) => {
+        console.log(error.response.data);
+      });
+  }, []);
 
-      {/* <FlatList
-        style={styles.list}
-        contentContainerStyle={{ alignItems: "center" }}
-        showsVerticalScrollIndicator={false}
-        data={properties}
-        renderItem={renderItem}
-        keyExtractor={item => item.id.toString()}
-      /> */}
-    </SafeAreaView>
+  return (
+        <SafeAreaView style={styles.container}>
+            <View style={styles.searchContainer}>
+              <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
+                <Ionicons name="funnel-outline" size={25} color="#fff" />
+              </TouchableOpacity>
+              <View style={styles.inputContainer}>
+                <TextInput style={styles.input} placeholder='Search' />
+                <Ionicons name="search" size={20} color="#508D4E" />
+              </View>
+            </View>
+            <ScrollView contentContainerStyle={{ alignItems: "center" }} style={{ flex: 1, width: "100%" }}>
+              {properties.length ? properties?.map((property) => (
+                <InfoCard key={property.property_id} property={property} />
+              )) : <></>}
+            </ScrollView>
+        </SafeAreaView>
   );
 }
 
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#508D4E",
     padding: 12,
     aspectRatio: 1,
-    borderRadius: "50%"
+    borderRadius: 100
   },
   inputContainer: {
     flex: 1,
@@ -62,14 +63,15 @@ const styles = StyleSheet.create({
     borderColor: "#508D4E",
     borderWidth: 1,
     borderRadius: "50%",
-    marginLeft: 20,
+    marginLeft: 10,
     paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center"
   },
   input: {
-    height: "100%"
+    height: "100%",
+    flex: 1
   },
   sortContainer: {
     flexDirection: "row",

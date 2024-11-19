@@ -20,13 +20,13 @@ import Context from "./Context";
 import "./gesture-handler";
 import logo from "./assets/logo.png";
 
-import SignupScreen from './screens/authentication/SignupScreen';
-import SigninScreen from './screens/authentication/SigninScreen';
+import SignupScreen from "./Screens/Authentication/SignupScreen";
+import SigninScreen from "./Screens/Authentication/SigninScreen";
 
-import HomeScreen from "./screens/HomeScreen";
-import PropertyScreen from './screens/PropertyScreen';
-import ProfileScreen from './screens/ProfileScreen';
-import TourRequestsScreen from './screens/TourRequestsScreen';
+import HomeScreen from "./Screens/HomeScreen";
+import PropertyScreen from "./Screens/PropertyScreen";
+import ProfileScreen from "./Screens/ProfileScreen";
+import TourRequestsScreen from "./Screens/TourRequestsScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -45,7 +45,8 @@ function CustomDrawerContent({ navigation }) {
           source={require("./assets/hazodeh.png")}
           style={styles.profileImage}
         />
-        <Text style={styles.userName}>{user.name}</Text>
+        <Text style={styles.name}>{user?.name?.firstName} {user?.name?.lastName}</Text>
+        <Text style={styles.userName}>{user?.username}</Text>
       </View>
 
       <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
@@ -128,23 +129,43 @@ function CustomDrawerContent({ navigation }) {
 }
 
 function DrawerNavigation() {
+  const { isAuthenticated } = useContext(Context);
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
-      screenOptions={{
-        headerStyle: {
-          backgroundColor: "#508D4E",
-        },
-        headerTintColor: "#fff",
-        drawerStyle: {
-          backgroundColor: "#508D4E",
-        },
-        drawerActiveTintColor: "#fff",
-        drawerInactiveTintColor: "#fff",
-        drawerItemStyle: {
-          paddingVertical: 5,
-        },
-        drawerType: "front",
+      screenOptions={({ navigation }) => {
+        const baseOptions = {
+          headerStyle: {
+            backgroundColor: "#508D4E",
+          },
+          headerTintColor: "#fff",
+          drawerStyle: {
+            backgroundColor: "#508D4E",
+          },
+          drawerActiveTintColor: "#fff",
+          drawerInactiveTintColor: "#fff",
+          drawerItemStyle: {
+            paddingVertical: 5,
+          },
+          drawerType: "front",
+          swipeEnabled: isAuthenticated,
+          gestureEnabled: isAuthenticated,
+        };
+
+        if (!isAuthenticated) {
+          baseOptions.headerLeft = () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Signin")} activeOpacity={0.7}>
+              <Ionicons
+                name="log-in-outline"
+                color="#fff"
+                size={24}
+                style={{ marginLeft: 10 }}
+              />
+            </TouchableOpacity>
+          );
+        }
+
+        return baseOptions;
       }}
     >
       <Drawer.Screen
@@ -225,8 +246,8 @@ export default function Navigation() {
         />
         {!isAuthenticated && (
           <>
-            <Stack.Screen name="Signin" component={SigninScreen} />
-            <Stack.Screen name="Signup" component={SignupScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="Signin" component={SigninScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="Signup" component={SignupScreen} />
           </>
         )}
       </Stack.Navigator>
@@ -248,11 +269,16 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: "white",
   },
-  userName: {
+  name: {
     color: "#fff",
     fontSize: 18,
     fontWeight: "bold",
     marginTop: 10,
+  },
+  userName: {
+    color: "#fff",
+    fontSize: 15,
+    marginTop: 2,
   },
   drawerContent: {
     padding: 0,
