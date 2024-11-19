@@ -94,8 +94,11 @@ const loginUser = async (credentials) => {
     // Generate token if login is successful
     const payload = {
       userId: user.user_id,
-      country: user.nationality,
       role: user.role_id,
+      username: user.username, // Adjust to match the field name in your model
+      role: user.role_id,
+      firstName: user.first_name,
+      lastName: user.last_name,
     };
     const options = { expiresIn: "1d" };
     const secret = process.env.SECRET;
