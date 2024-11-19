@@ -38,6 +38,8 @@ const createUser = async (userData) => {
     userId: newUser.user_id,
     country: newUser.nationality,
     role: newUser.role_id,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
