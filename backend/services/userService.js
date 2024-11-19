@@ -37,7 +37,10 @@ const createUser = async (userData) => {
   const payload = {
     userId: newUser.user_id,
     country: newUser.nationality,
+    userName : newUser.username,
     role: newUser.role_id,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -95,7 +98,7 @@ const loginUser = async (credentials) => {
     const payload = {
       userId: user.user_id,
       country: user.nationality,
-      role: user.role_id,
+      userName : user.username,
       role: user.role_id,
       firstName: user.first_name,
       lastName: user.last_name,
