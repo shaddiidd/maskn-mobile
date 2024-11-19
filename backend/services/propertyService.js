@@ -53,19 +53,15 @@ const createProperty = (property, user_id, role) => {
 };
 
 const getAllProperties = async (userRole = null) => {
-  console.log(userRole);
 
   try {
     if (userRole == 3) {
       const properites = await Property.findAll();
-      console.log("prop", properites);
-
       return { success: true, data: properites };
     } else {
       const properites = await Property.findAll({
         where: { post_status_id: 1 },
       });
-      console.log("prop", properites);
       return { success: true, data: properites };
     }
   } catch (error) {
