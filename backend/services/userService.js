@@ -14,6 +14,7 @@ const createUser = async (userData) => {
     password,
     nationality,
     email,
+    phone_number,
   } = userData;
 
   const hashedPassword = await bcrypt.hash(password, 3);
@@ -30,6 +31,7 @@ const createUser = async (userData) => {
     rating: defualtRating,
     email,
     role_id: role,
+    phone_number,
   });
 
   const payload = {
@@ -108,7 +110,8 @@ const loginUser = async (credentials) => {
         userId: user.user_id,
         username: user.username, // Adjust to match the field name in your model
         role: user.role_id,
-        name: { firstName: user.first_name, lastName: user.last_name },
+        firstName: user.first_name,
+        lastName: user.last_name,
       },
     };
   } catch (error) {
@@ -132,7 +135,7 @@ const acceptOwnerRequestService = async (requestId, role) => {
       { request_state: "approved" }, // Values to update
       { where: { request_id: requestId } }
     );
-    await User.update({ role_id: 2}, {where: { user_id: request.user_id } });
+    await User.update({ role_id: 2 }, { where: { user_id: request.user_id } });
   } catch (error) {
     return { success: false, error: error.message };
   }
@@ -152,20 +155,20 @@ const RequestToBecomeRenterService = async (userId) => {
   }
 };
 
-const getAllOwnersRequestsService = async (role) =>{
-  if(role !== 3){
+const getAllOwnersRequestsService = async (role) => {
+  if (role !== 3) {
     return { success: false, message: "Unauthorized" };
   }
   try {
-    const requests = await OwnersRentalRequest.findAll()
+    const requests = await OwnersRentalRequest.findAll();
     if (!requests) {
-      return { success: false, message : "unable to load requests" }
+      return { success: false, message: "unable to load requests" };
     }
-    return { success: true, data: requests }
+    return { success: true, data: requests };
   } catch (error) {
-    return { success: false, error: error.message }
+    return { success: false, error: error.message };
   }
-}
+};
 
 module.exports = {
   createUser,
@@ -173,5 +176,5 @@ module.exports = {
   loginUser,
   acceptOwnerRequestService,
   RequestToBecomeRenterService,
-  getAllOwnersRequestsService
+  getAllOwnersRequestsService,
 };

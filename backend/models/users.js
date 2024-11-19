@@ -46,6 +46,14 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        is: /^[0-9]+$/, // Optional regex to enforce numeric phone numbers
+      },
+    },
     role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -67,8 +75,6 @@ const User = sequelize.define(
 
     validate: {
       ratingRequiredForUsers() {
-        console.log("role",this.role_id);
-        
         if (
           this.role_id === 1 &&
           (this.rating === null || this.rating === undefined)
