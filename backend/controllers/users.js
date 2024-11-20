@@ -14,7 +14,7 @@ const signUp = async (req, res) => {
       res.status(409).json({
         success: false,
         message: err.errors.message,
-        error: err.errors.message, 
+        error: err.errors.message,
       });
     } else {
       res.status(500).json({
@@ -117,7 +117,29 @@ const getAllOwnersRequests = async (req, res) => {
   }
 };
 
-
+const generateNewToken = async (req, res) => {
+  const userId = req.token.userId;
+  
+  if (!userId) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Token is required" });
+  }
+  try {
+    const result = await userService.refreshToken(userId);
+    if (result) {
+      return res.status(200).json({
+        success: true,
+        data: result,
+      });
+    }
+  } catch (error) {
+    return res.status(403).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
   signUp,
@@ -126,4 +148,5 @@ module.exports = {
   requestToBecomeRenter,
   acceptOwnerRequest,
   getAllOwnersRequests,
+  generateNewToken
 };

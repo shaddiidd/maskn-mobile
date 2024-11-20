@@ -194,7 +194,8 @@ const refreshToken = async (userId) => {
     const secret = process.env.SECRET;
 
     const token = jwt.sign(payload, secret, options);
-    return { success: true, data: token };
+
+    return { success: true, data: token,  };
   } catch (error) {
     return { success: false, erorr: error.message };
   }
