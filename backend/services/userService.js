@@ -37,7 +37,10 @@ const createUser = async (userData) => {
   const payload = {
     userId: newUser.user_id,
     country: newUser.nationality,
+    userName : newUser.username,
     role: newUser.role_id,
+    firstName: newUser.first_name,
+    lastName: newUser.last_name
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -94,8 +97,8 @@ const loginUser = async (credentials) => {
     // Generate token if login is successful
     const payload = {
       userId: user.user_id,
-      role: user.role_id,
-      username: user.username, // Adjust to match the field name in your model
+      country: user.nationality,
+      userName : user.username,
       role: user.role_id,
       firstName: user.first_name,
       lastName: user.last_name,
@@ -123,7 +126,6 @@ const loginUser = async (credentials) => {
 };
 
 const acceptOwnerRequestService = async (requestId, role) => {
-  console.log(requestId);
 
   if (role !== 3) {
     return { success: false, message: "Unauthorized" };

@@ -5,16 +5,13 @@ const nodemailer = require("nodemailer");
 const cron = require('node-cron');
 
 const generateResetToken = async (user) => {
-  console.log(user);
   
   // this for the content of the payload of the token
   const payload = {
     userId: user.user_id,
   };
-  console.log(payload);
   
   const options = { expiresIn: "1h" };
-  console.log(options);
   
   const secret = process.env.SECRET;
 
@@ -64,8 +61,6 @@ const verifyResetToken = (token) => {
 };
 
 const updatePassword = async(user, newPassword) =>{
-  
-  console.log("this user: ",user);
   
 
   const hashedPassword = await bcrypt.hash(newPassword, 10);
