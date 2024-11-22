@@ -9,7 +9,7 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.addColumn('users', 'phone_number', {
       type: Sequelize.STRING,
-      //allowNull: false, // The column cannot be null
+      allowNull: false, // The column cannot be null
       unique: true,     // Ensures the column has unique values
     });
   },

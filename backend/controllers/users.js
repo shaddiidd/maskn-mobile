@@ -13,7 +13,7 @@ const signUp = async (req, res) => {
     if (err.name === "SequelizeUniqueConstraintError") {
       res.status(409).json({
         success: false,
-        message: err.errors.message,
+        message: err,
         error: err.errors.message,
       });
     } else {
@@ -140,6 +140,8 @@ const generateNewToken = async (req, res) => {
     });
   }
 };
+
+
 
 module.exports = {
   signUp,
