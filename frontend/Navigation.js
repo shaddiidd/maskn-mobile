@@ -41,11 +41,19 @@ function CustomDrawerContent({ navigation }) {
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={styles.userInfoSection}>
-        <Image
+        <View
           source={require("./assets/hazodeh.png")}
           style={styles.profileImage}
-        />
-        <Text style={styles.name}>{user?.firstName} {user?.lastName}</Text>
+        >
+          <Ionicons
+            name="person"
+            color="#666"
+            size={50}
+          />
+        </View>
+        <Text style={styles.name}>
+          {user?.firstName} {user?.lastName}
+        </Text>
         <Text style={styles.userName}>{user?.username}</Text>
       </View>
 
@@ -154,7 +162,10 @@ function DrawerNavigation() {
 
         if (!isAuthenticated) {
           baseOptions.headerLeft = () => (
-            <TouchableOpacity onPress={() => navigation.navigate("Signin")} activeOpacity={0.7}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate("Signin")}
+              activeOpacity={0.7}
+            >
               <Ionicons
                 name="log-in-outline"
                 color="#fff"
@@ -246,8 +257,16 @@ export default function Navigation() {
         />
         {!isAuthenticated && (
           <>
-            <Stack.Screen options={{ headerShown: false }} name="Signin" component={SigninScreen} />
-            <Stack.Screen options={{ headerShown: false }} name="Signup" component={SignupScreen} />
+            <Stack.Screen
+              options={{ headerShown: false }}
+              name="Signin"
+              component={SigninScreen}
+            />
+            <Stack.Screen
+              options={{ headerShown: false }}
+              name="Signup"
+              component={SignupScreen}
+            />
           </>
         )}
       </Stack.Navigator>
@@ -268,6 +287,9 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     borderWidth: 2,
     borderColor: "white",
+    backgroundColor: "#EEE",
+    justifyContent: "center",
+    alignItems: "center",
   },
   name: {
     color: "#fff",
