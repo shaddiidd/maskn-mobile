@@ -9,9 +9,10 @@ const addProperty = async (req, res) => {
     const newProperty = await propertyService.createProperty(
       req.body,
       ownerId,
-      role
+      role,
+      req.files
     );
-
+    
     if (newProperty.success) {
       return res.status(201).json({
         success: true,

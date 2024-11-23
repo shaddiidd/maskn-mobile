@@ -2,6 +2,7 @@ const express = require("express");
 const propertyRouter = express.Router();
 const auth = require("../middleware/authentication");
 const authorization = require("../middleware/authorization");
+const upload = require("../middleware/upload") 
 
 const {
   addProperty,
@@ -20,9 +21,10 @@ const {
 
 propertyRouter.post(
   "/add-property",
-  auth,
-  authorization("Apply for Rental"),
-  addProperty
+  auth, // Authentication middleware
+  authorization("Apply for Rental"), // Authorization middleware
+  upload.array("photos", 5), // File upload middleware
+  addProperty // Controller
 );
 propertyRouter.get("/", getAllProperties);
 propertyRouter.get("/get-property-by-admin", auth, AdminGetAllProperties);
