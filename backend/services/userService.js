@@ -37,10 +37,10 @@ const createUser = async (userData) => {
   const payload = {
     userId: newUser.user_id,
     country: newUser.nationality,
-    userName : newUser.username,
+    userName: newUser.username,
     role: newUser.role_id,
     firstName: newUser.first_name,
-    lastName: newUser.last_name
+    lastName: newUser.last_name,
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -98,7 +98,7 @@ const loginUser = async (credentials) => {
     const payload = {
       userId: user.user_id,
       country: user.nationality,
-      userName : user.username,
+      userName: user.username,
       role: user.role_id,
       firstName: user.first_name,
       lastName: user.last_name,
@@ -126,7 +126,6 @@ const loginUser = async (credentials) => {
 };
 
 const acceptOwnerRequestService = async (requestId, role) => {
-
   if (role !== 3) {
     return { success: false, message: "Unauthorized" };
   }
@@ -175,6 +174,32 @@ const getAllOwnersRequestsService = async (role) => {
   }
 };
 
+const refreshToken = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { success: false, message: "user not found" };
+    }
+
+    // Generate token if user is found
+    const payload = {
+      userId: user.user_id,
+      country: user.nationality,
+      userName: user.username,
+      role: user.role_id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+    };
+    const options = { expiresIn: "1d" };
+    const secret = process.env.SECRET;
+
+    const token = jwt.sign(payload, secret, options);
+
+    return { success: true, data: token,  };
+  } catch (error) {
+    return { success: false, erorr: error.message };
+  }
+};
 module.exports = {
   createUser,
   findAllUsers,
@@ -182,4 +207,5 @@ module.exports = {
   acceptOwnerRequestService,
   RequestToBecomeRenterService,
   getAllOwnersRequestsService,
+  refreshToken
 };

@@ -27,6 +27,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       unique: true,
       allowNull: false,
+      validate: {
+        is: /^[0-9]{10}$/, // Ensures the national number is numeric and exactly 10 digits
+        len: [10, 10], // Ensures the length is exactly 10 characters
+      }         
     },
     date_of_birth: {
       type: DataTypes.DATEONLY,
@@ -51,8 +55,10 @@ const User = sequelize.define(
       allowNull: false,
       unique: true,
       validate: {
-        is: /^[0-9]+$/, // Optional regex to enforce numeric phone numbers
-      },
+        is: /^[0-9]{10}$/, // Ensures the phone number is exactly 10 numeric digits
+        len: [10, 10], // Ensures the length is exactly 10 characters
+      }
+      
     },
     role_id: {
       type: DataTypes.INTEGER,

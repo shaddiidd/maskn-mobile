@@ -2,12 +2,13 @@ const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
 const User = require("../models/users")
 
-const createProperty = (property, user_id, role) => {
+const createProperty = async (property, user_id, role) => {
+  // Check if the user has the proper role to create a property
   if (role !== 2) {
     return { success: false, message: "Unauthorized" };
   }
+
   const {
-    property_national_number,
     description,
     title,
     address,
@@ -22,35 +23,54 @@ const createProperty = (property, user_id, role) => {
     electricity_meter_reference_number,
     price,
     rental_period,
+    village_id,
+    block_id,
+    neighborhood_id,
+    parcel_number,
+    building_number,
+    apartment_number,
   } = property;
 
-  const post_status = 2;
+  // Define the default values
+  const post_status = 2; // Default post status
+  const rental_status = 0; // Default rental status
 
-  const rental_status = 0;
+  try {
+    // Create a new property record in the database
+    const newProperty = await Property.create({
+      user_id,
+      description,
+      title,
+      address,
+      location,
+      area,
+      is_furnished,
+      floor_num,
+      bedroom_num,
+      bathroom_num,
+      property_age,
+      water_meter_subscription_number,
+      electricity_meter_reference_number,
+      price,
+      rental_period,
+      village_id,
+      block_id,
+      neighborhood_id,
+      parcel_number,
+      building_number,
+      apartment_number,
+      mark_as_rented: rental_status,
+      post_status_id: post_status,
+    });
 
-  const newProperty = Property.create({
-    property_national_number,
-    user_id,
-    description,
-    title,
-    address,
-    location,
-    area,
-    is_furnished,
-    floor_num,
-    bedroom_num,
-    bathroom_num,
-    property_age,
-    water_meter_subscription_number,
-    electricity_meter_reference_number,
-    price,
-    rental_period,
-    mark_as_rented: rental_status,
-    post_status_id: post_status,
-  });
-
-  return newProperty;
+    // Return the newly created property
+    return { success: true, data: newProperty };
+  } catch (error) {
+    // Handle any errors that occur during the creation process
+    return { success: false, message: error.message };
+  }
 };
+
 
 const getAllProperties = async (userRole = null) => {
 
