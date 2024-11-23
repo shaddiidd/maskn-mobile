@@ -4,13 +4,13 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 export default function InfoCard({ property }) {
   const navigation = useNavigation();
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={() => navigation.navigate("PropertyDetails", { id: property.id })}>
-      <Image style={styles.image} source={property.img} />
+    <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={() => navigation.navigate("PropertyDetails", { property })}>
+      <Image style={styles.image} source={""} />
       <Text style={styles.title}>{property.title}</Text>
       <View style={styles.line3}>
-        <Text style={styles.price}>${property.price}</Text>
+        <Text style={styles.price}>JD {property.price}</Text>
         <View style={styles.ratingContainer}>
-          <Text style={styles.ratingTxt}>{property.rating} </Text>
+          <Text style={styles.ratingTxt}>{property.rating || "5"} </Text>
           <Image style={styles.star} source={require("../assets/star.png")} />
         </View>
       </View>
@@ -38,7 +38,8 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 12,
     borderTopRightRadius: 12,
     width: "100%",
-    height: 200
+    height: 200,
+    backgroundColor: "lightgrey"
   },
   title: {
     fontSize: 18,

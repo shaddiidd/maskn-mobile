@@ -22,6 +22,6 @@ app.use("/auth", authRouter)
 app.use("*", (req, res) => res.status(404).json("NO content at this path"));
 
 
-app.listen(PORT, () => {
+app.listen("5002", () => {
   console.log(`SERVER LISTENING AT http://localhost:${PORT}`);
 });
