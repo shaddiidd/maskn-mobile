@@ -1,10 +1,26 @@
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PackageCard({ pack }) {
+  const navigation = useNavigation();
   return (
-    <TouchableOpacity style={{ width: "100%" }} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={{ width: "100%" }}
+      activeOpacity={0.7}
+      onPress={() =>
+        navigation.navigate("Payment", {
+          id: pack.packageId,
+          name: `${pack.name} Plan`,
+          price: pack.price,
+          additionalInfo: {
+            from: Date.now() * 24 * 60 * 60 * 1000,
+            to: Date.now() + 30 * 24 * 60 * 60 * 1000,
+          }
+        })
+      }
+    >
       <LinearGradient
         colors={["#508D4E", "#8AB489"]}
         start={{ x: 0.5, y: 0 }}

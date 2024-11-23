@@ -30,6 +30,7 @@ import TourRequestsScreen from "./Screens/TourRequestsScreen";
 import RentHistory from "./Screens/RentHistory";
 import MyProperties from "./Screens/MyProperties";
 import BecomeRenter from "./Screens/BecomeRenter";
+import Payment from "./Screens/Payment";
 
 const Drawer = createDrawerNavigator();
 
@@ -282,6 +283,10 @@ export default function Navigation() {
           options={{
             title: "Become a Renter",
           }}
+        />
+        <Stack.Screen
+          name="Payment"
+          component={Payment}
         />
         {!isAuthenticated && (
           <>
