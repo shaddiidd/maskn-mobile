@@ -14,30 +14,26 @@ import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { get } from "../fetch";
 
-export default function HomeScreen() {
+export default function RentHistory() {
   const [properties, setProperties] = useState([
     {
       property_id: 1,
       title: "Property 1",
       price: 320,
       rating: 4.5,
+      date: "Jul 2023 - ",
     },
     {
       property_id: 2,
       title: "Property 2",
       price: 350,
       rating: 4.5,
-    },
-    {
-      property_id: 3,
-      title: "Property 3",
-      price: 250,
-      rating: 4.5,
+      date: "Jul 2023 - ",
     },
   ]);
 
   // useEffect(() => {
-  //   get("property")
+  //   get("rentHistory")
   //     .then((response) => {
   //       setProperties(response.result);
   //     })
@@ -48,45 +44,35 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchContainer}>
-        <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
-          <Ionicons name="funnel-outline" size={25} color="#fff" />
-        </TouchableOpacity>
-        <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder="Search" />
-          <Ionicons name="search" size={20} color="#508D4E" />
-        </View>
-      </View>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          contentContainerStyle={{
-            alignItems: "center",
-            minHeight: "100%",
-            justifyContent: properties?.length ? "flex-start" : "center",
-          }}
-          style={{ flex: 1, width: "100%" }}
-        >
-          {properties?.length ? (
-            properties?.map((property) => (
-              <PropertyCard key={property.property_id} property={property} />
-            ))
-          ) : (
-            <>
-              <Ionicons name="home-outline" size={50} color="#666" />
-              <Text
-                style={{
-                  color: "#666",
-                  fontSize: 17,
-                  marginTop: 5,
-                  marginBottom: 100,
-                }}
-              >
-                No properties yet
-              </Text>
-            </>
-          )}
-        </ScrollView>
-      </TouchableWithoutFeedback>
+      <ScrollView
+        contentContainerStyle={{
+          alignItems: "center",
+          minHeight: "100%",
+          justifyContent: properties?.length ? "flex-start" : "center",
+          paddingTop: 10
+        }}
+        style={{ flex: 1, width: "100%" }}
+      >
+        {properties?.length ? (
+          properties?.map((property) => (
+            <PropertyCard key={property.property_id} property={property} />
+          ))
+        ) : (
+          <>
+            <Ionicons name="home-outline" size={50} color="#666" />
+            <Text
+              style={{
+                color: "#666",
+                fontSize: 17,
+                marginTop: 5,
+                marginBottom: 100,
+              }}
+            >
+              Nothing to show
+            </Text>
+          </>
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }

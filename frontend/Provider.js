@@ -42,11 +42,11 @@ const Provider = ({ children }) => {
   };
 
   useEffect(() => {
-    // if (token) {
+    if (token) {
       const decodedToken = decodeJWT();
       console.log(decodedToken);
       setUser(decodedToken);
-    // }
+    }
     
   }, [token]);
 

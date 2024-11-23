@@ -1,8 +1,11 @@
 import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Reviews from "../Components/Reviews";
+import Button from '../Components/Button';
+import { useNavigation } from '@react-navigation/native';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const infoItems = [
     { icon: 'work-outline', text: 'Student' },
     { icon: 'people-outline', text: 'Single' },
@@ -14,7 +17,7 @@ export default function ProfileScreen() {
   ]
 
   return (
-    <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
+    <ScrollView bounces={false} style={{ paddingHorizontal: 20, backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -43,10 +46,11 @@ export default function ProfileScreen() {
             </View>
           ))}
         </View>
-        <TouchableOpacity activeOpacity={0.7} style={styles.historyBtn}>
+        {/* <TouchableOpacity activeOpacity={0.7} style={styles.historyBtn}>
           <Icon name="history" size={25} color="#fff" />
           <Text style={styles.historyBtnTxt}>  RENT HISTORY</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
+        <Button text="rent history" onPress={() => navigation.navigate("RentHistory")} />
         <Reviews reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
@@ -62,7 +66,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderWidth: 1,
-    width: "90%",
+    width: "100%",
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
@@ -98,7 +102,7 @@ const styles = StyleSheet.create({
   infoContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    width: '85%',
+    width: '95%',
     justifyContent: 'space-between',
     marginTop: 10,
   },
@@ -121,7 +125,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#508D4E",
     borderWidth: 1.5,
     borderColor: "#508D4E",
-    width: "90%",
+    width: "100%",
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",

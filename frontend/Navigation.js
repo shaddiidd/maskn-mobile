@@ -27,6 +27,7 @@ import HomeScreen from "./Screens/HomeScreen";
 import PropertyScreen from "./Screens/PropertyScreen";
 import ProfileScreen from "./Screens/ProfileScreen";
 import TourRequestsScreen from "./Screens/TourRequestsScreen";
+import RentHistory from "./Screens/RentHistory";
 
 const Drawer = createDrawerNavigator();
 
@@ -54,7 +55,7 @@ function CustomDrawerContent({ navigation }) {
         <Text style={styles.name}>
           {user?.firstName} {user?.lastName}
         </Text>
-        <Text style={styles.userName}>{user?.username}</Text>
+        <Text style={styles.userName}>{user?.userName}</Text>
       </View>
 
       <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
@@ -147,6 +148,10 @@ function DrawerNavigation() {
             backgroundColor: "#508D4E",
           },
           headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: '600',
+          },
           drawerStyle: {
             backgroundColor: "#508D4E",
           },
@@ -238,7 +243,7 @@ export default function Navigation() {
             drawerIcon: ({ color }) => (
               <Ionicons name="person-outline" size={24} color={color} />
             ),
-            title: "My profile",
+            title: "My Profile",
           }}
         />
         <Stack.Screen
@@ -253,6 +258,13 @@ export default function Navigation() {
           component={TourRequestsScreen}
           options={{
             title: "Tour Requests",
+          }}
+        />
+        <Stack.Screen
+          name="RentHistory"
+          component={RentHistory}
+          options={{
+            title: "Rent History",
           }}
         />
         {!isAuthenticated && (

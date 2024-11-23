@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    width: "90%",
+    width: "100%",
     marginBottom: 5
   },
   title: {
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginVertical: 10,
     borderRadius: 8,
-    minWidth: "90%",
+    minWidth: "100%",
     paddingHorizontal: 20,
     paddingVertical: 25,
     justifyContent: "space-between",

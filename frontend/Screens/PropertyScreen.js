@@ -49,46 +49,46 @@ export default function PropertyScreen({ route }) {
         >
           <View>
             <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.area}</Text>
+              <Text style={styles.infoValue}>{property?.area}</Text>
             </View>
             <Text style={styles.infoTitle}>Area</Text>
           </View>
           <View>
             <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.bedroom_num}</Text>
+              <Text style={styles.infoValue}>{property?.bedroom_num}</Text>
             </View>
             <Text style={styles.infoTitle}>Bedrooms</Text>
           </View>
           <View>
             <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.bathroom_num}</Text>
+              <Text style={styles.infoValue}>{property?.bathroom_num}</Text>
             </View>
             <Text style={styles.infoTitle}>Bathrooms</Text>
           </View>
           <View>
             <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.floor_num}</Text>
+              <Text style={styles.infoValue}>{property?.floor_num}</Text>
             </View>
             <Text style={styles.infoTitle}>Floor</Text>
           </View>
           <View>
             <View style={styles.infoBox}>
               <Text style={styles.infoValue}>
-                {property.is_furnished ? "Yes" : "No"}
+                {property?.is_furnished ? "Yes" : "No"}
               </Text>
             </View>
             <Text style={styles.infoTitle}>Furnished</Text>
           </View>
         </ScrollView>
 
-        <Text style={styles.title}>{property.title}</Text>
-        <Text style={styles.address}>{property.address}</Text>
-        <Text style={styles.description}>{property.description}</Text>
+        <Text style={styles.title}>{property?.title}</Text>
+        <Text style={styles.address}>{property?.address}</Text>
+        <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>JD {property.price} </Text>
+          <Text style={styles.price}>JD {property?.price} </Text>
           <Text style={styles.period}>
-            / {property.rental_period.split("")[0].toUpperCase() +
-              property.rental_period.slice(1).toLowerCase()}
+            / {property?.rental_period?.split("")[0].toUpperCase() +
+              property?.rental_period?.slice(1).toLowerCase()}
           </Text>
         </View>
         <TouchableOpacity

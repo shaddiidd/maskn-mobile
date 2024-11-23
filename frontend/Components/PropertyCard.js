@@ -1,11 +1,11 @@
 import { useNavigation } from '@react-navigation/native';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-export default function InfoCard({ property }) {
+export default function PropertyCard({ property }) {
   const navigation = useNavigation();
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={() => navigation.navigate("PropertyDetails", { property })}>
-      <Image style={styles.image} source={""} />
+      <Image style={styles.image} source={require("../assets/house.png")} />
       <Text style={styles.title}>{property.title}</Text>
       <View style={styles.line3}>
         <Text style={styles.price}>JD {property.price}</Text>
