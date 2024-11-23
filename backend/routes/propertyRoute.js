@@ -7,7 +7,7 @@ const {
   addProperty,
   getAllProperties,
   getMyProperties,
-  getPropertiesByuserId,
+  getPropertiesByUserId,
   updateMyProperty,
   deleteProperty,
   AdminGetAllProperties,
@@ -27,7 +27,7 @@ propertyRouter.post(
 propertyRouter.get("/", getAllProperties);
 propertyRouter.get("/get-property-by-admin", auth, AdminGetAllProperties);
 propertyRouter.get("/get-by-user-id", auth, getMyProperties);
-propertyRouter.get("/get-by-user-id/:userId", getPropertiesByuserId);
+propertyRouter.get("/get-by-user-id/:userId", getPropertiesByUserId);
 propertyRouter.put("/update-property/:id", auth, updateMyProperty);
 propertyRouter.delete("/delete-property/:propertyId", auth, deleteProperty);
 propertyRouter.post("/request-tour/:propertyId", auth, requestTour);

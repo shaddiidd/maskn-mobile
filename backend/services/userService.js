@@ -53,10 +53,6 @@ const createUser = async (userData) => {
     data: {
       newUser,
       token,
-      userId: newUser.user_id,
-      username: newUser.username, // Adjust to match the field name in your model
-      role: newUser.role_id,
-      name: { firstName: newUser.first_name, lastName: newUser.last_name },
     },
   };
 };
@@ -111,14 +107,7 @@ const loginUser = async (credentials) => {
     // Return successful response with user data and token
     return {
       success: true,
-      data: {
-        token,
-        userId: user.user_id,
-        username: user.username, // Adjust to match the field name in your model
-        role: user.role_id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-      },
+      data: token,
     };
   } catch (error) {
     return { success: false, error: error.message };
@@ -195,7 +184,7 @@ const refreshToken = async (userId) => {
 
     const token = jwt.sign(payload, secret, options);
 
-    return { success: true, data: token,  };
+    return { success: true, data: token };
   } catch (error) {
     return { success: false, erorr: error.message };
   }
@@ -207,5 +196,5 @@ module.exports = {
   acceptOwnerRequestService,
   RequestToBecomeRenterService,
   getAllOwnersRequestsService,
-  refreshToken
+  refreshToken,
 };

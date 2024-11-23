@@ -7,11 +7,11 @@ const RolePermission = require('./rolePermission');
 
 // Define associations
 User.hasMany(Property, {
-    foreignKey: 'user_id', // Specify the foreign key in the Property model
+    foreignKey: 'owner_id', // Specify the foreign key in the Property model
 });
 
 Property.belongsTo(User, {
-    foreignKey: 'user_id', // This must match the foreign key defined in the Property model
+    foreignKey: 'owner_id', // This must match the foreign key defined in the Property model
 });
 
 // Define Role-Permission Many-to-Many Relationship
