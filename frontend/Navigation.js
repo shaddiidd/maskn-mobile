@@ -29,6 +29,7 @@ import ProfileScreen from "./Screens/ProfileScreen";
 import TourRequestsScreen from "./Screens/TourRequestsScreen";
 import RentHistory from "./Screens/RentHistory";
 import MyProperties from "./Screens/MyProperties";
+import BecomeRenter from "./Screens/BecomeRenter";
 
 const Drawer = createDrawerNavigator();
 
@@ -83,10 +84,7 @@ function CustomDrawerContent({ navigation }) {
             labelStyle={styles.drawerItemLabel}
             style={styles.drawerItem}
             icon={() => <Ionicons name="key-outline" size={24} color="#fff" />}
-            onPress={() => {
-              navigation.closeDrawer();
-              Alert.alert("Unavailable", "This screen is not ready yet.");
-            }}
+            onPress={() => handleNavigation("BecomeRenter")}
           />
         ) : (
           <DrawerItem
@@ -278,6 +276,13 @@ export default function Navigation() {
             title: "My Properties",
           }}
         />
+        <Stack.Screen
+          name="BecomeRenter"
+          component={BecomeRenter}
+          options={{
+            title: "Become a Renter",
+          }}
+        />
         {!isAuthenticated && (
           <>
             <Stack.Screen
@@ -316,13 +321,13 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 10,
   },
   userName: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 17,
     marginTop: 2,
   },
   drawerContent: {
@@ -334,7 +339,8 @@ const styles = StyleSheet.create({
   drawerItemLabel: {
     fontSize: 18,
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
+    marginLeft: -15,
   },
   separatorContainer: {
     width: "100%",
