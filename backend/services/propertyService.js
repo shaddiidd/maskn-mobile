@@ -85,7 +85,7 @@ const getAllProperties = async (userRole = null) => {
       return { success: true, data: properites };
     } else {
       const properites = await Property.findAll({
-        where: { post_status_id: 1 },
+        where: { post_status_id: 1 , mark_as_rented : 0},
       });
       return { success: true, data: properites };
     }
@@ -106,6 +106,9 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
       whereCondition.post_status_id = {
         [Sequelize.Op.ne]: 2, // Exclude post_status_id = 2
       };
+      whereCondition.mark_as_rented = {
+        [Sequelize.Op.ne]: 1, 
+      }
     }
 
     const properties = await Property.findAll({ where: whereCondition });
