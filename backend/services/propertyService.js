@@ -3,7 +3,7 @@ const TourRequest = require("../models/tourRequests");
 const User = require("../models/users")
 const Sequelize = require("sequelize")
 
-const createProperty = async (property, ownerId, role) => {
+const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
   
   if (role !== 2) {
@@ -38,6 +38,8 @@ const createProperty = async (property, ownerId, role) => {
   const rental_status = 0; // Default rental status
 
   try {
+    // Handle file uploads
+    const photoUrls = files.map((file) => file.path);
     // Create a new property record in the database
     const newProperty = await Property.create({
       owner_id : ownerId,
@@ -63,6 +65,7 @@ const createProperty = async (property, ownerId, role) => {
       apartment_number,
       mark_as_rented: rental_status,
       post_status_id: post_status,
+      photos : photoUrls
     });
     
     // Return the newly created property
