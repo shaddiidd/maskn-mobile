@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
+  navigation.navigate("Utilities", { id: property.id });
   return (
     <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={() => navigation.navigate("PropertyDetails", { property })}>
       <Image style={styles.image} source={require("../assets/house.png")} />

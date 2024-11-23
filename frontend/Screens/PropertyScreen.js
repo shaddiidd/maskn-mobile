@@ -105,7 +105,7 @@ export default function PropertyScreen({ route }) {
           <Ionicons name="eye" size={25} color="#fff" />
           <Text style={styles.wideBtnTxt}> REQUEST TOUR</Text>
         </TouchableOpacity>
-        <Reviews seeAll reviews={reviews} />
+        <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
   );

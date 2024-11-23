@@ -1,10 +1,10 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-export default function Reviews({ reviews, seeAll = false }) {
+export default function Reviews({ reviews, seeAll = false, additionalStyles = {} }) {
   const navigation = useNavigation();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, additionalStyles]}>
       <View style={styles.header}>
         <Text style={styles.title}>Reviews</Text>
         <TouchableOpacity activeOpacity={0.7}>

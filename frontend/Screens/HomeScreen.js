@@ -47,7 +47,7 @@ export default function HomeScreen() {
   // }, []);
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.searchContainer}>
         <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
           <Ionicons name="funnel-outline" size={25} color="#fff" />
@@ -63,6 +63,7 @@ export default function HomeScreen() {
             alignItems: "center",
             minHeight: "100%",
             justifyContent: properties?.length ? "flex-start" : "center",
+            paddingBottom: 20
           }}
           style={{ flex: 1, width: "100%" }}
         >
@@ -87,7 +88,7 @@ export default function HomeScreen() {
           )}
         </ScrollView>
       </TouchableWithoutFeedback>
-    </SafeAreaView>
+    </View>
   );
 }
 

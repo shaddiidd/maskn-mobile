@@ -31,11 +31,12 @@ import RentHistory from "./Screens/RentHistory";
 import MyProperties from "./Screens/MyProperties";
 import BecomeRenter from "./Screens/BecomeRenter";
 import Payment from "./Screens/Payment";
+import UtilitiesScreen from "./Screens/UtilitiesScreen";
 
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent({ navigation }) {
-  const { logout, user } = useContext(Context);  
+  const { logout, user } = useContext(Context);
 
   const handleNavigation = (screen) => {
     navigation.closeDrawer();
@@ -43,81 +44,92 @@ function CustomDrawerContent({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.userInfoSection}>
-        <View
-          source={require("./assets/hazodeh.png")}
-          style={styles.profileImage}
-        >
-          <Ionicons name="person" color="#666" size={50} />
+    <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+      <View>
+        <View style={styles.userInfoSection}>
+          <View
+            // source={require("./assets/hazodeh.png")}
+            style={styles.profileImage}
+          >
+            <Ionicons name="person" color="#666" size={50} />
+          </View>
+          <Text style={styles.name}>
+            {user?.firstName} {user?.lastName}
+          </Text>
+          <Text style={styles.userName}>{user?.userName}</Text>
         </View>
-        <Text style={styles.name}>
-          {user?.firstName} {user?.lastName}
-        </Text>
-        <Text style={styles.userName}>{user?.userName}</Text>
-      </View>
 
-      <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
-        <DrawerItem
-          label="My Profile"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="person-outline" size={24} color="#fff" />}
-          onPress={() => handleNavigation("Profile")}
-        />
-        <DrawerItem
-          label="Tour Requests"
-          labelStyle={styles.drawerItemLabel}
-          style={styles.drawerItem}
-          icon={() => <Ionicons name="eye-outline" size={24} color="#fff" />}
-          onPress={() => handleNavigation("TourRequests")}
-        />
-        <DrawerItem
-          label="Rent History"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="time-outline" size={24} color="#fff" />}
-          onPress={() => handleNavigation("RentHistory")}
-        />
-        {user.role === 1 ? (
+        <View style={styles.drawerContent}>
           <DrawerItem
-            label="Become a Renter"
+            label="My Profile"
+            style={styles.drawerItem}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => (
+              <Ionicons name="person-outline" size={24} color="#fff" />
+            )}
+            onPress={() => handleNavigation("Profile")}
+          />
+          <DrawerItem
+            label="Tour Requests"
             labelStyle={styles.drawerItemLabel}
             style={styles.drawerItem}
-            icon={() => <Ionicons name="key-outline" size={24} color="#fff" />}
-            onPress={() => handleNavigation("BecomeRenter")}
+            icon={() => <Ionicons name="eye-outline" size={24} color="#fff" />}
+            onPress={() => handleNavigation("TourRequests")}
           />
-        ) : (
           <DrawerItem
-            label="My Properties"
-            labelStyle={styles.drawerItemLabel}
+            label="Rent History"
             style={styles.drawerItem}
-            icon={() => <Ionicons name="key-outline" size={24} color="#fff" />}
-            onPress={() => handleNavigation("MyProperties")}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => <Ionicons name="time-outline" size={24} color="#fff" />}
+            onPress={() => handleNavigation("RentHistory")}
           />
-        )}
-        <DrawerItem
-          label="Help"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="help-circle-outline" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
-        />
-      </DrawerContentScrollView>
-
-      <View style={styles.separatorContainer}>
-        <View style={styles.separator} />
+          {user.role === 1 ? (
+            <DrawerItem
+              label="Become a Renter"
+              labelStyle={styles.drawerItemLabel}
+              style={styles.drawerItem}
+              icon={() => (
+                <Ionicons name="key-outline" size={24} color="#fff" />
+              )}
+              onPress={() => handleNavigation("BecomeRenter")}
+            />
+          ) : (
+            <DrawerItem
+              label="My Properties"
+              labelStyle={styles.drawerItemLabel}
+              style={styles.drawerItem}
+              icon={() => (
+                <Ionicons name="key-outline" size={24} color="#fff" />
+              )}
+              onPress={() => handleNavigation("MyProperties")}
+            />
+          )}
+          <DrawerItem
+            label="Help"
+            style={styles.drawerItem}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => (
+              <Ionicons name="help-circle-outline" size={24} color="#fff" />
+            )}
+            onPress={() => {
+              navigation.closeDrawer();
+              Alert.alert("Unavailable", "This screen is not ready yet.");
+            }}
+          />
+        </View>
       </View>
 
       <View style={styles.logoutSection}>
+        <View style={styles.separatorContainer}>
+          <View style={styles.separator} />
+        </View>
         <DrawerItem
           label="Settings"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="settings-outline" size={27} color="#fff" />}
+          icon={() => (
+            <Ionicons name="settings-outline" size={27} color="#fff" />
+          )}
           onPress={() => {
             navigation.closeDrawer();
             Alert.alert("Unavailable", "This screen is not ready yet.");
@@ -163,7 +175,7 @@ function DrawerNavigation() {
           drawerItemStyle: {
             paddingVertical: 5,
           },
-          drawerType: "front",
+          // drawerType: "front",
           swipeEnabled: isAuthenticated,
           gestureEnabled: isAuthenticated,
         };
@@ -272,7 +284,7 @@ export default function Navigation() {
         />
         <Stack.Screen
           name="MyProperties"
-          component={RentHistory}
+          component={MyProperties}
           options={{
             title: "My Properties",
           }}
@@ -284,10 +296,8 @@ export default function Navigation() {
             title: "Become a Renter",
           }}
         />
-        <Stack.Screen
-          name="Payment"
-          component={Payment}
-        />
+        <Stack.Screen name="Payment" component={Payment} />
+        <Stack.Screen name="Utilities" component={UtilitiesScreen} />
         {!isAuthenticated && (
           <>
             <Stack.Screen
@@ -336,7 +346,7 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   drawerContent: {
-    padding: 0,
+    marginTop: 20
   },
   drawerItem: {
     paddingLeft: 10,
@@ -350,6 +360,7 @@ const styles = StyleSheet.create({
   separatorContainer: {
     width: "100%",
     alignItems: "center",
+    marginBottom: 20,
   },
   separator: {
     backgroundColor: "white",
@@ -357,6 +368,6 @@ const styles = StyleSheet.create({
     height: 1,
   },
   logoutSection: {
-    paddingVertical: 20,
+    // padding: 20,
   },
 });

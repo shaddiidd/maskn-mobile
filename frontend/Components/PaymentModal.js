@@ -45,7 +45,7 @@ const PaymentModal = ({
 
           <Button
             compressed
-            text="subscribe"
+            text="pay"
             onPress={onClose}
             additionalStyles={{ marginTop: 0 }}
           />
@@ -81,13 +81,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "600",
-    marginBottom: 10,
+    marginBottom: 5,
     width: "100%",
   },
   additionalInfo: {
-    fontSize: 14,
+    fontSize: 16,
     color: "#7F7F7F",
-    marginBottom: 5,
     width: "100%",
   },
   price: {
