@@ -1,24 +1,24 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('./db');
-const User = require('./users');
-const PropertyPostStatus = require('./propertyPostStatus');
-const VillageName = require('./villageName'); // Import the VillageName model
-const BlockName = require('./blockName'); // Import the BlockName model
-const NeighborhoodNumber = require('./neighborhoodNumber'); // Import the NeighborhoodNumber model
+const { DataTypes } = require("sequelize");
+const sequelize = require("./db");
+const User = require("./users");
+const PropertyPostStatus = require("./propertyPostStatus");
+const VillageName = require("./villageName"); // Import the VillageName model
+const BlockName = require("./blockName"); // Import the BlockName model
+const NeighborhoodNumber = require("./neighborhoodNumber"); // Import the NeighborhoodNumber model
 
 const Property = sequelize.define(
-  'Property',
+  "Property",
   {
     property_id: {
       type: DataTypes.STRING,
       primaryKey: true,
-      defaultValue: () => 'PROP' + Math.floor(10000 + Math.random() * 90000),
+      defaultValue: () => "PROP" + Math.floor(10000 + Math.random() * 90000),
     },
-    user_id: {
+    owner_id: {
       type: DataTypes.STRING,
       references: {
         model: User,
-        key: 'user_id',
+        key: "user_id", // Reference to user_id in User model
       },
       allowNull: false,
     },
@@ -88,7 +88,7 @@ const Property = sequelize.define(
       type: DataTypes.STRING,
       references: {
         model: PropertyPostStatus,
-        key: 'id',
+        key: "id",
       },
       allowNull: false,
     },
@@ -96,7 +96,7 @@ const Property = sequelize.define(
       type: DataTypes.INTEGER,
       references: {
         model: VillageName,
-        key: 'id',
+        key: "id",
       },
       allowNull: false,
     },
@@ -104,7 +104,7 @@ const Property = sequelize.define(
       type: DataTypes.INTEGER,
       references: {
         model: BlockName,
-        key: 'id',
+        key: "id",
       },
       allowNull: false,
     },
@@ -112,7 +112,7 @@ const Property = sequelize.define(
       type: DataTypes.INTEGER,
       references: {
         model: NeighborhoodNumber,
-        key: 'id',
+        key: "id",
       },
       allowNull: false,
     },
@@ -132,18 +132,64 @@ const Property = sequelize.define(
   {
     timestamps: true,
     paranoid: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    deletedAt: 'deletedAt',
-    tableName: 'properties',
+    createdAt: "created_at",
+    updatedAt: "updated_at",
+    deletedAt: "deletedAt",
+    tableName: "properties",
+    indexes: [
+      {
+        unique: true,
+        fields: [
+          "village_id",
+          "block_id",
+          "neighborhood_id",
+          "parcel_number",
+          "building_number",
+          "apartment_number",
+          "floor_num",
+        ],
+        name: "unique_property_identity",
+      },
+    ],
   }
 );
 
+Property.beforeCreate(async (property, options) => {
+  // Validate that the neighborhood belongs to the block
+  const neighborhood = await NeighborhoodNumber.findOne({
+    where: { id: property.neighborhood_id, block_id: property.block_id },
+  });
+
+  if (!neighborhood) {
+    throw new Error(
+      `The neighborhood ID (${property.neighborhood_id}) does not belong to the block ID (${property.block_id}).`
+    );
+  }
+});
+
+Property.beforeUpdate(async (property, options) => {
+  const neighborhood = await NeighborhoodNumber.findOne({
+    where: { id: property.neighborhood_id, block_id: property.block_id },
+  });
+
+  if (!neighborhood) {
+    throw new Error(
+      `The neighborhood ID (${property.neighborhood_id}) does not belong to the block ID (${property.block_id}).`
+    );
+  }
+});
+
 // Define Associations
-Property.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
-Property.belongsTo(VillageName, { foreignKey: 'village_id', as: 'village' });
-Property.belongsTo(BlockName, { foreignKey: 'block_id', as: 'block' });
-Property.belongsTo(NeighborhoodNumber, { foreignKey: 'neighborhood_id', as: 'neighborhood' });
-Property.belongsTo(PropertyPostStatus, { foreignKey: 'post_status_id', as: 'status' });
+Property.belongsTo(User, { foreignKey: "owner_id", as: "user" });
+Property.belongsTo(VillageName, { foreignKey: "village_id", as: "village" });
+Property.belongsTo(BlockName, { foreignKey: "block_id", as: "block" });
+Property.belongsTo(NeighborhoodNumber, {
+  foreignKey: "neighborhood_id",
+  as: "neighborhood",
+});
+Property.belongsTo(PropertyPostStatus, {
+  foreignKey: "post_status_id",
+  as: "status",
+});
 
 module.exports = Property;
