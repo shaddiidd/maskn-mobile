@@ -28,11 +28,12 @@ import PropertyScreen from "./Screens/PropertyScreen";
 import ProfileScreen from "./Screens/ProfileScreen";
 import TourRequestsScreen from "./Screens/TourRequestsScreen";
 import RentHistory from "./Screens/RentHistory";
+import MyProperties from "./Screens/MyProperties";
 
 const Drawer = createDrawerNavigator();
 
 function CustomDrawerContent({ navigation }) {
-  const { logout, user } = useContext(Context);
+  const { logout, user } = useContext(Context);  
 
   const handleNavigation = (screen) => {
     navigation.closeDrawer();
@@ -46,11 +47,7 @@ function CustomDrawerContent({ navigation }) {
           source={require("./assets/hazodeh.png")}
           style={styles.profileImage}
         >
-          <Ionicons
-            name="person"
-            color="#666"
-            size={50}
-          />
+          <Ionicons name="person" color="#666" size={50} />
         </View>
         <Text style={styles.name}>
           {user?.firstName} {user?.lastName}
@@ -63,41 +60,48 @@ function CustomDrawerContent({ navigation }) {
           label="My Profile"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="person" size={24} color="#fff" />}
+          icon={() => <Ionicons name="person-outline" size={24} color="#fff" />}
           onPress={() => handleNavigation("Profile")}
         />
         <DrawerItem
-          label="Requested Tours"
+          label="Tour Requests"
           labelStyle={styles.drawerItemLabel}
           style={styles.drawerItem}
-          icon={() => <Ionicons name="eye" size={24} color="#fff" />}
+          icon={() => <Ionicons name="eye-outline" size={24} color="#fff" />}
           onPress={() => handleNavigation("TourRequests")}
         />
         <DrawerItem
           label="Rent History"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="time" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
+          icon={() => <Ionicons name="time-outline" size={24} color="#fff" />}
+          onPress={() => handleNavigation("RentHistory")}
         />
-        <DrawerItem
-          label="Become a Renter"
-          labelStyle={styles.drawerItemLabel}
-          style={styles.drawerItem}
-          icon={() => <Ionicons name="key" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
-        />
+        {user.role === 1 ? (
+          <DrawerItem
+            label="Become a Renter"
+            labelStyle={styles.drawerItemLabel}
+            style={styles.drawerItem}
+            icon={() => <Ionicons name="key-outline" size={24} color="#fff" />}
+            onPress={() => {
+              navigation.closeDrawer();
+              Alert.alert("Unavailable", "This screen is not ready yet.");
+            }}
+          />
+        ) : (
+          <DrawerItem
+            label="My Properties"
+            labelStyle={styles.drawerItemLabel}
+            style={styles.drawerItem}
+            icon={() => <Ionicons name="key-outline" size={24} color="#fff" />}
+            onPress={() => handleNavigation("MyProperties")}
+          />
+        )}
         <DrawerItem
           label="Help"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="help-circle" size={24} color="#fff" />}
+          icon={() => <Ionicons name="help-circle-outline" size={24} color="#fff" />}
           onPress={() => {
             navigation.closeDrawer();
             Alert.alert("Unavailable", "This screen is not ready yet.");
@@ -114,7 +118,7 @@ function CustomDrawerContent({ navigation }) {
           label="Settings"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="settings" size={27} color="#fff" />}
+          icon={() => <Ionicons name="settings-outline" size={27} color="#fff" />}
           onPress={() => {
             navigation.closeDrawer();
             Alert.alert("Unavailable", "This screen is not ready yet.");
@@ -150,7 +154,7 @@ function DrawerNavigation() {
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontSize: 20,
-            fontWeight: '600',
+            fontWeight: "600",
           },
           drawerStyle: {
             backgroundColor: "#508D4E",
@@ -203,7 +207,7 @@ function DrawerNavigation() {
               onPress={() => alert("Notifications")}
               style={{ marginRight: 15 }}
             >
-              <Ionicons name="notifications" size={24} color="#fff" />
+              <Ionicons name="notifications-outline" size={24} color="#fff" />
             </TouchableOpacity>
           ),
         }}
@@ -265,6 +269,13 @@ export default function Navigation() {
           component={RentHistory}
           options={{
             title: "Rent History",
+          }}
+        />
+        <Stack.Screen
+          name="MyProperties"
+          component={RentHistory}
+          options={{
+            title: "My Properties",
           }}
         />
         {!isAuthenticated && (

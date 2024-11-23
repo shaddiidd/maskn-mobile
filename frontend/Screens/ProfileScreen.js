@@ -3,9 +3,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import Reviews from "../Components/Reviews";
 import Button from '../Components/Button';
 import { useNavigation } from '@react-navigation/native';
+import { useContext } from 'react';
+import Context from '../Context';
 
 export default function ProfileScreen() {
   const navigation = useNavigation();
+  const { user } = useContext(Context);
   const infoItems = [
     { icon: 'work-outline', text: 'Student' },
     { icon: 'people-outline', text: 'Single' },
@@ -21,12 +24,13 @@ export default function ProfileScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <Image style={styles.profile_picture} source={require("../assets/hazodeh.png")} />
+            {/* <Image style={styles.profile_picture} source={require("../assets/hazodeh.png")} /> */}
+            <View style={styles.profile_picture}></View>
             <View>
-              <Text style={styles.name}>Hazem Odeh</Text>
+              <Text style={styles.name}>{user.firstName} {user.lastName}</Text>
               <View style={styles.ratingContainer}>
                 <Image source={require("../assets/star.png")} />
-                <Text style={styles.rating}> 4.5</Text>
+                <Text style={styles.rating}> {user?.rating || 5}</Text>
               </View>
             </View>
           </View>
@@ -80,6 +84,7 @@ const styles = StyleSheet.create({
     height: 70,
     borderRadius: 40,
     marginRight: 10,
+    backgroundColor: "#ccc",
   },
   name: {
     fontSize: 18,
