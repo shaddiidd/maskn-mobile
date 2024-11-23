@@ -13,7 +13,6 @@ import {
 import Context from "../../Context";
 import AuthInput from "../../Components/AuthInput";
 import { Ionicons } from "@expo/vector-icons";
-import WideButton from "../../Components/Buttons/WideButton";
 import Button from "../../Components/Button";
 
 export default function SignupScreen({ navigation }) {

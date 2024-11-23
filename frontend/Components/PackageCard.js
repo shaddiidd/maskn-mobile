@@ -2,6 +2,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "../helpers/dateFunctions";
 
 export default function PackageCard({ pack }) {
   const navigation = useNavigation();
@@ -15,8 +16,8 @@ export default function PackageCard({ pack }) {
           name: `${pack.name} Plan`,
           price: pack.price,
           additionalInfo: {
-            from: Date.now() * 24 * 60 * 60 * 1000,
-            to: Date.now() + 30 * 24 * 60 * 60 * 1000,
+            From: formatDate(Date.now()),
+            To: formatDate(Date.now() + 30 * 24 * 60 * 60 * 1000),
           }
         })
       }

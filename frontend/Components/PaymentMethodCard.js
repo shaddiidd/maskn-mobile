@@ -5,7 +5,7 @@ import { Image } from "react-native";
 
 export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
   return (
-    <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={onPress}>
+    <TouchableOpacity style={styles.container} activeOpacity={onPress ? 0.7 : 1} onPress={onPress}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Image
           source={
@@ -14,14 +14,14 @@ export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
               : require("../assets/card-icons/master.png")
           }
         />
-        <View style={{ marginLeft: 10 }}>
+        <View style={{ marginLeft: 15 }}>
           <Text style={styles.name}>{paymentMethod?.name}</Text>
           <Text style={styles.number}>{paymentMethod?.displayNumber}</Text>
         </View>
       </View>
-      <TouchableOpacity style={styles.iconContainer} activeOpacity={0.7} onPress={remove}>
+      {remove && <TouchableOpacity style={styles.iconContainer} activeOpacity={0.7} onPress={remove}>
         <Ionicons name="trash" size={15} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </TouchableOpacity>
   );
 }
