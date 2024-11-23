@@ -2,24 +2,36 @@ const propertyService = require("../services/propertyService");
 const userService = require("../services/userService");
 
 const addProperty = async (req, res) => {
-  const user_id = req.token.userId;
+  const ownerId = req.token.userId; // Correctly fetching userId from token
   const role = req.token.role;
+
   try {
     const newProperty = await propertyService.createProperty(
       req.body,
-      user_id,
+      ownerId,
       role
     );
 
-    res.status(201).json({
-      success: true,
-      message: "property added successfully",
-      user: newProperty,
+    if (newProperty.success) {
+      return res.status(201).json({
+        success: true,
+        message: "Property added successfully",
+        data: newProperty.data,
+      });
+    }
+
+    // If service returns a failure
+    return res.status(400).json({
+      success: false,
+      message: newProperty.message,
     });
   } catch (error) {
-    res.status(500).json({
+    // Handling unexpected errors
+    console.error("Error in addProperty:", error);
+    return res.status(500).json({
       success: false,
-      error: error,
+      message: "Internal Server Error",
+      error: error.message,
     });
   }
 };
@@ -43,51 +55,63 @@ const getAllProperties = async (req, res) => {
 };
 
 const getMyProperties = async (req, res) => {
-  const userId = req.token.userId;
+  const userId = req.token.userId; // Extract user ID from token
 
-  const result = await propertyService.findPropertiesByuserId(userId);
-
-  if (result) {
-    return res.status(200).json({
-      success: true,
-      message: `all properites for user ${userId}`,
-      result: result.data,
-    });
-  } else {
-    return res.status(403).json({
-      success: false,
-      message: "token is invaild or expierd",
-      error: error,
-    });
-  }
-};
-
-const getPropertiesByuserId = async (req, res) => {
-  const userId = req.params.userId;
   try {
-    const result = await propertyService.findPropertiesByuserId(userId);
+    const result = await propertyService.findPropertiesByUserId(userId, userId); // Pass token userId to allow viewing restricted properties
 
-    if (result) {
+    if (result.success) {
       return res.status(200).json({
         success: true,
-        message: `all properites for user ${userId}`,
+        message: `All properties for user ${userId}`,
         result: result.data,
       });
     } else {
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
-        message: "failed to load the properties",
-        error: error,
+        message: "Failed to retrieve properties",
+        error: result.error,
       });
     }
   } catch (error) {
     return res.status(500).json({
       success: false,
-      message: "Failed to delete the property",
+      message: "An error occurred while retrieving properties",
       error: error.message,
     });
   }
 };
+
+
+const getPropertiesByUserId = async (req, res) => {
+  const userId = req.params.userId; // The target user's ID
+  const tokenUserId = req.token?.userId || null; // Extract token user ID, if available
+
+  try {
+    const result = await propertyService.findPropertiesByUserId(userId, tokenUserId);
+
+    if (result.success) {
+      return res.status(200).json({
+        success: true,
+        message: `All properties for user ${userId}`,
+        result: result.data,
+      });
+    } else {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to retrieve properties",
+        error: result.error,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while retrieving properties",
+      error: error.message,
+    });
+  }
+};
+
 
 const updateMyProperty = async (req, res) => {
   const userId = req.token.userId;
@@ -323,7 +347,7 @@ module.exports = {
   addProperty,
   getAllProperties,
   getMyProperties,
-  getPropertiesByuserId,
+  getPropertiesByUserId,
   updateMyProperty,
   deleteProperty,
   AdminGetAllProperties,
