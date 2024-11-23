@@ -128,6 +128,10 @@ const Property = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    photos: {
+      type: DataTypes.ARRAY(DataTypes.STRING), // Array of strings for photo URLs
+      allowNull: true, // Photos are optional
+    },
   },
   {
     timestamps: true,
