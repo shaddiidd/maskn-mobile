@@ -2,28 +2,41 @@ const userService = require("../services/userService");
 
 const signUp = async (req, res) => {
   try {
-    const newUser = await userService.createUser(req.body);
+    // Call the user service to create a new user
+    const result = await userService.createUser(req.body, req.files);
 
-    res.status(201).json({
-      success: true,
-      message: "Account created successfully",
-      user: newUser,
-    });
+    // Check if user creation was successful
+    if (result.success) {
+      res.status(201).json({
+        success: true,
+        message: "Account created successfully",
+        data: result.data, // Return the data from the service
+      });
+    } else {
+      res.status(400).json({
+        success: false,
+        message: result.message || "Failed to create account",
+      });
+    }
   } catch (err) {
+    // Handle Sequelize unique constraint errors
     if (err.name === "SequelizeUniqueConstraintError") {
       res.status(409).json({
         success: false,
-        message: err,
-        error: err.errors.message,
+        message: "A user with this information already exists",
+        error: err.errors.map((e) => e.message), // Extract detailed error messages
       });
     } else {
+      // Handle other unexpected errors
       res.status(500).json({
         success: false,
-        error: err.errors,
+        message: "An unexpected error occurred",
+        error: err.message,
       });
     }
   }
 };
+
 
 const getallusers = async (req, res) => {
   const result = await userService.findAllUsers();
