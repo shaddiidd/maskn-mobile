@@ -72,6 +72,10 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    profile_photo: {
+      type: DataTypes.ARRAY(DataTypes.STRING), // Array of strings for photo URLs
+      allowNull: true, // Photos are optional
+    },
   },
   {
     timestamps: true,
