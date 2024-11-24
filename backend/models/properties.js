@@ -132,6 +132,11 @@ const Property = sequelize.define(
       type: DataTypes.ARRAY(DataTypes.STRING), // Array of strings for photo URLs
       allowNull: true, // Photos are optional
     },
+    rating: {
+        type: DataTypes.DECIMAL(3, 2), // Decimal type for ratings
+        allowNull: false, // Optional field
+        defaultValue: 5.00,
+      },
   },
   {
     timestamps: true,
