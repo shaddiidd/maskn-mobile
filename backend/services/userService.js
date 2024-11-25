@@ -122,7 +122,7 @@ const loginUser = async (credentials) => {
       role: user.role_id,
       firstName: user.first_name,
       lastName: user.last_name,
-      profile_photo : user.profile_pic[0]
+      profile_photo: user.profile_photo, // Reference the correct field
     };
     const options = { expiresIn: "1d" };
     const secret = process.env.SECRET;

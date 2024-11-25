@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>عقد إيجار</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      line-height: 1.8;
+      direction: rtl;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      border: 1px solid #000;
+      padding: 40px;
+      margin: auto;
+      width: 90%;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      text-decoration: underline;
+      margin-bottom: 20px;
+    }
+    .info-section {
+      margin-bottom: 20px;
+    }
+    .info-section p {
+      margin: 10px 0;
+    }
+    .info-section span {
+      display: inline-block;
+      width: 60%;
+      border-bottom: 1px solid #000;
+    }
+    .terms-section {
+      margin-top: 20px;
+    }
+    .terms-section h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      text-decoration: underline;
+    }
+    .terms-section ol {
+      padding-right: 20px;
+    }
+    .terms-section ol li {
+      margin-bottom: 15px;
+      text-align: justify;
+    }
+    .signature-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+    .signature-block {
+      display: inline-block;
+      width: 30%;
+      text-align: center;
+    }
+    .signature-line {
+      border-top: 1px solid #000;
+      margin-top: 50px;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Title -->
+    <h1>عقد إيجار</h1>
+
+    <!-- Info Section -->
+    <div class="info-section">
+      <p><strong>المؤجر:</strong> <span>{{landlordName}}</span></p>
+      <p><strong>المستأجر:</strong> <span>{{tenantName}}</span></p>
+      <p><strong>رقم الحوض:</strong> <span>{{blockNumber}}</span></p>
+      <p><strong>رقم البناء:</strong> <span>{{buildingNumber}}</span></p>
+      <p><strong>رقم الشقة:</strong> <span>{{apartmentNumber}}</span></p>
+      <p><strong>مدة الإيجار:</strong> <span>{{rentalDuration}}</span></p>
+      <p><strong>تاريخ بداية الإيجار:</strong> <span>{{startDate}}</span></p>
+      <p><strong>تاريخ نهاية الإيجار:</strong> <span>{{endDate}}</span></p>
+    </div>
+
+    <!-- Terms Section -->
+    <div>
+        <pre>{{terms}}</pre>
+      </div>
+      
+    <!-- Signature Section -->
+    <div class="signature-section">
+      <div class="signature-block">
+        <p>توقيع المؤجر</p>
+        <div class="signature-line"></div>
+      </div>
+      <div class="signature-block">
+        <p>توقيع المستأجر</p>
+        <div class="signature-line"></div>
+      </div>
+    </div>
+
+    <div class="signature-section">
+      <div class="signature-block">
+        <p>شاهد</p>
+        <div class="signature-line"></div>
+      </div>
+      <div class="signature-block">
+        <p>شاهد</p>
+        <div class="signature-line"></div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>تم هذا العقد بإيجاب وقبول الطرفين حسب الأصول</p>
+    </div>
+  </div>
+</body>
+</html>
