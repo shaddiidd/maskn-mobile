@@ -11,28 +11,33 @@ import {
   Platform,
 } from "react-native";
 import Context from "../../Context";
-import AuthInput from "../../components/AuthInput";
+import AuthInput from "../../Components/AuthInput";
+import { Ionicons } from "@expo/vector-icons";
+import WideButton from "../../Components/Buttons/WideButton";
+import Button from "../../Components/Button";
 
 export default function SignupScreen({ navigation }) {
-  const { auth } = useContext(Context);
+  const { signUp } = useContext(Context);
   const [page, setPage] = useState(1);
   const [values, setValues] = useState({
-    first_name: { value: "", error: false },
-    last_name: { value: "", error: false },
-    email: { value: "", error: false },
-    phoneNumber: { value: "", error: false },
-    nationality: { value: "", error: false },
-    nationalID: { value: "", error: false },
-    DOB: { value: "", error: false },
-    password: { value: "", error: false },
+    first_name: { value: "Abdullah", error: "" },
+    last_name: { value: "Shadid", error: "" },
+    email: { value: "abdullah.yeuijvb@ryuidj.com", error: "" },
+
+    username: { value: "euwdihubvjeoje", error: "" },
+    phone_number: { value: "07961992343", error: "" },
+    password: { value: "abdullah", error: "" },
+
+    nationality: { value: "Jordianian", error: "" },
+    national_number: { value: "45678765422", error: "" },
+    date_of_birth: { value: "2001-12-02", error: "" },
   });
 
   const handleSubmit = () => {
     let isValid = true;
 
     if (page === 1) {
-      // Validate first page
-      const fields = ["first_name", "last_name", "email", "phoneNumber"];
+      const fields = ["first_name", "last_name", "email"];
       fields.forEach((field) => {
         if (!values[field].value) {
           setValues((prev) => ({
@@ -43,9 +48,8 @@ export default function SignupScreen({ navigation }) {
         }
       });
       if (isValid) setPage(2);
-    } else {
-      // Validate second page
-      const fields = ["nationalID", "DOB", "password"];
+    } else if (page === 2) {
+      const fields = ["username", "phone_number", "password"];
       fields.forEach((field) => {
         if (!values[field].value) {
           setValues((prev) => ({
@@ -55,7 +59,33 @@ export default function SignupScreen({ navigation }) {
           isValid = false;
         }
       });
-      if (isValid) auth();
+      if (isValid) setPage(3);
+    } else {
+      const fields = ["nationality", "national_number", "date_of_birth"];
+      fields.forEach((field) => {
+        if (!values[field].value) {
+          setValues((prev) => ({
+            ...prev,
+            [field]: { ...prev[field], error: true },
+          }));
+          isValid = false;
+        }
+      });
+
+      if (isValid) {
+        const body = {
+          first_name: values.first_name.value,
+          last_name: values.last_name.value,
+          username: values.username.value,
+          email: values.email.value,
+          phone_number: values.phone_number.value,
+          nationality: values.nationality.value,
+          national_number: values.national_number.value,
+          date_of_birth: values.date_of_birth.value,
+          password: values.password.value,
+        };
+        signUp(body);
+      }
     }
   };
 
@@ -63,10 +93,16 @@ export default function SignupScreen({ navigation }) {
     <KeyboardAvoidingView
       style={{ flex: 1 }}
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 10 : 0}
     >
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
+        <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate("Home")}
+          style={styles.close}
+        >
+          <Ionicons name="close" size={25} />
+        </TouchableOpacity>
 
         <View style={styles.header}>
           <Image
@@ -86,6 +122,12 @@ export default function SignupScreen({ navigation }) {
                 { backgroundColor: page === 2 ? "#508D4E" : "#D9D9D9" },
               ]}
             />
+            <View
+              style={[
+                styles.page,
+                { backgroundColor: page === 3 ? "#508D4E" : "#D9D9D9" },
+              ]}
+            />
           </View>
         </View>
 
@@ -95,7 +137,7 @@ export default function SignupScreen({ navigation }) {
         >
           <Text style={styles.title}>Create an Account</Text>
           <Text style={styles.subtitle}>Enter your information to sign up</Text>
-          {page === 1 ? (
+          {page === 1 && (
             <>
               <AuthInput
                 placeholder="First Name"
@@ -124,17 +166,55 @@ export default function SignupScreen({ navigation }) {
                 }
                 error={values.email.error}
               />
+              <Button text="next" onPress={handleSubmit} />
+            </>
+          )}
+          {page === 2 && (
+            <>
+              <AuthInput
+                placeholder="Username"
+                value={values.username.value}
+                setValue={(value) =>
+                  setValues({ ...values, username: { value, error: false } })
+                }
+                error={values.username.error}
+              />
               <AuthInput
                 placeholder="Phone Number"
                 keyboardType="numeric"
-                value={values.phoneNumber.value}
+                value={values.phone_number.value}
                 setValue={(value) =>
-                  setValues({ ...values, phoneNumber: { value, error: false } })
+                  setValues({ ...values, phone_number: { value, error: false } })
                 }
-                error={values.phoneNumber.error}
+                error={values.phone_number.error}
               />
+              <AuthInput
+                placeholder="Password"
+                password
+                value={values.password.value}
+                setValue={(value) =>
+                  setValues({ ...values, password: { value, error: false } })
+                }
+                error={values.password.error}
+              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Button
+                  text="back"
+                  onPress={() => setPage(page - 1)}
+                  outline
+                  small
+                />
+                <Button text="next" onPress={handleSubmit} small />
+              </View>
             </>
-          ) : (
+          )}
+          {page === 3 && (
             <>
               <AuthInput
                 placeholder="Nationality"
@@ -147,50 +227,49 @@ export default function SignupScreen({ navigation }) {
               <AuthInput
                 placeholder="National ID"
                 keyboardType="numeric"
-                value={values.nationalID.value}
+                value={values.national_number.value}
                 setValue={(value) =>
-                  setValues({ ...values, nationalID: { value, error: false } })
+                  setValues({ ...values, national_number: { value, error: false } })
                 }
-                error={values.nationalID.error}
+                error={values.national_number.error}
               />
               <AuthInput
                 placeholder="Date of Birth"
-                value={values.DOB.value}
+                value={values.date_of_birth.value}
                 setValue={(value) =>
-                  setValues({ ...values, DOB: { value, error: false } })
+                  setValues({ ...values, date_of_birth: { value, error: false } })
                 }
-                error={values.DOB.error}
+                error={values.date_of_birth.error}
               />
-              <AuthInput
-                placeholder="Password"
-                password
-                value={values.password.value}
-                setValue={(value) =>
-                  setValues({ ...values, password: { value, error: false } })
-                }
-                error={values.password.error}
-              />
+              <View
+                style={{
+                  flexDirection: "row",
+                  width: "100",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Button
+                  text="back"
+                  onPress={() => setPage(page - 1)}
+                  outline
+                  small
+                />
+                <Button text="sign up" onPress={handleSubmit} small />
+              </View>
             </>
           )}
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.button}
-            onPress={handleSubmit}
-          >
-            <Text style={styles.buttonText}>
-              {page === 1 ? "NEXT" : "SIGN UP"}
+          {/* {page === 3 && ( */}
+            <Text
+              style={[
+                styles.signupQuestion,
+                { marginTop: 20, textAlign: "center" },
+              ]}
+            >
+              By signing up, you agree to our{" "}
+              <Text style={{ color: "#508D4E" }}>Terms of Service</Text> and{" "}
+              <Text style={{ color: "#508D4E" }}>Privacy Policy</Text>
             </Text>
-          </TouchableOpacity>
-          <Text
-            style={[
-              styles.signupQuestion,
-              { marginTop: 20, textAlign: "center" },
-            ]}
-          >
-            By signing up, you agree to our{" "}
-            <Text style={{ color: "#508D4E" }}>Terms of Service</Text> and{" "}
-            <Text style={{ color: "#508D4E" }}>Privacy Policy</Text>
-          </Text>
+          {/* )} */}
         </View>
 
         <View style={styles.signupPrompt}>
@@ -213,6 +292,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "space-between",
+  },
+  close: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    zIndex: 1,
   },
   header: {
     width: "100%",
@@ -245,22 +330,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: 20,
     textAlign: "center",
-  },
-  button: {
-    backgroundColor: "#508D4E",
-    borderWidth: 1.5,
-    borderColor: "#508D4E",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 55,
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  buttonText: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "white",
   },
   signupPrompt: {
     flexDirection: "row",

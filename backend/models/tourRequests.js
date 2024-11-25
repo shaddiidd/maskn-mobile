@@ -1,5 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../models/db");
+const User = require('./users');
+const Property = require('./properties');
 
 const TourRequest = sequelize.define(
   "TourRequest",
@@ -55,5 +57,18 @@ const TourRequest = sequelize.define(
     timestamps: true, // Enable timestamps for createdAt and updatedAt
   }
 );
+
+
+
+
+// Tenant association
+TourRequest.belongsTo(User, { foreignKey: 'tenant_id', as: 'tenant' });
+
+// Owner association
+TourRequest.belongsTo(User, { foreignKey: 'owner_id', as: 'owner' });
+
+// Property association
+TourRequest.belongsTo(Property, { foreignKey: 'property_id', as: 'property' });
+
 
 module.exports = TourRequest;
