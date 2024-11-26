@@ -12,7 +12,7 @@ const addProperty = async (req, res) => {
       role,
       req.files
     );
-    
+
     if (newProperty.success) {
       return res.status(201).json({
         success: true,
@@ -343,6 +343,7 @@ const getPropertyForPublicView = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   addProperty,
