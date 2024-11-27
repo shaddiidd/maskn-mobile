@@ -12,7 +12,7 @@ const addProperty = async (req, res) => {
       role,
       req.files
     );
-    
+
     if (newProperty.success) {
       return res.status(201).json({
         success: true,
@@ -236,20 +236,27 @@ const requestTour = async (req, res) => {
 };
 
 const getTourRequests = async (req, res) => {
-  const ownerId = req.token.userId;
-  const result = await propertyService.getOwnerRequestTours(ownerId);
+  const userId = req.token.userId; // Assume user ID comes from an auth token
 
-  if (result.success === true) {
-    return res.status(200).json({
-      success: true,
-      message: `all tour requests for ${ownerId}`,
-      result: result.data,
-    });
-  } else {
-    return res.status(500).json({
+  try {
+    const result = await propertyService.getRequestToursByUserId(userId);
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        data: result.data,
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to fetch tour requests',
+        error: result.error,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({
       success: false,
-      message: "failed to load the properties",
-      error: error,
+      message: 'An unexpected error occurred',
+      error: error.message,
     });
   }
 };
