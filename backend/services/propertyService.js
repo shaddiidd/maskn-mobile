@@ -2,6 +2,7 @@ const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
 const User = require("../models/users")
 const Sequelize = require("sequelize")
+const { Op } = require('sequelize'); 
 
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
@@ -183,10 +184,15 @@ const requestTourByTenant = async (tenantId, propertyId) => {
   }
 };
 
-const getOwnerRequestTours = async (ownerId) => {
+const getRequestToursByUserId = async (userId) => {
   try {
     const requests = await TourRequest.findAll({
-      where: { owner_id: ownerId },
+      where: {
+        [Op.or]: [
+          { owner_id: userId },
+          { tenant_id: userId },
+        ],
+      },
     });
 
     return { success: true, data: requests };
@@ -194,7 +200,6 @@ const getOwnerRequestTours = async (ownerId) => {
     return { success: false, error: error.message };
   }
 };
-
 const acceptTourRequestService = async (ownerId, requestId) => {
   try {
     const requestExist = await TourRequest.findOne({
@@ -267,7 +272,7 @@ module.exports = {
   updateMyProperty,
   deletePropertyService,
   requestTourByTenant,
-  getOwnerRequestTours,
+  getRequestToursByUserId,
   acceptTourRequestService,
   getPropertyByPropertyIdService,
 };
