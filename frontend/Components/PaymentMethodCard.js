@@ -16,7 +16,7 @@ export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
         {
           text: "Delete",
           style: "destructive",
-          onPress: () => remove(),
+          onPress: remove,
         },
       ]
     );

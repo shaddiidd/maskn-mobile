@@ -49,12 +49,12 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.searchContainer}>
-        <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
+        {/* <TouchableOpacity activeOpacity={0.7} style={styles.filterBtn}>
           <Ionicons name="funnel-outline" size={25} color="#fff" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View style={styles.inputContainer}>
-          <TextInput style={styles.input} placeholder="Search" />
           <Ionicons name="search" size={20} color="#508D4E" />
+          <TextInput style={styles.input} placeholder="Search" />
         </View>
       </View>
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     width: "90%",
     justifyContent: "space-between",
-    height: 50,
+    height: 40,
   },
   filterBtn: {
     backgroundColor: "#508D4E",
@@ -118,11 +118,12 @@ const styles = StyleSheet.create({
     borderColor: "#508D4E",
     borderWidth: 1,
     borderRadius: "50%",
-    marginLeft: 10,
+    // marginLeft: 10,
     paddingHorizontal: 20,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    gap: 5
   },
   input: {
     height: "100%",

@@ -45,7 +45,7 @@ const Provider = ({ children }) => {
     if (token) {
       const decodedToken = decodeJWT();
       console.log(decodedToken);
-      setUser({...decodedToken, role: 1});
+      setUser({...decodedToken, role: 2});
     }
     
   }, [token]);
