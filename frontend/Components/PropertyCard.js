@@ -1,19 +1,24 @@
-import { useNavigation } from '@react-navigation/native';
-import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useNavigation } from "@react-navigation/native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
-  navigation.navigate("Utilities", { id: property.id });
+  // navigation.navigate("Utilities", { id: property.id });
   return (
-    <TouchableOpacity activeOpacity={0.7} style={styles.container} onPress={() => navigation.navigate("PropertyDetails", { property })}>
-      <Image style={styles.image} source={require("../assets/house.png")} />
+    <TouchableOpacity
+      activeOpacity={0.7}
+      style={styles.container}
+      onPress={() => navigation.navigate("PropertyDetails", { property })}
+    >
+      <View style={styles.imageContainer}>
+        <Image style={{ borderRadius: 12, width: "100%", height: "100%" }} source={require("../assets/house.png")} />
+      </View>
       <Text style={styles.title}>{property.title}</Text>
-      <View style={styles.line3}>
-        <Text style={styles.price}>JD {property.price}</Text>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingTxt}>{property.rating || "5"} </Text>
-          <Image style={styles.star} source={require("../assets/star.png")} />
-        </View>
+      <Text style={styles.price}>JD {property.price}</Text>
+      <View style={styles.ratingContainer}>
+        <Ionicons name="star" size={19} color="gold" />
+        <Text style={styles.ratingTxt}> {property.rating || "5"} </Text>
       </View>
     </TouchableOpacity>
   );
@@ -22,10 +27,13 @@ export default function PropertyCard({ property }) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginVertical: 10,
-    borderRadius: 12,
+    marginVertical: 12,
     width: "90%",
-    backgroundColor: "#fff",
+  },
+  imageContainer: {
+    width: "100%",
+    height: 200,
+    // overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -35,43 +43,28 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
   },
-  image: {
-    borderTopLeftRadius: 12,
-    borderTopRightRadius: 12,
-    width: "100%",
-    height: 200,
-    backgroundColor: "lightgrey"
-  },
   title: {
-    fontSize: 18,
-    width: "100%",
-    marginTop: 15,
-    paddingHorizontal: 15
-  },
-  line3: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-    marginTop: 10,
-    marginBottom: 15,
-    paddingHorizontal: 15
+    fontSize: 20,
+    width: "95%",
+    marginTop: 7,
   },
   price: {
-    fontSize: 18,
-    fontWeight: "500"
+    fontSize: 16,
+    fontWeight: "500",
+    width: "95%",
+    marginTop: 2,
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center"
+    backgroundColor: "white",
+    padding: 5,
+    borderRadius: 6,
+    position: "absolute",
+    top: 8,
+    right: 8
   },
   ratingTxt: {
-    fontSize: 18,
+    fontSize: 16,
   },
-  star: {
-    width: 22,
-    height: 22,
-    resizeMode: "contain"
-  }
 });

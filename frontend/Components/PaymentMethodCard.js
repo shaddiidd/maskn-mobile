@@ -1,9 +1,26 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { TouchableOpacity } from "react-native";
 import { Image } from "react-native";
 
 export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
+  const handleRemove = () => {
+    Alert.alert(
+      "Delete Payment Method",
+      "Are you sure you want to delete this payment method?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => remove(),
+        },
+      ]
+    );
+  };  
   return (
     <TouchableOpacity style={styles.container} activeOpacity={onPress ? 0.7 : 1} onPress={onPress}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -19,7 +36,7 @@ export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
           <Text style={styles.number}>{paymentMethod?.displayNumber}</Text>
         </View>
       </View>
-      {remove && <TouchableOpacity style={styles.iconContainer} activeOpacity={0.7} onPress={remove}>
+      {remove && <TouchableOpacity style={styles.iconContainer} activeOpacity={0.7} onPress={handleRemove}>
         <Ionicons name="trash" size={15} color="white" />
       </TouchableOpacity>}
     </TouchableOpacity>
