@@ -3,7 +3,7 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -32,6 +32,7 @@ import MyProperties from "./Screens/MyProperties";
 import BecomeRenter from "./Screens/BecomeRenter";
 import Payment from "./Screens/Payment";
 import UtilitiesScreen from "./Screens/UtilitiesScreen";
+import NotificationsScreen from "./Screens/NotificationsScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -154,6 +155,7 @@ function CustomDrawerContent({ navigation }) {
 
 function DrawerNavigation() {
   const { isAuthenticated } = useContext(Context);
+  const navigation = useNavigation();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -215,7 +217,7 @@ function DrawerNavigation() {
           headerRight: () => (
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => alert("Notifications")}
+              onPress={() => navigation.navigate("Notifications")}
               style={{ marginRight: 15 }}
             >
               <Ionicons name="notifications-outline" size={24} color="#fff" />
@@ -260,6 +262,10 @@ export default function Navigation() {
             ),
             title: "My Profile",
           }}
+        />
+        <Stack.Screen
+          name="Notifications"
+          component={NotificationsScreen}
         />
         <Stack.Screen
           name="PropertyDetails"
