@@ -21,18 +21,42 @@ export default function HomeScreen() {
       title: "Property 1",
       price: 320,
       rating: 4.5,
+      area: 150,
+      bedroom_num: 3,
+      bathroom_num: 2,
+      floor_num: 3,
+      is_furnished: true,
+      address: "Khalda, Amman",
+      rental_period: "monthly",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     },
     {
       property_id: 2,
       title: "Property 2",
       price: 350,
       rating: 4.5,
+      area: 150,
+      bedroom_num: 3,
+      bathroom_num: 2,
+      floor_num: 3,
+      is_furnished: true,
+      address: "Khalda, Amman",
+      rental_period: "monthly",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     },
     {
       property_id: 3,
       title: "Property 3",
       price: 250,
       rating: 4.5,
+      area: 150,
+      bedroom_num: 3,
+      bathroom_num: 2,
+      floor_num: 3,
+      is_furnished: true,
+      address: "Khalda, Amman",
+      rental_period: "monthly",
+      description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     },
   ]);
 

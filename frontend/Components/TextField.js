@@ -8,6 +8,7 @@ export default function TextField({
   icon,
   error,
   small = false,
+  textarea = false
 }) {
   return (
     <View style={[styles.container, small && { flex: 1 }]}>
@@ -17,7 +18,7 @@ export default function TextField({
         placeholderTextColor="#666"
         value={value}
         onChangeText={setValue}
-        style={styles.input}
+        style={!textarea ? styles.textarea : styles.input}
         autoCorrect={false}
       />
       {error && <Text style={styles.errorText}>This field is required</Text>}
@@ -42,4 +43,9 @@ const styles = StyleSheet.create({
   input: {
     flex: 1,
   },
+  textarea: {
+    flex: 1,
+    minHeight: 200,
+    textAlignVertical: "top",
+  }
 });

@@ -13,8 +13,10 @@ import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 import { get } from "../fetch";
+import { useNavigation } from "@react-navigation/native";
 
 export default function MyProperties() {
+  const navigation = useNavigation();
   const [properties, setProperties] = useState([
     {
       property_id: 1,
@@ -73,6 +75,9 @@ export default function MyProperties() {
           </>
         )}
       </ScrollView>
+      <TouchableOpacity activeOpacity={0.7} style={styles.addBtn} onPress={() => navigation.navigate("PostProperty")}>
+        <Ionicons name="add" size={30} color="#fff" />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 }
@@ -143,4 +148,23 @@ const styles = StyleSheet.create({
   list: {
     width: "100%",
   },
+  addBtn: {
+    position: "absolute",
+    bottom: 50,
+    right: 20,
+    backgroundColor: "#508D4E",
+    width: 50,
+    height: 50,
+    borderRadius: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
+    elevation: 5,
+  }
 });

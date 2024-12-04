@@ -18,7 +18,7 @@ import {
 import { useContext } from "react";
 import Context from "./Context";
 import "./gesture-handler";
-import logo from "./assets/logo.png";
+import logo from "./assets/maskn-wide.png";
 
 import SignupScreen from "./Screens/Authentication/SignupScreen";
 import SigninScreen from "./Screens/Authentication/SigninScreen";
@@ -33,6 +33,7 @@ import BecomeRenter from "./Screens/BecomeRenter";
 import Payment from "./Screens/Payment";
 import UtilitiesScreen from "./Screens/UtilitiesScreen";
 import NotificationsScreen from "./Screens/NotificationsScreen";
+import PostProperty from "./Screens/PostProperty";
 
 const Drawer = createDrawerNavigator();
 
@@ -211,7 +212,7 @@ function DrawerNavigation() {
           headerTitle: () => (
             <Image
               source={logo}
-              style={{ height: 20, resizeMode: "contain" }}
+              style={{ width: 100,height: 25, resizeMode: "contain" }}
             />
           ),
           headerRight: () => (
@@ -293,6 +294,13 @@ export default function Navigation() {
           component={MyProperties}
           options={{
             title: "My Properties",
+          }}
+        />
+        <Stack.Screen
+          name="PostProperty"
+          component={PostProperty}
+          options={{
+            title: "New Properties",
           }}
         />
         <Stack.Screen
