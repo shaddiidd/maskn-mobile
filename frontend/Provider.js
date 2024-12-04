@@ -10,9 +10,11 @@ const Provider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const logout = async () => {
+    setLoading(true);
     await AsyncStorage.clear();
     setIsAuthenticated(false);
     setToken("");
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -43,9 +45,11 @@ const Provider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
+      setLoading(true);
       const decodedToken = decodeJWT();
       console.log(decodedToken);
       setUser({...decodedToken, role: 2});
+      setLoading(false);
     }
     
   }, [token]);
