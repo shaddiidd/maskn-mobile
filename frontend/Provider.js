@@ -17,19 +17,6 @@ const Provider = ({ children }) => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    const fetchToken = async () => {
-      const storedToken = await AsyncStorage.getItem("token");
-      if (storedToken) {
-        setToken(storedToken);
-        setAuthorizationToken(storedToken);
-      } else {
-        setIsAuthenticated(false);
-      }
-    };
-    fetchToken();
-  }, []);
-
   const decodeJWT = () => {
     if (!token) return;
     const base64Url = token.split(".")[1];
@@ -45,22 +32,40 @@ const Provider = ({ children }) => {
 
   useEffect(() => {
     if (token) {
-      setLoading(true);
       const decodedToken = decodeJWT();
-      console.log(decodedToken);
-      setUser({...decodedToken, role: 2});
-      setLoading(false);
+      setUser({ ...decodedToken, role: 2 });
     }
-    
   }, [token]);
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem("token");
+      if (storedToken) {
+        setAuthorizationToken(storedToken);
+        post("users/generate-new-token")
+          .then((response) => {
+            setToken(response.data.data);
+            setAuthorizationToken(response.data.data);
+            AsyncStorage.setItem("token", response.data.data);
+            setIsAuthenticated(true);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+    fetchToken();
+  }, []);
 
   const auth = (body) => {
     setLoading(true);
     post("users/login", body)
       .then((response) => {
-        setToken(response.data.token);
+        setToken(response.data);
         setIsAuthenticated(true);
-        setAuthorizationToken(response.data.token);
+        setAuthorizationToken(response.data);
         AsyncStorage.setItem("token", response.data.token);
       })
       .catch((error) => {
@@ -73,7 +78,7 @@ const Provider = ({ children }) => {
     setLoading(true);
     post("users/signUp", body)
       .then((response) => {
-        console.log(response)
+        console.log(response);
         setToken(response.user.data.token);
         setIsAuthenticated(true);
         setAuthorizationToken(response.user.token);
@@ -86,7 +91,18 @@ const Provider = ({ children }) => {
   };
 
   return (
-    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated }}>
+    <Context.Provider
+      value={{
+        user,
+        token,
+        auth,
+        signUp,
+        logout,
+        loading,
+        setLoading,
+        isAuthenticated,
+      }}
+    >
       {children}
     </Context.Provider>
   );
