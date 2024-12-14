@@ -1,13 +1,17 @@
 const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
 const User = require("../models/users")
+const Sequelize = require("sequelize")
+const { Op } = require('sequelize'); 
 
-const createProperty = (property, user_id, role) => {
+const createProperty = async (property, ownerId, role, files) => {
+  // Check if the user has the proper role to create a property
+  
   if (role !== 2) {
     return { success: false, message: "Unauthorized" };
   }
+
   const {
-    property_national_number,
     description,
     title,
     address,
@@ -22,35 +26,57 @@ const createProperty = (property, user_id, role) => {
     electricity_meter_reference_number,
     price,
     rental_period,
+    village_id,
+    block_id,
+    neighborhood_id,
+    parcel_number,
+    building_number,
+    apartment_number,
   } = property;
 
-  const post_status = 2;
+  // Define the default values
+  const post_status = 2; // Default post status
+  const rental_status = 0; // Default rental status
 
-  const rental_status = 0;
-
-  const newProperty = Property.create({
-    property_national_number,
-    user_id,
-    description,
-    title,
-    address,
-    location,
-    area,
-    is_furnished,
-    floor_num,
-    bedroom_num,
-    bathroom_num,
-    property_age,
-    water_meter_subscription_number,
-    electricity_meter_reference_number,
-    price,
-    rental_period,
-    mark_as_rented: rental_status,
-    post_status_id: post_status,
-  });
-
-  return newProperty;
+  try {
+    // Handle file uploads
+    const photoUrls = files.map((file) => file.path);
+    // Create a new property record in the database
+    const newProperty = await Property.create({
+      owner_id : ownerId,
+      description,
+      title,
+      address,
+      location,
+      area,
+      is_furnished,
+      floor_num,
+      bedroom_num,
+      bathroom_num,
+      property_age,
+      water_meter_subscription_number,
+      electricity_meter_reference_number,
+      price,
+      rental_period,
+      village_id,
+      block_id,
+      neighborhood_id,
+      parcel_number,
+      building_number,
+      apartment_number,
+      mark_as_rented: rental_status,
+      post_status_id: post_status,
+      photos : photoUrls
+    });
+    
+    // Return the newly created property
+    return { success: true, data: newProperty };
+  } catch (error) {
+    // Handle any errors that occur during the creation process
+    return { success: false, message: error.message };
+  }
 };
+
 
 const getAllProperties = async (userRole = null) => {
 
@@ -60,7 +86,7 @@ const getAllProperties = async (userRole = null) => {
       return { success: true, data: properites };
     } else {
       const properites = await Property.findAll({
-        where: { post_status_id: 1 },
+        where: { post_status_id: 1 , mark_as_rented : 0},
       });
       return { success: true, data: properites };
     }
@@ -69,14 +95,30 @@ const getAllProperties = async (userRole = null) => {
   }
 };
 
-const findPropertiesByuserId = async (userId) => {
+const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
-    const properites = await Property.findOne({ where: { user_id: userId } });
-    return { success: true, data: properites };
+    // Define the base condition for fetching properties
+    const whereCondition = {
+      owner_id: userId,
+    };
+
+    // Apply additional filtering if the requester is not the owner
+    if (tokenUserId !== userId) {
+      whereCondition.post_status_id = {
+        [Sequelize.Op.ne]: 2, // Exclude post_status_id = 2
+      };
+      whereCondition.mark_as_rented = {
+        [Sequelize.Op.ne]: 1, 
+      }
+    }
+
+    const properties = await Property.findAll({ where: whereCondition });
+    return { success: true, data: properties };
   } catch (error) {
-    return { success: false, error: error };
+    return { success: false, error: error.message };
   }
 };
+
 
 const updateMyProperty = async (updatedProperty, propertyId) => {
   try {
@@ -95,7 +137,7 @@ const updateMyProperty = async (updatedProperty, propertyId) => {
 const deletePropertyService = async (propertyId, userId) => {
   try {
     const property = await Property.destroy({
-      where: { property_id: propertyId, user_id: userId },
+      where: { property_id: propertyId, owner_id: userId },
     });
 
     if (property) {
@@ -114,7 +156,7 @@ const requestTourByTenant = async (tenantId, propertyId) => {
       return { success: false, message: "Property not found" };
     }
 
-    const ownerId = property.dataValues.user_id;
+    const ownerId = property.dataValues.owner_id;
 
     if (tenantId === ownerId) {
       return { success: false, message: "tour request cant made by owner" };
@@ -142,10 +184,15 @@ const requestTourByTenant = async (tenantId, propertyId) => {
   }
 };
 
-const getOwnerRequestTours = async (ownerId) => {
+const getRequestToursByUserId = async (userId) => {
   try {
     const requests = await TourRequest.findAll({
-      where: { owner_id: ownerId },
+      where: {
+        [Op.or]: [
+          { owner_id: userId },
+          { tenant_id: userId },
+        ],
+      },
     });
 
     return { success: true, data: requests };
@@ -153,7 +200,6 @@ const getOwnerRequestTours = async (ownerId) => {
     return { success: false, error: error.message };
   }
 };
-
 const acceptTourRequestService = async (ownerId, requestId) => {
   try {
     const requestExist = await TourRequest.findOne({
@@ -222,11 +268,11 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
 module.exports = {
   createProperty,
   getAllProperties,
-  findPropertiesByuserId,
+  findPropertiesByUserId,
   updateMyProperty,
   deletePropertyService,
   requestTourByTenant,
-  getOwnerRequestTours,
+  getRequestToursByUserId,
   acceptTourRequestService,
   getPropertyByPropertyIdService,
 };

@@ -4,62 +4,82 @@ const jwt = require("jsonwebtoken");
 const OwnersRentalRequest = require("../models/ownerRentalRequests");
 const { where } = require("sequelize");
 
-const createUser = async (userData) => {
-  const {
-    username,
-    first_name,
-    last_name,
-    national_number,
-    date_of_birth,
-    password,
-    nationality,
-    email,
-    phone_number,
-  } = userData;
+const createUser = async (userData, files) => {
+  try {
+    // Destructure userData fields
+    const {
+      username,
+      first_name,
+      last_name,
+      national_number,
+      date_of_birth,
+      password,
+      nationality,
+      email,
+      phone_number,
+    } = userData;
 
-  const hashedPassword = await bcrypt.hash(password, 3);
-  const role = 1;
-  const defualtRating = 5;
-  const newUser = await User.create({
-    username,
-    first_name,
-    last_name,
-    national_number,
-    date_of_birth,
-    password: hashedPassword,
-    nationality,
-    rating: defualtRating,
-    email,
-    role_id: role,
-    phone_number,
-  });
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const payload = {
-    userId: newUser.user_id,
-    country: newUser.nationality,
-    userName : newUser.username,
-    role: newUser.role_id,
-    firstName: newUser.first_name,
-    lastName: newUser.last_name
-  };
-  const options = { expiresIn: "1d" };
-  const secret = process.env.SECRET;
+    // Default values
+    const role = 1;
+    const defaultRating = 5;
 
-  const token = jwt.sign(payload, secret, options);
+    // Handle profile photo
+    const photoUrl = files.map((file) => file.path);
 
-  // Return successful response with user data and token
-  return {
-    success: true,
-    data: {
-      newUser,
-      token,
+    // Create the user in the database
+    const newUser = await User.create({
+      username,
+      first_name,
+      last_name,
+      national_number,
+      date_of_birth,
+      password: hashedPassword,
+      nationality,
+      rating: defaultRating,
+      email,
+      role_id: role,
+      phone_number,
+      profile_photo: photoUrl,
+    });
+
+    // Create a JWT payload
+    const payload = {
       userId: newUser.user_id,
-      username: newUser.username, // Adjust to match the field name in your model
+      country: newUser.nationality,
+      userName: newUser.username,
       role: newUser.role_id,
-      name: { firstName: newUser.first_name, lastName: newUser.last_name },
-    },
-  };
+      firstName: newUser.first_name,
+      lastName: newUser.last_name,
+      profile_photo: newUser.profile_photo, // Reference the correct field
+    };
+
+    // Generate the token
+    const options = { expiresIn: "1d" };
+    const secret = process.env.SECRET;
+    const token = jwt.sign(payload, secret, options);
+
+    // Return a success response
+    return {
+      success: true,
+      data: {
+        user: newUser,
+        token,
+      },
+    };
+  } catch (error) {
+    // Error handling
+    console.error("Error in createUser:", error.message);
+    return {
+      success: false,
+      message: "Failed to create user",
+      error: error.message,
+    };
+  }
 };
+
 
 const findAllUsers = async () => {
   try {
@@ -98,10 +118,11 @@ const loginUser = async (credentials) => {
     const payload = {
       userId: user.user_id,
       country: user.nationality,
-      userName : user.username,
+      userName: user.username,
       role: user.role_id,
       firstName: user.first_name,
       lastName: user.last_name,
+      profile_photo: user.profile_photo, // Reference the correct field
     };
     const options = { expiresIn: "1d" };
     const secret = process.env.SECRET;
@@ -111,14 +132,7 @@ const loginUser = async (credentials) => {
     // Return successful response with user data and token
     return {
       success: true,
-      data: {
-        token,
-        userId: user.user_id,
-        username: user.username, // Adjust to match the field name in your model
-        role: user.role_id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-      },
+      data: token,
     };
   } catch (error) {
     return { success: false, error: error.message };
@@ -126,7 +140,6 @@ const loginUser = async (credentials) => {
 };
 
 const acceptOwnerRequestService = async (requestId, role) => {
-
   if (role !== 3) {
     return { success: false, message: "Unauthorized" };
   }
@@ -175,6 +188,32 @@ const getAllOwnersRequestsService = async (role) => {
   }
 };
 
+const refreshToken = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return { success: false, message: "user not found" };
+    }
+
+    // Generate token if user is found
+    const payload = {
+      userId: user.user_id,
+      country: user.nationality,
+      userName: user.username,
+      role: user.role_id,
+      firstName: user.first_name,
+      lastName: user.last_name,
+    };
+    const options = { expiresIn: "1d" };
+    const secret = process.env.SECRET;
+
+    const token = jwt.sign(payload, secret, options);
+
+    return { success: true, data: token };
+  } catch (error) {
+    return { success: false, erorr: error.message };
+  }
+};
 module.exports = {
   createUser,
   findAllUsers,
@@ -182,4 +221,5 @@ module.exports = {
   acceptOwnerRequestService,
   RequestToBecomeRenterService,
   getAllOwnersRequestsService,
+  refreshToken,
 };

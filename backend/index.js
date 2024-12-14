@@ -3,6 +3,7 @@ const cors = require("cors");
 const userRouter = require("./routes/usersRouter");
 const propertyRouter = require("./routes/propertyRoute");
 const authRouter = require("./routes/authRoutes");
+const contractRouter =  require("./routes/contractRoute")
 // require('./models/db')
 require("./models/index")
 
@@ -18,6 +19,7 @@ app.use(express.json());
 app.use("/users",userRouter)
 app.use("/property", propertyRouter)
 app.use("/auth", authRouter)
+app.use("/contract", contractRouter)
 // Handles any other endpoints [unassigned - endpoints]
 app.use("*", (req, res) => res.status(404).json("NO content at this path"));
 
