@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import Context from "./Context";
 import { get, post, setAuthorizationToken } from "./fetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
 const Provider = ({ children }) => {
   const [token, setToken] = useState("");
@@ -59,8 +60,8 @@ const Provider = ({ children }) => {
         setAuthorizationToken(response.data.token);
         AsyncStorage.setItem("token", response.data.token);
       })
-      .catch((error) => {
-        console.log(error);
+      .catch(() => {
+        Alert.alert("Incorrect email or password", "Make sure you entered the right credentials", [{ text: "OK" }]);
       })
       .finally(() => setLoading(false));
   };
