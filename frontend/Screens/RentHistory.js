@@ -49,7 +49,8 @@ export default function RentHistory() {
           alignItems: "center",
           minHeight: "100%",
           justifyContent: properties?.length ? "flex-start" : "center",
-          paddingTop: 10
+          paddingTop: 20,
+          rowGap: 15,
         }}
         style={{ flex: 1, width: "100%" }}
       >

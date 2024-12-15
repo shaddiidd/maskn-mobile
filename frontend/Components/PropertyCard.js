@@ -13,7 +13,7 @@ export default function PropertyCard({ property }) {
       onPress={() => navigation.navigate("PropertyDetails", { property })}
     >
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={{ uri: property.photos ? property?.photos[0] : "" }} />
+        <Image style={styles.image} source={property.photos ? { uri: property?.photos[0] } : require("../assets/house.png")} />
       </View>
       <Text style={styles.title}>{property.title}</Text>
       <Text style={styles.price}>JD {property.price}</Text>
@@ -28,7 +28,6 @@ export default function PropertyCard({ property }) {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    marginVertical: 12,
     width: "90%",
   },
   imageContainer: {
@@ -40,6 +39,7 @@ const styles = StyleSheet.create({
       width: 0,
       height: 2,
     },
+    borderRadius: 12,
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "white",
+    backgroundColor: "#FFFFFF99",
     padding: 5,
     borderRadius: 6,
     position: "absolute",

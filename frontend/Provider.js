@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Context from "./Context";
-import { get, post, setAuthorizationToken } from "./fetch";
+import { post, setAuthorizationToken } from "./fetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Alert } from "react-native";
 
@@ -46,6 +46,7 @@ const Provider = ({ children }) => {
         setAuthorizationToken(storedToken);
         post("users/generate-new-token")
           .then((response) => {
+            console.log(response)
             setToken(response.data.data);
             setAuthorizationToken(response.data.data);
             AsyncStorage.setItem("token", response.data.data);
@@ -61,26 +62,25 @@ const Provider = ({ children }) => {
     fetchToken();
   }, []);
 
-  const auth = (body) => {
+  const auth = async (body) => {
     setLoading(true);
-    post("users/login", body)
-      .then((response) => {
-        setToken(response.data);
-        setIsAuthenticated(true);
-        setAuthorizationToken(response.data);
-        AsyncStorage.setItem("token", response.data.token);
-      })
-      .catch(() => {
-        Alert.alert("Incorrect email or password", "Make sure you entered the right credentials", [{ text: "OK" }]);
-      })
-      .finally(() => setLoading(false));
+    try {
+      const response = await post("users/login", body);
+      // await AsyncStorage.setItem("token", response.data.token);
+      setToken(response.data);
+      setIsAuthenticated(true);
+      setAuthorizationToken(response.data);
+    } catch {
+      Alert.alert("Incorrect email or password", "Make sure you entered the right credentials", [{ text: "OK" }]);
+      logout();
+    }
+    setLoading(false);
   };
 
   const signUp = (body) => {
     setLoading(true);
     post("users/signUp", body)
       .then((response) => {
-        console.log(response);
         setToken(response.user.data.token);
         setIsAuthenticated(true);
         setAuthorizationToken(response.user.token);

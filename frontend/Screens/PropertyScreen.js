@@ -5,6 +5,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import PaginatedCarousel from "../Components/PaginatedCarousel";
 import { Ionicons } from "@expo/vector-icons";
@@ -20,11 +21,13 @@ export default function PropertyScreen({ route }) {
   const { user } = useContext(Context);
 
   const handleRequestTour = () => {
-    post(`property/request-tour/${property.property_id}`).then(() => {
-      console.log(res);
-    }).catch((err) => {
-      console.log(err.response.data);
-    });
+    post(`property/request-tour/${property.property_id}`)
+      .then(() => {
+        Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]);
+      })
+      .catch((err) => {
+        Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]);
+      });
   }
   const reviews = [
     { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
@@ -34,7 +37,11 @@ export default function PropertyScreen({ route }) {
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
-        <PaginatedCarousel propertyImages={property?.photos} />
+        {property?.photos ? (
+          <PaginatedCarousel propertyImages={property?.photos} />
+        ) : (
+          <PaginatedCarousel propertyImages={[require("../assets/house.png")]} />
+        )}
         <ScrollView
           contentContainerStyle={styles.infoBoxesContainer}
           horizontal

@@ -23,7 +23,7 @@ export default function Button({
       onPress={!disabled ? onPress : null}
     >
       <Text style={[styles.buttonText, outline && styles.outlineButtonText]}>
-        {text.toUpperCase()}
+        {text?.toUpperCase()}
       </Text>
     </TouchableOpacity>
   );
