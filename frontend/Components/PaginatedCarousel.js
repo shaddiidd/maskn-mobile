@@ -14,7 +14,7 @@ export default function PaginatedCarousel({ propertyImages }) {
         height={360}
         data={propertyImages}
         renderItem={({ item }) => (
-          <Image source={item} style={styles.image} />
+          <Image source={{ uri: item }} style={styles.image} />
         )}
         mode="parallax"
         onSnapToItem={(index) => setCurrentIndex(index)}

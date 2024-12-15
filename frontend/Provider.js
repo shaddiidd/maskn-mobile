@@ -33,7 +33,8 @@ const Provider = ({ children }) => {
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();
-      setUser({ ...decodedToken, role: 2 });
+      setUser(decodedToken);
+      console.log(decodedToken)
     }
   }, [token]);
 

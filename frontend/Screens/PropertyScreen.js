@@ -11,39 +11,30 @@ import { Ionicons } from "@expo/vector-icons";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
 import PropertyInfoBox from "../Components/PropertyInfoBox";
+import { post } from "../fetch";
+import { useContext } from "react";
+import Context from "../Context";
 
 export default function PropertyScreen({ route }) {
   const { property } = route.params;
-  const propertyImages = [
-    require("../assets/house.png"),
-    require("../assets/house.png"),
-    require("../assets/house.png"),
-  ];
+  const { user } = useContext(Context);
+
+  const handleRequestTour = () => {
+    post(`property/request-tour/${property.property_id}`).then(() => {
+      console.log(res);
+    }).catch((err) => {
+      console.log(err.response.data);
+    });
+  }
   const reviews = [
-    {
-      id: 1,
-      star_rating: 5,
-      profile_picture: require("../assets/hazodeh.png"),
-      name: "Hazem Odeh",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
-    {
-      id: 2,
-      star_rating: 3,
-      profile_picture: require("../assets/anas.png"),
-      name: "Anas Bajawi",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
+    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
+    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
   ];
 
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
-        <PaginatedCarousel propertyImages={propertyImages} />
+        <PaginatedCarousel propertyImages={property?.photos} />
         <ScrollView
           contentContainerStyle={styles.infoBoxesContainer}
           horizontal
@@ -67,7 +58,7 @@ export default function PropertyScreen({ route }) {
               property?.rental_period?.slice(1).toLowerCase()}
           </Text>
         </View>
-        <Button additionalStyles={{ width: "90%" }} text="request tour" />
+        {(!property.is_requested && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
         <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
       </SafeAreaView>

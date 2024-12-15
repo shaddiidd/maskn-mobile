@@ -5,6 +5,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
   // navigation.navigate("Utilities", { id: property.id });
+
   return (
     <TouchableOpacity
       activeOpacity={0.7}
@@ -12,7 +13,7 @@ export default function PropertyCard({ property }) {
       onPress={() => navigation.navigate("PropertyDetails", { property })}
     >
       <View style={styles.imageContainer}>
-        <Image style={{ borderRadius: 12, width: "100%", height: "100%" }} source={require("../assets/house.png")} />
+        <Image style={styles.image} source={{ uri: property.photos ? property?.photos[0] : "" }} />
       </View>
       <Text style={styles.title}>{property.title}</Text>
       <Text style={styles.price}>JD {property.price}</Text>
@@ -42,6 +43,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
+    backgroundColor: "#eee"
+  },
+  image: {
+    borderRadius: 12,
+    width: "100%",
+    height: "100%"
   },
   title: {
     fontSize: 20,
