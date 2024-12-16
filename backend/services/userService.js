@@ -92,7 +92,7 @@ const findAllUsers = async () => {
 
 const loginUser = async (credentials) => {
   try {
-    const { email, national_number, password } = credentials;
+    const { email , national_number, password } = credentials;
 
     // Determine if credentials contain email or national number
     const isEmail = Boolean(email);
