@@ -50,6 +50,8 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+
+
 const login = async (req, res, next) => {
   try {
     // Call the service to authenticate user and generate token

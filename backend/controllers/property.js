@@ -1,353 +1,258 @@
 const propertyService = require("../services/propertyService");
 const userService = require("../services/userService");
+const AppError = require("../utils/AppError");
 
-const addProperty = async (req, res) => {
-  const ownerId = req.token.userId; // Correctly fetching userId from token
-  const role = req.token.role;
 
+const addProperty = async (req, res, next) => {
   try {
-    const newProperty = await propertyService.createProperty(
-      req.body,
-      ownerId,
-      role,
-      req.files
-    );
+      const ownerId = req.token.userId; // Fetch userId from token
+      const role = req.token.role;
 
-    if (newProperty.success) {
-      return res.status(201).json({
-        success: true,
-        message: "Property added successfully",
-        data: newProperty.data,
-      });
-    }
+      // Call the service to create the property
+      const newProperty = await propertyService.createProperty(
+          req.body,
+          ownerId,
+          role,
+          req.files
+      );
 
-    // If service returns a failure
-    return res.status(400).json({
-      success: false,
-      message: newProperty.message,
-    });
+      // Respond with success
+      res.success(
+          newProperty, // Data
+          "Property added successfully", // Message
+          201 // Status Code
+      );
   } catch (error) {
-    // Handling unexpected errors
-    console.error("Error in addProperty:", error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
+      // Handle errors using AppError and pass to centralized error handler
+      next(new AppError(error.message, error.statusCode || 500, error.details || null));
   }
 };
 
-const getAllProperties = async (req, res) => {
-  const result = await propertyService.getAllProperties();
+const getAllProperties = async (req, res, next) => {
+  try {
+      const userRole = req.token?.role || null; // Optional role from the token
 
-  if (result) {
-    return res.status(200).json({
-      success: true,
-      message: `all properites`,
-      result: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      message: "failed to load the properties",
-      error: error,
-    });
+      // Call the service to fetch properties
+      const properties = await propertyService.getAllProperties(userRole);
+
+      // Send success response
+      res.success(
+          properties, // Data
+          "All properties retrieved successfully", // Message
+          200 // Status code
+      );
+  } catch (error) {
+      // Handle errors using AppError and forward to error handler
+      next(new AppError(error.message, error.statusCode || 500, error.details || null));
   }
 };
 
-const getMyProperties = async (req, res) => {
+const getMyProperties = async (req, res, next) => {
+  try {
+      const userId = req.token.userId; // Extract user ID from token
+
+      // Call the service to find properties
+      const properties = await propertyService.findPropertiesByUserId(userId, userId);
+
+      // Send success response
+      res.success(
+          properties, // Data
+          `All properties for user ${userId}`, // Message
+          200 // Status Code
+      );
+  } catch (error) {
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to retrieve properties", error.statusCode || 500, error.details));
+  }
+};
+
+
+const getPropertiesByUserId = async (req, res, next) => {
+  try {
+      const userId = req.params.userId; // Target user's ID
+      const tokenUserId = req.token?.userId || null; // Authenticated user's ID
+
+      // Call the service to fetch properties
+      const properties = await propertyService.findPropertiesByUserId(userId, tokenUserId);
+
+      // Send success response
+      res.success(
+          properties, // Data
+          `All properties for user ${userId} retrieved successfully`, // Message
+          200 // Status code
+      );
+  } catch (error) {
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to retrieve properties", error.statusCode || 500, error.details));
+  }
+};
+
+
+const updateProperty = async (req, res, next) => {
   const userId = req.token.userId; // Extract user ID from token
+  const role = req.token.role; // Extract user role from token
+  const propertyId = req.params.id; // Extract property ID from URL parameters
 
   try {
-    const result = await propertyService.findPropertiesByUserId(userId, userId); // Pass token userId to allow viewing restricted properties
+      // Call the service to update the property
+      const updatedProperty = await propertyService.updateProperty(
+          req.body,
+          propertyId,
+          userId,
+          role
+      );
 
-    if (result.success) {
-      return res.status(200).json({
-        success: true,
-        message: `All properties for user ${userId}`,
-        result: result.data,
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Failed to retrieve properties",
-        error: result.error,
-      });
-    }
+      // Send success response
+      res.success(
+          updatedProperty, // Data
+          `Property ${updatedProperty.property_id} updated successfully`, // Message
+          200 // Status Code
+      );
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "An error occurred while retrieving properties",
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to update property", error.statusCode || 500, error.details));
   }
 };
 
 
-const getPropertiesByUserId = async (req, res) => {
-  const userId = req.params.userId; // The target user's ID
-  const tokenUserId = req.token?.userId || null; // Extract token user ID, if available
+const deleteProperty = async (req, res, next) => {
+  const userId = req.token.userId; // Extract user ID from token
+  const role = req.token.role; // Extract user role from token
+  const propertyId = req.params.propertyId; // Extract property ID from params
 
   try {
-    const result = await propertyService.findPropertiesByUserId(userId, tokenUserId);
+      // Call the service to delete the property
+      const result = await propertyService.deletePropertyService(propertyId, userId, role);
 
-    if (result.success) {
-      return res.status(200).json({
-        success: true,
-        message: `All properties for user ${userId}`,
-        result: result.data,
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "Failed to retrieve properties",
-        error: result.error,
-      });
-    }
+      // Send success response
+      res.success(
+          null, // No specific data to return
+          result.message, // Success message
+          200 // Status code
+      );
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "An error occurred while retrieving properties",
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to delete property", error.statusCode || 500, error.details));
   }
 };
 
-
-const updateMyProperty = async (req, res) => {
-  const userId = req.token.userId;
-  const id = req.params.id;
+const AdminGetAllProperties = async (req, res, next) => {
   try {
-    const result = await propertyService.updateMyProperty(req.body, id);
+      const userRole = req.token.role;
 
-    if (result) {
-      return res.status(200).json({
-        success: true,
-        message: `updated property ${result.data.property_id} for ${userId}`,
-        result: result.data,
-      });
-    } else {
-      return res.status(500).json({
-        success: false,
-        message: "failed to update the property",
-        error: error,
-      });
-    }
+      // Fetch all properties using the service
+      const properties = await propertyService.getAllProperties(userRole);
+
+      // Send success response
+      res.success(
+          properties, // Data
+          "All properties retrieved successfully", // Message
+          200 // Status Code
+      );
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to load properties", error.statusCode || 500, error.details));
   }
 };
 
-const deleteProperty = async (req, res) => {
-  const userId = req.token.userId;
-
-  const propertyId = req.params.propertyId;
-
+const requestTour = async (req, res, next) => {
   try {
-    const result = await propertyService.deletePropertyService(
-      propertyId,
-      userId
-    );
+      const tenantId = req.token.userId; // Extract tenant ID from token
+      const propertyId = req.params.propertyId; // Extract property ID from route params
 
-    if (result) {
-      return res.status(200).json({
-        success: true,
-        message: `property ${propertyId} for user ${userId} is deleted`,
-        result: result.data,
-      });
-    } else {
-      return res.status(400).json({
-        success: false,
-        message: "failed to update the property",
-      });
-    }
+      // Call the service to process the request
+      const tourRequest = await propertyService.requestTourByTenant(tenantId, propertyId);
+
+      // Send success response
+      res.success(
+          tourRequest, // Data
+          `Tour request for property ${propertyId} by user ${tenantId} has been sent`, // Message
+          201 // Status Code
+      );
   } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: "Failed to delete the property",
-      error: error.message,
-    });
+      // Forward the error to the centralized error handler
+      next(new AppError(error.message, error.statusCode || 500, error.details || null));
   }
 };
 
-const AdminGetAllProperties = async (req, res) => {
-  const userRole = req.token.role;
-  const result = await propertyService.getAllProperties(userRole);
-
-  if (result) {
-    return res.status(200).json({
-      success: true,
-      message: `all properites`,
-      result: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      message: "failed to load the properties",
-      error: error,
-    });
-  }
-};
-
-const requestTour = async (req, res) => {
-  const tenantId = req.token.userId;
-  const propertyId = req.params.propertyId;
-
-  const result = await propertyService.requestTourByTenant(
-    tenantId,
-    propertyId
-  );
-
+const getTourRequests = async (req, res, next) => {
   try {
-    if (result.success) {
-      return res.status(201).json({
-        success: true,
-        message: `Request tour for property ${propertyId} by user ${tenantId} has been sent`,
-        result: result.data,
-      });
-    }
+      const userId = req.token.userId; // Extract user ID from the token
 
-    const statusCode =
-      result.message === "user already have a request" ||
-      "tour request cant made by owner"
-        ? 403
-        : 500;
-    const errorMessage = result.message || "Failed to make request";
+      // Fetch the tour requests
+      const tourRequests = await propertyService.getRequestToursByUserId(userId);
 
-    return res.status(statusCode).json({
-      success: false,
-      message: errorMessage,
-      error:
-        statusCode === 500
-          ? "An error occurred while processing the request"
-          : undefined,
-    });
+      // Send success response
+      res.success(
+          tourRequests, // Data
+          "Tour requests fetched successfully", // Message
+          200 // Status code
+      );
   } catch (error) {
-    // Handle unexpected errors
-    return res.status(500).json({
-      success: false,
-      message: "An unexpected error occurred",
-      error: error.message, // Use the actual error message
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to fetch tour requests", error.statusCode || 500, error.details));
   }
 };
 
-const getTourRequests = async (req, res) => {
-  const userId = req.token.userId; // Assume user ID comes from an auth token
-
+const acceptTourRequest = async (req, res, next) => {
   try {
-    const result = await propertyService.getRequestToursByUserId(userId);
-    if (result.success) {
-      res.status(200).json({
-        success: true,
-        data: result.data,
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        message: 'Failed to fetch tour requests',
-        error: result.error,
-      });
-    }
+      const ownerId = req.token.userId; // Extract owner ID from token
+      const requestId = req.params.requestId; // Extract request ID from params
+
+      // Approve the tour request
+      const updatedRequest = await propertyService.acceptTourRequestService(ownerId, requestId);
+
+      // Send success response
+      res.success(
+          updatedRequest, // Data
+          `Tour request ${requestId} approved successfully`, // Message
+          200 // Status Code
+      );
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'An unexpected error occurred',
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to approve the tour request", error.statusCode || 500, error.details));
   }
 };
 
-const acceptTourRequest = async (req, res) => {
-  const ownerId = req.token.userId;
-  const requestId = req.params.requestId;
-
-  const result = await propertyService.acceptTourRequestService(
-    ownerId,
-    requestId
-  );
-
-  if (result.success === true) {
-    return res.status(200).json({
-      success: true,
-      message: `Request for has been approved by owner ${ownerId}`,
-      data: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      data: result,
-    });
-  }
-};
-
-const getPropertyForApprovedTenant = async (req, res) => {
+const getPropertyForApprovedTenant = async (req, res, next) => {
   try {
-    const { propertyId } = req.params;
-    const tenantId = req.token.userId;
+      const { propertyId } = req.params;
+      const tenantId = req.token.userId;
 
-    // Call the service to fetch the property data
-    const result = await propertyService.getPropertyByPropertyIdService(
-      propertyId,
-      tenantId
-    );
+      // Fetch property data using the service
+      const propertyData = await propertyService.getPropertyByPropertyIdService(
+          propertyId,
+          tenantId
+      );
 
-    if (result.success) {
-      return res.status(200).json({
-        success: true,
-        message: "Tenant can view contact info",
-        data: result.data, // Return only the relevant data
-      });
-    }
-
-    return res.status(400).json({
-      success: false,
-      message: "Unable to fetch property details",
-      error: result.message || "Unknown error", // Provide meaningful feedback
-    });
+      // Send success response
+      res.success(
+          propertyData, // Data
+          "Property details fetched successfully", // Message
+          200 // Status code
+      );
   } catch (error) {
-    console.error("Error in getPropertyForApprovedTenant:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to fetch property details", error.statusCode || 500, error.details));
   }
 };
 
-const getPropertyForPublicView = async (req, res) => {
+const getPropertyForPublicView = async (req, res, next) => {
   try {
-    const { propertyId } = req.params;
+      const { propertyId } = req.params;
 
-    // Call the service to fetch the property data (no tenantId is passed)
-    const result = await propertyService.getPropertyByPropertyIdService(
-      propertyId,
-      null
-    );
+      // Fetch the property details (no tenantId provided for public view)
+      const propertyData = await propertyService.getPropertyByPropertyIdService(propertyId, null);
 
-    if (result.success) {
-      return res.status(200).json({
-        success: true,
-        message: "Property details fetched successfully",
-        data: result.data, // Return only the relevant data
-      });
-    }
-
-    return res.status(400).json({
-      success: false,
-      message: "Unable to fetch property details",
-      error: result.message || "Unknown error", // Provide meaningful feedback
-    });
+      // Send success response
+      res.success(
+          propertyData, // Data
+          "Property details fetched successfully", // Message
+          200 // Status code
+      );
   } catch (error) {
-    console.error("Error in getPropertyForPublicView:", error.message);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: error.message,
-    });
+      // Forward errors to the centralized error handler
+      next(new AppError(error.message || "Failed to fetch property details", error.statusCode || 500, error.details));
   }
 };
 
@@ -356,7 +261,7 @@ module.exports = {
   getAllProperties,
   getMyProperties,
   getPropertiesByUserId,
-  updateMyProperty,
+  updateProperty,
   deleteProperty,
   AdminGetAllProperties,
   requestTour,
