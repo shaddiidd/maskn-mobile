@@ -1,167 +1,179 @@
 const userService = require("../services/userService");
+const AppError = require("../utils/AppError");
 
-const signUp = async (req, res) => {
+const signUp = async (req, res, next) => {
   try {
     // Call the user service to create a new user
-    const result = await userService.createUser(req.body, req.files);
+    const { user, token } = await userService.createUser(req.body, req.files);
 
-    // Check if user creation was successful
-    if (result.success) {
-      res.status(201).json({
-        success: true,
-        message: "Account created successfully",
-        data: result.data, // Return the data from the service
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: result.message || "Failed to create account",
-      });
-    }
+    // Respond with success
+    res.success(
+      { user, token }, // data
+      "Account created successfully", // message
+      201 // statusCode
+    );
   } catch (err) {
     // Handle Sequelize unique constraint errors
     if (err.name === "SequelizeUniqueConstraintError") {
-      res.status(409).json({
-        success: false,
-        message: "A user with this information already exists",
-        error: err.errors.map((e) => e.message), // Extract detailed error messages
-      });
-    } else {
-      // Handle other unexpected errors
-      res.status(500).json({
-        success: false,
-        message: "An unexpected error occurred",
-        error: err.message,
-      });
+      return next(
+        new AppError("A user with this information already exists", 409, {
+          details: err.errors.map((e) => e.message), // Additional error details
+        })
+      );
     }
+
+    // Pass unexpected errors to the centralized error handler
+    next(
+      new AppError("An unexpected error occurred", 500, {
+        details: err.message,
+      })
+    );
   }
 };
 
-
-const getallusers = async (req, res) => {
-  const result = await userService.findAllUsers();
-
-  if (result.success) {
-    res.status(200).json({
-      success: true,
-      message: "All the users",
-      result: result.data,
-    });
-  } else {
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      err: result.error,
-    });
-  }
-};
-
-const login = async (req, res) => {
-  const result = await userService.loginUser(req.body);
-
-  if (result.success) {
-    res.status(200).json({
-      success: true,
-      message: `Valid login credentials`,
-      data: result.data,
-    });
-  } else {
-    return res.status(401).json({
-      success: false,
-      message: result.message || "Login failed",
-    });
-  }
-};
-
-const requestToBecomeRenter = async (req, res) => {
-  const userId = req.token.userId;
-
-  const result = await userService.RequestToBecomeRenterService(userId);
-
-  if (result) {
-    return res.status(200).json({
-      success: true,
-      message: `Request for ${userId} has been sent`,
-      data: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      message: `Request for ${userId} has failed`,
-      data: result.data,
-    });
-  }
-};
-
-const acceptOwnerRequest = async (req, res) => {
-  const role = req.token.role;
-  const requestId = req.params.requestId;
-
-  const result = await userService.acceptOwnerRequestService(requestId, role);
-
-  if (result.success == true) {
-    return res.status(200).json({
-      success: true,
-      message: `Request for  has been approved`,
-      data: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      data: result,
-    });
-  }
-};
-
-const getAllOwnersRequests = async (req, res) => {
-  const result = await userService.getAllOwnersRequestsService(req.token.role);
-
-  if (result.success == true) {
-    return res.status(200).json({
-      success: true,
-      message: `All owners requests`,
-      data: result.data,
-    });
-  } else {
-    return res.status(500).json({
-      success: false,
-      data: result,
-    });
-  }
-};
-
-const generateNewToken = async (req, res) => {
-  const userId = req.token.userId;
-  
-  if (!userId) {
-    return res
-      .status(401)
-      .json({ success: false, message: "Token is required" });
-  }
+const getAllUsers = async (req, res, next) => {
   try {
-    const result = await userService.refreshToken(userId);
-    if (result) {
-      return res.status(200).json({
-        success: true,
-        data: result,
-      });
-    }
+    // Call the service to fetch all users
+    const users = await userService.findAllUsers();
+
+    // Respond with success
+    res.success(
+      { users }, // Data
+      "All the users retrieved successfully", // Message
+      200 // Status code
+    );
   } catch (error) {
-    return res.status(403).json({
-      success: false,
-      message: error.message,
-    });
+    // Use res.error for unexpected errors
+    next(
+      new AppError("Failed to retrieve users", 500, { details: error.message })
+    );
   }
 };
 
+const login = async (req, res, next) => {
+  try {
+    // Call the service to authenticate user and generate token
+    const token = await userService.loginUser(req.body);
 
+    // Return success response
+    res.success(
+      { token }, // Data
+      "Valid login credentials", // Message
+      200 // Status code
+    );
+  } catch (error) {
+    // Handle AppError explicitly or pass other errors to the global handler
+    next(
+      new AppError(error.message || "Login failed", error.statusCode || 500)
+    );
+  }
+};
+
+const requestToBecomeRenter = async (req, res, next) => {
+  try {
+    const userId = req.token.userId;
+
+    // Call the service
+    const newRequest = await userService.RequestToBecomeRenterService(userId);
+
+    // Send success response
+    res.success(
+      newRequest, // Data
+      `Request for user ${userId} has been sent`, // Message
+      200 // Status Code
+    );
+  } catch (error) {
+    // Handle errors using AppError and forward to the centralized error handler
+    next(
+      new AppError(error.message || "Request failed", error.statusCode || 500)
+    );
+  }
+};
+
+const acceptOwnerRequest = async (req, res, next) => {
+  try {
+    const role = req.token.role;
+    const requestId = req.params.requestId;
+
+    // Call the service to approve the request
+    const result = await userService.acceptOwnerRequestService(requestId, role);
+
+    // Respond with success
+    res.success(
+      result, // Data
+      `Request for user ${result.userId} has been approved`, // Message
+      200 // Status Code
+    );
+  } catch (error) {
+    // Forward errors to the centralized error handler
+    next(
+      new AppError(
+        error.message,
+        error.statusCode || 500,
+        error.details || null
+      )
+    );
+  }
+};
+
+const getAllOwnersRequests = async (req, res, next) => {
+  try {
+    // Call the service to fetch all owner requests
+    const requests = await userService.getAllOwnersRequestsService();
+
+    // Send success response
+    res.success(
+      requests, // Data
+      "All owners' requests retrieved successfully", // Message
+      200 // Status Code
+    );
+  } catch (error) {
+    // Forward errors to the centralized error handler
+    next(
+      new AppError(
+        error.message,
+        error.statusCode || 500,
+        error.details || null
+      )
+    );
+  }
+};
+
+const generateNewToken = async (req, res, next) => {
+  try {
+    const userId = req.token.userId;
+
+    // Check if userId is provided
+    if (!userId) {
+      throw new AppError("Token is required", 401);
+    }
+
+    // Call the service to refresh the token
+    const token = await userService.refreshToken(userId);
+
+    // Send success response
+    res.success(
+      { token }, // Data
+      "New token generated successfully", // Message
+      200 // Status Code
+    );
+  } catch (error) {
+    // Forward errors to the centralized error handler
+    next(
+      new AppError(
+        error.message || "Failed to generate token",
+        error.statusCode || 500
+      )
+    );
+  }
+};
 
 module.exports = {
   signUp,
-  getallusers,
+  getAllUsers,
   login,
   requestToBecomeRenter,
   acceptOwnerRequest,
   getAllOwnersRequests,
-  generateNewToken
+  generateNewToken,
 };
