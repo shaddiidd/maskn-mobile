@@ -9,7 +9,7 @@ const {
   getAllProperties,
   getMyProperties,
   getPropertiesByUserId,
-  updateMyProperty,
+  updateProperty,
   deleteProperty,
   AdminGetAllProperties,
   requestTour,
@@ -30,7 +30,7 @@ propertyRouter.get("/", getAllProperties);
 propertyRouter.get("/get-property-by-admin", auth, AdminGetAllProperties);
 propertyRouter.get("/get-by-user-id", auth, getMyProperties);
 propertyRouter.get("/get-by-user-id/:userId", getPropertiesByUserId);
-propertyRouter.put("/update-property/:id", auth, updateMyProperty);
+propertyRouter.put("/update-property/:id", auth, updateProperty);
 propertyRouter.delete("/delete-property/:propertyId", auth, deleteProperty);
 propertyRouter.post("/request-tour/:propertyId", auth, requestTour);
 propertyRouter.get("/get-tour-requests", auth, getTourRequests);

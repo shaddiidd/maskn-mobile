@@ -1,14 +1,15 @@
 const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
-const User = require("../models/users")
-const Sequelize = require("sequelize")
-const { Op } = require('sequelize'); 
+const User = require("../models/users");
+const Sequelize = require("sequelize");
+const { Op } = require("sequelize");
+const AppError = require("../utils/AppError");
+const { filterFields } = require("../utils/fieldUtils");
 
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
-  
   if (role !== 2) {
-    return { success: false, message: "Unauthorized" };
+    throw new AppError("Unauthorized: Only owners can add properties", 403);
   }
 
   const {
@@ -34,16 +35,17 @@ const createProperty = async (property, ownerId, role, files) => {
     apartment_number,
   } = property;
 
-  // Define the default values
+  // Default values
   const post_status = 2; // Default post status
   const rental_status = 0; // Default rental status
 
   try {
     // Handle file uploads
     const photoUrls = files.map((file) => file.path);
+
     // Create a new property record in the database
     const newProperty = await Property.create({
-      owner_id : ownerId,
+      owner_id: ownerId,
       description,
       title,
       address,
@@ -66,210 +68,284 @@ const createProperty = async (property, ownerId, role, files) => {
       apartment_number,
       mark_as_rented: rental_status,
       post_status_id: post_status,
-      photos : photoUrls
+      photos: photoUrls,
     });
-    
-    // Return the newly created property
-    return { success: true, data: newProperty };
+
+    return newProperty; // Return the created property directly
   } catch (error) {
-    // Handle any errors that occur during the creation process
-    return { success: false, message: error.message };
+    throw new AppError("Failed to create property", 500, {
+      details: error.message,
+    });
   }
 };
 
-
 const getAllProperties = async (userRole = null) => {
-
   try {
-    if (userRole == 3) {
-      const properites = await Property.findAll();
-      return { success: true, data: properites };
-    } else {
-      const properites = await Property.findAll({
-        where: { post_status_id: 1 , mark_as_rented : 0},
-      });
-      return { success: true, data: properites };
-    }
+      let properties;
+
+      // Admin role (3) fetches all properties
+      if (userRole === 3) {
+          properties = await Property.findAll();
+      } else {
+          // Regular users fetch only available properties
+          properties = await Property.findAll({
+              where: { post_status_id: 2, mark_as_rented: 0 },
+          });
+      }
+
+      return properties; // Return properties directly
   } catch (error) {
-    return { success: false, error: error };
+      throw new AppError("Failed to load properties", 500, {
+          details: error.message,
+      });
   }
 };
 
 const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
     // Define the base condition for fetching properties
-    const whereCondition = {
-      owner_id: userId,
-    };
+    const whereCondition = { owner_id: userId };
 
-    // Apply additional filtering if the requester is not the owner
+    // Apply filtering for non-owners (restrict data)
     if (tokenUserId !== userId) {
-      whereCondition.post_status_id = {
-        [Sequelize.Op.ne]: 2, // Exclude post_status_id = 2
-      };
-      whereCondition.mark_as_rented = {
-        [Sequelize.Op.ne]: 1, 
-      }
+      whereCondition.post_status_id = { [Op.ne]: 2 }; // Exclude post_status_id = 2
+      whereCondition.mark_as_rented = { [Op.ne]: 1 }; // Exclude rented properties
     }
 
+    // Fetch properties from the database
     const properties = await Property.findAll({ where: whereCondition });
-    return { success: true, data: properties };
+
+    return properties; // Return properties directly
   } catch (error) {
-    return { success: false, error: error.message };
-  }
-};
-
-
-const updateMyProperty = async (updatedProperty, propertyId) => {
-  try {
-    const property = await Property.findByPk(propertyId);
-
-    if (property) {
-      Object.assign(property, updatedProperty);
-      const data = await property.save();
-      return { success: true, data: data };
-    }
-  } catch (error) {
-    return { success: false, error: error };
-  }
-};
-
-const deletePropertyService = async (propertyId, userId) => {
-  try {
-    const property = await Property.destroy({
-      where: { property_id: propertyId, owner_id: userId },
+    throw new AppError("Failed to retrieve properties", 500, {
+      details: error.message,
     });
-
-    if (property) {
-      return { success: true, data: data };
-    }
-  } catch (error) {
-    return { success: false, error: error };
   }
 };
 
-const requestTourByTenant = async (tenantId, propertyId) => {
+const updateProperty = async (updatedProperty, propertyId, userId, role) => {
   try {
     const property = await Property.findByPk(propertyId);
 
     if (!property) {
-      return { success: false, message: "Property not found" };
+      throw new AppError("Property not found", 404);
     }
 
-    const ownerId = property.dataValues.owner_id;
-
-    if (tenantId === ownerId) {
-      return { success: false, message: "tour request cant made by owner" };
-    }
-    const requestExist = await TourRequest.findOne({
-      where: {
-        tenant_id: tenantId,
-        property_id: propertyId,
-      },
-    });
-
-    if (requestExist) {
-      return { success: false, message: "user already have a request" };
+    if (role !== 3 && property.owner_id !== userId) {
+      throw new AppError("Unauthorized: You do not own this property", 403);
     }
 
-    const newTourRequest = await TourRequest.create({
-      tenant_id: tenantId,
-      property_id: propertyId,
-      owner_id: ownerId,
-    });
+    // Allowed fields for regular users
+    const allowedFieldsForOwners = [
+      "description",
+      "title",
+      "address",
+      "location",
+      "area",
+      "is_furnished",
+      "floor_num",
+      "bedroom_num",
+      "bathroom_num",
+      "property_age",
+      "water_meter_subscription_number",
+      "electricity_meter_reference_number",
+      "price",
+      "rental_period",
+      "village_id",
+      "block_id",
+      "neighborhood_id",
+      "parcel_number",
+      "building_number",
+      "apartment_number",
+    ];
 
-    return { success: true, data: newTourRequest };
+    // Filter fields based on user role
+    const filteredUpdates =
+      role === 3
+        ? updatedProperty // Admins can update any field
+        : filterFields(updatedProperty, allowedFieldsForOwners);
+
+    if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
+      if (property.mark_as_rented === 1) {
+        throw new AppError(
+          "Cannot change post_status_id when the property is marked as rented",
+          400
+        );
+      }
+    }
+
+    if (Object.keys(filteredUpdates).length === 0) {
+      throw new AppError("No valid fields to update", 400);
+    }
+
+    // Update and save property
+    Object.assign(property, filteredUpdates);
+    const updatedData = await property.save();
+
+    return updatedData;
   } catch (error) {
-    return { success: false, error: error.message };
+    throw new AppError("Failed to update the property", 500, {
+      details: error.message,
+    });
   }
 };
+
+const deletePropertyService = async (propertyId, userId, role) => {
+  try {
+      // Admins (role 3) can delete any property
+      const whereCondition = role === 3 
+          ? { property_id: propertyId } 
+          : { property_id: propertyId, owner_id: userId }; // Owners can only delete their properties
+
+      const deletedCount = await Property.destroy({
+          where: whereCondition,
+      });
+
+      if (deletedCount === 0) {
+          throw new AppError("Property not found or unauthorized access", 404);
+      }
+
+      return { success: true, message: `Property ${propertyId} deleted successfully` };
+  } catch (error) {
+      throw new AppError("Failed to delete the property", 500, { details: error.message });
+  }
+};
+
+
+const requestTourByTenant = async (tenantId, propertyId) => {
+  try {
+      // Find the property
+      const property = await Property.findByPk(propertyId);
+
+      if (!property) {
+          throw new AppError("Property not found", 404);
+      }
+
+      const ownerId = property.owner_id;
+
+      // Prevent the owner from requesting a tour
+      if (tenantId === ownerId) {
+          throw new AppError("Tour request cannot be made by the property owner", 403);
+      }
+
+      // Check if a tour request already exists
+      const requestExist = await TourRequest.findOne({
+          where: {
+              tenant_id: tenantId,
+              property_id: propertyId,
+          },
+      });
+
+      if (requestExist) {
+          throw new AppError("User already has a pending tour request for this property", 403);
+      }
+
+      // Create the new tour request
+      const newTourRequest = await TourRequest.create({
+          tenant_id: tenantId,
+          property_id: propertyId,
+          owner_id: ownerId,
+      });
+
+      return newTourRequest; // Return created request data
+  } catch (error) {
+      throw new AppError(error.message || "Failed to process tour request", 500);
+  }
+};
+
 
 const getRequestToursByUserId = async (userId) => {
   try {
-    const requests = await TourRequest.findAll({
-      where: {
-        [Op.or]: [
-          { owner_id: userId },
-          { tenant_id: userId },
-        ],
-      },
-    });
+      const requests = await TourRequest.findAll({
+          where: {
+              [Op.or]: [{ owner_id: userId }, { tenant_id: userId }],
+          },
+      });
 
-    return { success: true, data: requests };
+      return requests; // Return the fetched tour requests directly
   } catch (error) {
-    return { success: false, error: error.message };
+      throw new AppError("Failed to fetch tour requests", 500, {
+          details: error.message,
+      });
   }
 };
+
 const acceptTourRequestService = async (ownerId, requestId) => {
   try {
-    const requestExist = await TourRequest.findOne({
-      where: { request_id: requestId, owner_id: ownerId },
-    });
+      // Check if the request exists and belongs to the owner
+      const requestExist = await TourRequest.findOne({
+          where: { request_id: requestId, owner_id: ownerId },
+      });
 
-    if (requestExist) {
+      if (!requestExist) {
+          throw new AppError("Request does not exist or unauthorized access", 404);
+      }
+
+      // Update the status to 'approved'
       const [rowsUpdated, [updatedRequest]] = await TourRequest.update(
-        { status: "approved" },
-        {
-          where: { owner_id: ownerId, request_id: requestId },
-          returning: true, // Fetch the updated record
-        }
+          { status: "approved" },
+          {
+              where: { request_id: requestId, owner_id: ownerId },
+              returning: true, // Return the updated record
+          }
       );
 
-      return { success: true, data: updatedRequest };
-    }
-
-    return { success: false, message: "Request does not exist" };
+      return updatedRequest; // Return the updated request data
   } catch (error) {
-    return { success: false, error: error.message };
+      throw new AppError("Failed to approve the tour request", 500, {
+          details: error.message,
+      });
   }
 };
 
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {
-    // Fetch the property by primary key
-    const property = await Property.findByPk(propertyId);
+      // Fetch the property
+      const property = await Property.findByPk(propertyId);
 
-    // If property is not found, return an error response
-    if (!property) {
-      return { success: false, message: "Property not found" };
-    }
-
-    // If tenantId is provided and not null
-    if (tenantId) {
-      // Check if an approved tour request exists for the tenant and property
-      const requestExist = await TourRequest.findOne({
-        where: { property_id: propertyId, tenant_id: tenantId, status: "approved" },
-      });
-
-      // If request exists and is approved, include contact information
-      if (requestExist) {
-        const propertyWithContactInfo = await Property.findOne({
-          where: { property_id: propertyId }, // Fixed: Use correct field for `Property` lookup
-          include: [
-            {
-              model: User,
-              attributes: ["phone_number"],
-            },
-          ],
-        });
-
-        return { success: true, data: propertyWithContactInfo };
+      if (!property) {
+          throw new AppError("Property not found", 404);
       }
-    }
 
-    // Return the property without contact information
-    return { success: true, data: property };
+      // Check for an approved tour request if tenantId is provided
+      if (tenantId) {
+          const approvedRequest = await TourRequest.findOne({
+              where: {
+                  property_id: propertyId,
+                  tenant_id: tenantId,
+                  status: "approved",
+              },
+          });
+
+          // If an approved request exists, include contact information
+          if (approvedRequest) {
+              const propertyWithContact = await Property.findOne({
+                  where: { property_id: propertyId },
+                  include: [
+                      {
+                          model: User,
+                          as: "owner", // Assuming a relationship alias
+                          attributes: ["phone_number"],
+                      },
+                  ],
+              });
+
+              return propertyWithContact; // Return property with contact info
+          }
+      }
+
+      // Return the property without contact info
+      return property;
   } catch (error) {
-    return { success: false, error: error.message };
+      throw new AppError("Failed to fetch property details", 500, { details: error.message });
   }
 };
-
 
 module.exports = {
   createProperty,
   getAllProperties,
   findPropertiesByUserId,
-  updateMyProperty,
+  updateProperty,
   deletePropertyService,
   requestTourByTenant,
   getRequestToursByUserId,
