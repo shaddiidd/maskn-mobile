@@ -1,6 +1,7 @@
 import { useNavigation } from "@react-navigation/native";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { formatPrice } from "../helpers/textFunctions";
 
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
@@ -10,13 +11,13 @@ export default function PropertyCard({ property }) {
     <TouchableOpacity
       activeOpacity={0.7}
       style={styles.container}
-      onPress={() => navigation.navigate("PropertyDetails", { property })}
+      onPress={() => navigation.navigate("PropertyDetails", { property_id: property.property_id })}
     >
       <View style={styles.imageContainer}>
         <Image style={styles.image} source={property.photos ? { uri: property?.photos[0] } : require("../assets/house.png")} />
       </View>
       <Text style={styles.title}>{property.title}</Text>
-      <Text style={styles.price}>JD {property.price}</Text>
+      <Text style={styles.price}>JD {formatPrice(property.price)}</Text>
       <View style={styles.ratingContainer}>
         <Ionicons name="star" size={19} color="gold" />
         <Text style={styles.ratingTxt}> {property.rating || "5"} </Text>

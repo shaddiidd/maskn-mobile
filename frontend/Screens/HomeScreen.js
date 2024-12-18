@@ -1,9 +1,7 @@
 import {
   StyleSheet,
-  SafeAreaView,
   View,
-  TextInput,
-  TouchableOpacity,
+  RefreshControl,
   ScrollView,
   Text,
   TouchableWithoutFeedback,
@@ -19,17 +17,24 @@ import SearchModal from "../Components/SearchModal";
 export default function HomeScreen() {
   const { setLoading } = useContext(Context);
   const [properties, setProperties] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchProperties = async () => {
+    try {
+      const response = await get("property")
+      setProperties(response.data);
+    } catch (error) {
+      setProperties([]);
+      console.log(error);
+    } finally {
+      setRefreshing(false);
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
-    get("property")
-      .then((response) => {
-        setProperties(response.result);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => setLoading(false));
+    fetchProperties();
   }, []);
 
   if (properties === null) return <></>
@@ -39,15 +44,9 @@ export default function HomeScreen() {
       <SearchModal />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <ScrollView
-          contentContainerStyle={{
-            alignItems: "center",
-            minHeight: "100%",
-            justifyContent: properties?.length ? "flex-start" : "center",
-            paddingTop: 5,
-            paddingBottom: 20,
-            rowGap: 15,
-          }}
-          style={{ flex: 1, width: "100%" }}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
+          contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center", }]}
+          style={styles.scrollView}
         >
           {properties?.length ? (
             properties?.map((property) => (
@@ -56,16 +55,7 @@ export default function HomeScreen() {
           ) : (
             <>
               <Ionicons name="home-outline" size={50} color="#666" />
-              <Text
-                style={{
-                  color: "#666",
-                  fontSize: 17,
-                  marginTop: 5,
-                  marginBottom: 100,
-                }}
-              >
-                No properties yet
-              </Text>
+              <Text style={styles.emptyText}>No properties yet</Text>
             </>
           )}
         </ScrollView>
@@ -81,7 +71,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  scrollView: {
+    flex: 1,
+    width: "100%"
+  },
+  scrollContainer: {
+    alignItems: "center",
+    minHeight: "100%",
+    paddingTop: 5,
+    paddingBottom: 20,
+    rowGap: 15,
+  },
   list: {
     width: "100%",
   },
+  emptyText: {
+    color: "#666",
+    fontSize: 17,
+    marginTop: 5,
+    marginBottom: 100,
+  }
 });
