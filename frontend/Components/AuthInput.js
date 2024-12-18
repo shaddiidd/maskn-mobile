@@ -11,6 +11,7 @@ export default function AuthInput({ placeholder, value, setValue, error, passwor
         keyboardType={keyboardType}
         secureTextEntry={password}
         autoCapitalize={autoCapitalize}
+        autoCorrect={false}
       />
       {error && <Text style={styles.errorText}>This field is required</Text>}
     </>
@@ -25,7 +26,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     borderRadius: 10,
     height: 55,
-    width: "100%"
+    width: "100%",
+    fontSize: 16
   },
   errorInput: {
     borderColor: "#C6131B",

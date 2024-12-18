@@ -27,6 +27,10 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       unique: true,
       allowNull: false,
+      validate: {
+        is: /^[0-9]{10}$/, // Ensures the national number is numeric and exactly 10 digits
+        len: [10, 10], // Ensures the length is exactly 10 characters
+      }         
     },
     date_of_birth: {
       type: DataTypes.DATEONLY,
@@ -46,6 +50,16 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    phone_number: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      validate: {
+        is: /^[0-9]{10}$/, // Ensures the phone number is exactly 10 numeric digits
+        len: [10, 10], // Ensures the length is exactly 10 characters
+      }
+      
+    },
     role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -58,6 +72,10 @@ const User = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    profile_photo: {
+      type: DataTypes.ARRAY(DataTypes.STRING), // Array of strings for photo URLs
+      allowNull: true, // Photos are optional
+    },
   },
   {
     timestamps: true,
@@ -67,8 +85,6 @@ const User = sequelize.define(
 
     validate: {
       ratingRequiredForUsers() {
-        console.log("role",this.role_id);
-        
         if (
           this.role_id === 1 &&
           (this.rating === null || this.rating === undefined)

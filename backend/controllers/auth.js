@@ -8,7 +8,6 @@ async (req, res) => {
 
   try {
     const user = await User.findOne({ where: { email } });
-    // console.log(user.dataValues.email);
     
     if (!user) {
       res.status(404).json({ success: false, message: "User not found" });
@@ -22,18 +21,15 @@ async (req, res) => {
         .json({ success: true, message: "reset password link has been sent" });
 
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, error: error });
   }
 };
 
 const resetPassword = async (req, res) => {
   const { token, newPassword } = req.body;
-    console.log(req.body);
     
   try {
     const decodedToken = authService.verifyResetToken(token);
-    console.log(decodedToken);
     
     const user = await User.findOne({
       where: {
@@ -47,12 +43,10 @@ const resetPassword = async (req, res) => {
         .status(400)
         .json({ success: false, message: "token expiered or invalid" });
     } 
-        console.log("c user: ",user.dataValues);
         
       await authService.updatePassword(user.dataValues, newPassword);
       res.status(200).json({ message: "Password has been reset successfully" });
   } catch (error) {
-    console.log(error);
     
     res.status(500).json({ message: 'Error resetting password', error: error });
   }

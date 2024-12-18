@@ -1,7 +1,6 @@
 import axios from "axios";
 
-// const baseURL = "http://127.0.0.1:8000/api/";
-const baseURL = "https://api.thefounderscube.com/api/";
+const baseURL = "http://localhost:5002/";
 
 const axiosInstance = axios.create({
   baseURL,
@@ -11,6 +10,7 @@ const axiosInstance = axios.create({
 });
 
 export const setAuthorizationToken = (token) => {
+  console.log("Token from axios:", token);
   axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 

@@ -1,10 +1,11 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from "@expo/vector-icons";
 
-export default function Reviews({ reviews, seeAll = false }) {
+export default function Reviews({ reviews, seeAll = false, additionalStyles = {} }) {
   const navigation = useNavigation();
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, additionalStyles]}>
       <View style={styles.header}>
         <Text style={styles.title}>Reviews</Text>
         <TouchableOpacity activeOpacity={0.7}>
@@ -15,18 +16,10 @@ export default function Reviews({ reviews, seeAll = false }) {
       <View key={review.id} style={styles.card}>
         <View style={styles.starContainer}>
             {Array(review.star_rating).fill(0).map((_, index) => (
-                <Image 
-                    key={index} 
-                    style={styles.star} 
-                    source={require("../assets/star.png")} 
-                />
+                <Ionicons key={index} name="star" size={22} color="gold" />
             ))}
             {Array(5 - review.star_rating).fill(0).map((_, index) => (
-                <Image 
-                    key={index} 
-                    style={styles.star} 
-                    source={require("../assets/star-outline.png")} 
-                />
+                <Ionicons key={index} name="star-outline" size={22} color="gold" />
             ))}
         </View>
         <View style={{ marginVertical: 25 }}>
@@ -58,13 +51,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    width: "90%",
+    width: "100%",
     marginBottom: 5
   },
   title: {
     fontSize: 24,
     fontWeight: '600',
-
   },
   seeAll: {
     color: "#508D4E",
@@ -76,7 +68,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginVertical: 10,
     borderRadius: 8,
-    minWidth: "90%",
+    minWidth: "100%",
     paddingHorizontal: 20,
     paddingVertical: 25,
     justifyContent: "space-between",
@@ -84,9 +76,7 @@ const styles = StyleSheet.create({
   starContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-  },
-  star: {
-    marginRight: 5
+    gap: 1
   },
   description: {
     fontSize: 18,

@@ -1,8 +1,17 @@
 const Property = require("../models/properties");
+const TourRequest = require("../models/tourRequests");
+const User = require("../models/users")
+const Sequelize = require("sequelize")
+const { Op } = require('sequelize'); 
 
-const createProperty = (property, user_id) => {
+const createProperty = async (property, ownerId, role, files) => {
+  // Check if the user has the proper role to create a property
+  
+  if (role !== 2) {
+    return { success: false, message: "Unauthorized" };
+  }
+
   const {
-    property_national_number,
     description,
     title,
     address,
@@ -17,49 +26,99 @@ const createProperty = (property, user_id) => {
     electricity_meter_reference_number,
     price,
     rental_period,
-    mark_as_rented,
+    village_id,
+    block_id,
+    neighborhood_id,
+    parcel_number,
+    building_number,
+    apartment_number,
   } = property;
 
-  const newProperty = Property.create({
-    property_national_number,
-    user_id,
-    description,
-    title,
-    address,
-    location,
-    area,
-    is_furnished,
-    floor_num,
-    bedroom_num,
-    bathroom_num,
-    property_age,
-    water_meter_subscription_number,
-    electricity_meter_reference_number,
-    price,
-    rental_period,
-    mark_as_rented,
-  });
+  // Define the default values
+  const post_status = 2; // Default post status
+  const rental_status = 0; // Default rental status
 
-  return newProperty;
+  try {
+    // Handle file uploads
+    const photoUrls = files.map((file) => file.path);
+    // Create a new property record in the database
+    const newProperty = await Property.create({
+      owner_id : ownerId,
+      description,
+      title,
+      address,
+      location,
+      area,
+      is_furnished,
+      floor_num,
+      bedroom_num,
+      bathroom_num,
+      property_age,
+      water_meter_subscription_number,
+      electricity_meter_reference_number,
+      price,
+      rental_period,
+      village_id,
+      block_id,
+      neighborhood_id,
+      parcel_number,
+      building_number,
+      apartment_number,
+      mark_as_rented: rental_status,
+      post_status_id: post_status,
+      photos : photoUrls
+    });
+    
+    // Return the newly created property
+    return { success: true, data: newProperty };
+  } catch (error) {
+    // Handle any errors that occur during the creation process
+    return { success: false, message: error.message };
+  }
 };
 
-const getAllProperties = async () => {
+
+const getAllProperties = async (userRole = null) => {
+
   try {
-    const properites = await Property.findAll();
-    return { success: true, data: properites };
+    if (userRole == 3) {
+      const properites = await Property.findAll();
+      return { success: true, data: properites };
+    } else {
+      const properites = await Property.findAll({
+        where: { post_status_id: 1 , mark_as_rented : 0},
+      });
+      return { success: true, data: properites };
+    }
   } catch (error) {
     return { success: false, error: error };
   }
 };
 
-const findPropertiesByuserId = async (userId) => {
+const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
-    const properites = await Property.findOne({ where: { user_id: userId } });
-    return { success: true, data: properites };
+    // Define the base condition for fetching properties
+    const whereCondition = {
+      owner_id: userId,
+    };
+
+    // Apply additional filtering if the requester is not the owner
+    if (tokenUserId !== userId) {
+      whereCondition.post_status_id = {
+        [Sequelize.Op.ne]: 2, // Exclude post_status_id = 2
+      };
+      whereCondition.mark_as_rented = {
+        [Sequelize.Op.ne]: 1, 
+      }
+    }
+
+    const properties = await Property.findAll({ where: whereCondition });
+    return { success: true, data: properties };
   } catch (error) {
-    return { success: false, error: error };
+    return { success: false, error: error.message };
   }
 };
+
 
 const updateMyProperty = async (updatedProperty, propertyId) => {
   try {
@@ -78,7 +137,7 @@ const updateMyProperty = async (updatedProperty, propertyId) => {
 const deletePropertyService = async (propertyId, userId) => {
   try {
     const property = await Property.destroy({
-      where: { property_id: propertyId, user_id: userId },
+      where: { property_id: propertyId, owner_id: userId },
     });
 
     if (property) {
@@ -89,10 +148,131 @@ const deletePropertyService = async (propertyId, userId) => {
   }
 };
 
+const requestTourByTenant = async (tenantId, propertyId) => {
+  try {
+    const property = await Property.findByPk(propertyId);
+
+    if (!property) {
+      return { success: false, message: "Property not found" };
+    }
+
+    const ownerId = property.dataValues.owner_id;
+
+    if (tenantId === ownerId) {
+      return { success: false, message: "tour request cant made by owner" };
+    }
+    const requestExist = await TourRequest.findOne({
+      where: {
+        tenant_id: tenantId,
+        property_id: propertyId,
+      },
+    });
+
+    if (requestExist) {
+      return { success: false, message: "user already have a request" };
+    }
+
+    const newTourRequest = await TourRequest.create({
+      tenant_id: tenantId,
+      property_id: propertyId,
+      owner_id: ownerId,
+    });
+
+    return { success: true, data: newTourRequest };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+const getRequestToursByUserId = async (userId) => {
+  try {
+    const requests = await TourRequest.findAll({
+      where: {
+        [Op.or]: [
+          { owner_id: userId },
+          { tenant_id: userId },
+        ],
+      },
+    });
+
+    return { success: true, data: requests };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+const acceptTourRequestService = async (ownerId, requestId) => {
+  try {
+    const requestExist = await TourRequest.findOne({
+      where: { request_id: requestId, owner_id: ownerId },
+    });
+
+    if (requestExist) {
+      const [rowsUpdated, [updatedRequest]] = await TourRequest.update(
+        { status: "approved" },
+        {
+          where: { owner_id: ownerId, request_id: requestId },
+          returning: true, // Fetch the updated record
+        }
+      );
+
+      return { success: true, data: updatedRequest };
+    }
+
+    return { success: false, message: "Request does not exist" };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
+  try {
+    // Fetch the property by primary key
+    const property = await Property.findByPk(propertyId);
+
+    // If property is not found, return an error response
+    if (!property) {
+      return { success: false, message: "Property not found" };
+    }
+
+    // If tenantId is provided and not null
+    if (tenantId) {
+      // Check if an approved tour request exists for the tenant and property
+      const requestExist = await TourRequest.findOne({
+        where: { property_id: propertyId, tenant_id: tenantId, status: "approved" },
+      });
+
+      // If request exists and is approved, include contact information
+      if (requestExist) {
+        const propertyWithContactInfo = await Property.findOne({
+          where: { property_id: propertyId }, // Fixed: Use correct field for `Property` lookup
+          include: [
+            {
+              model: User,
+              attributes: ["phone_number"],
+            },
+          ],
+        });
+
+        return { success: true, data: propertyWithContactInfo };
+      }
+    }
+
+    // Return the property without contact information
+    return { success: true, data: property };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+};
+
+
 module.exports = {
   createProperty,
   getAllProperties,
-  findPropertiesByuserId,
+  findPropertiesByUserId,
   updateMyProperty,
   deletePropertyService,
+  requestTourByTenant,
+  getRequestToursByUserId,
+  acceptTourRequestService,
+  getPropertyByPropertyIdService,
 };
