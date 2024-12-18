@@ -26,16 +26,12 @@ export default function Payment({ route }) {
   //     });
   // }, []);
 
-  const pay = (paymentMethod) => {
-    setSelectedPaymentMethod(paymentMethod);
-  };
+  const pay = (paymentMethod) => setSelectedPaymentMethod(paymentMethod);
 
   const removePaymentMethod = (paymentMethod) => {
     // remove(`paymentMethods/${paymentMethod.id}`)
     //   .then(() => {
-    setPaymentMethods(
-      paymentMethods.filter((method) => method.id !== paymentMethod.id)
-    );
+    setPaymentMethods(paymentMethods.filter((method) => method.id !== paymentMethod.id));
     // })
     // .catch(() => {});
   };
@@ -44,25 +40,12 @@ export default function Payment({ route }) {
     <View style={styles.container}>
       <Text style={styles.title}>Payment Method</Text>
       {paymentMethods?.map((paymentMethod) => (
-        <PaymentMethodCard
-          key={paymentMethod.id}
-          paymentMethod={paymentMethod}
-          onPress={() => pay(paymentMethod)}
-          remove={() => removePaymentMethod(paymentMethod)}
-        />
+        <PaymentMethodCard key={paymentMethod.id} paymentMethod={paymentMethod} onPress={() => pay(paymentMethod)} remove={() => removePaymentMethod(paymentMethod)} />
       ))}
       <TouchableOpacity activeOpacity={0.7} style={styles.addButton} onPress={() => setOpenAddCardModal(true)}>
         <Ionicons name="add" size={25} color="white" />
       </TouchableOpacity>
-
-      {/* MODALS */}
-      <PaymentModal
-        name={name}
-        price={price}
-        additionalInfo={additionalInfo}
-        onClose={() => setSelectedPaymentMethod(null)}
-        paymentMethod={selectedPaymentMethod}
-      />
+      <PaymentModal name={name} price={price} additionalInfo={additionalInfo} onClose={() => setSelectedPaymentMethod(null)} paymentMethod={selectedPaymentMethod} />
       <AddCardModal visible={openAddCardModal}  onClose={() => setOpenAddCardModal(false)}/>
     </View>
   );

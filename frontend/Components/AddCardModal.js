@@ -1,15 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Image,
-  Modal,
-  TextInput,
-  KeyboardAvoidingView,
-  Platform,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView, Platform } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "./Button";
 import TextField from "./TextField";
@@ -22,36 +12,21 @@ export default function AddCardModal({ onAdd, onClose, visible }) {
     cvv: "",
   });
   return (
-    <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} transparent={true} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalBackground}>
         <View style={styles.container}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <Ionicons name="close" size={20} color="#666" />
           </TouchableOpacity>
           <Text style={styles.title}>Add card</Text>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={{ width: "100%" }}
-          >
+          <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={{ width: "100%" }}>
             <TextField placeholder="Card Number" icon="card-outline" />
             <TextField placeholder="Name on Card" />
-            <View
-              style={{
-                flexDirection: "row",
-                justifyContent: "space-between",
-                gap: 20,
-              }}
-            >
+            <View style={styles.inputRow}>
               <TextField small placeholder="MM/YY" />
               <TextField small placeholder="CCV" />
             </View>
           </KeyboardAvoidingView>
-
           <Button disabled onPress={onAdd} compressed text="add card" />
         </View>
       </View>
@@ -88,4 +63,9 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     width: "100%",
   },
+  inputRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    gap: 20,
+  }
 });

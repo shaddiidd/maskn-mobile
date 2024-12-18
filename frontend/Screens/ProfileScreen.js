@@ -24,24 +24,8 @@ export default function ProfileScreen() {
     { icon: "location-on", text: "Jordanian" },
   ];
   const reviews = [
-    {
-      id: 1,
-      star_rating: 5,
-      profile_picture: require("../assets/hazodeh.png"),
-      name: "Hazem Odeh",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
-    {
-      id: 2,
-      star_rating: 3,
-      profile_picture: require("../assets/anas.png"),
-      name: "Anas Bajawi",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
+    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
   ];
 
   return (
@@ -57,9 +41,7 @@ export default function ProfileScreen() {
               <Ionicons name="person" color="#666" size={25} />
             </View>
             <View>
-              <Text style={styles.name}>
-                {user.firstName} {user.lastName}
-              </Text>
+              <Text style={styles.name}>{user.firstName} {user.lastName}</Text>
               <View style={styles.ratingContainer}>
                 <Image source={require("../assets/star.png")} />
                 <Text style={styles.rating}> {user?.rating || 5}</Text>
@@ -89,10 +71,7 @@ export default function ProfileScreen() {
           <Icon name="history" size={25} color="#fff" />
           <Text style={styles.historyBtnTxt}>  RENT HISTORY</Text>
         </TouchableOpacity> */}
-        <Button
-          text="rent history"
-          onPress={() => navigation.navigate("RentHistory")}
-        />
+        <Button text="rent history" onPress={() => navigation.navigate("RentHistory")} />
         <Reviews reviews={reviews} />
       </SafeAreaView>
     </ScrollView>

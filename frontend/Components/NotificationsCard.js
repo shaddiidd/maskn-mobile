@@ -10,13 +10,9 @@ export default function NotificationsCard({ notification }) {
         <Ionicons name="notifications-outline" size={25} color="#fff" />
       </View>
       <View style={styles.contentContainer}>
-        <Text numberOfLines={1} style={styles.text}>
-          {notification.content}
-        </Text>
+        <Text numberOfLines={1} style={styles.text}>{notification.content}</Text>
         <Text style={styles.time}>
-          {capitalizeFirstLetter(formatDistanceToNow(new Date(notification.created), {
-            addSuffix: true,
-          }))}
+          {capitalizeFirstLetter(formatDistanceToNow(new Date(notification.created), { addSuffix: true }))}
         </Text>
       </View>
     </TouchableOpacity>

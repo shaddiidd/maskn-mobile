@@ -32,13 +32,10 @@ export default function PropertyScreen({ route }) {
 
   const handleRequestTour = () => {
     post(`property/request-tour/${property_id}`)
-      .then(() => {
-        Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]);
-      })
-      .catch((err) => {
-        Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]);
-      });
+      .then(() => Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]))
+      .catch(() => Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]));
   }
+  
   const reviews = [
     { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
     { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
