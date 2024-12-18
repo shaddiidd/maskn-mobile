@@ -5,107 +5,69 @@ import {
   View,
   Text,
   TouchableOpacity,
+  Alert,
 } from "react-native";
 import PaginatedCarousel from "../Components/PaginatedCarousel";
 import { Ionicons } from "@expo/vector-icons";
 import Reviews from "../Components/Reviews";
+import Button from "../Components/Button";
+import PropertyInfoBox from "../Components/PropertyInfoBox";
+import { post } from "../fetch";
+import { useContext } from "react";
+import Context from "../Context";
 
 export default function PropertyScreen({ route }) {
   const { property } = route.params;
-  const propertyImages = [
-    require("../assets/house.png"),
-    require("../assets/house.png"),
-    require("../assets/house.png"),
-  ];
+  const { user } = useContext(Context);
+
+  const handleRequestTour = () => {
+    post(`property/request-tour/${property.property_id}`)
+      .then(() => {
+        Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]);
+      })
+      .catch((err) => {
+        Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]);
+      });
+  }
   const reviews = [
-    {
-      id: 1,
-      star_rating: 5,
-      profile_picture: require("../assets/hazodeh.png"),
-      name: "Hazem Odeh",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
-    {
-      id: 2,
-      star_rating: 3,
-      profile_picture: require("../assets/anas.png"),
-      name: "Anas Bajawi",
-      date: "August 5, 2024",
-      title: "Review title",
-      description: "Review description",
-    },
+    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
+    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
   ];
 
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
-        <PaginatedCarousel propertyImages={propertyImages} />
+        {property?.photos ? (
+          <PaginatedCarousel propertyImages={property?.photos} />
+        ) : (
+          <PaginatedCarousel propertyImages={[require("../assets/house.png")]} />
+        )}
         <ScrollView
           contentContainerStyle={styles.infoBoxesContainer}
           horizontal
           showsHorizontalScrollIndicator={false}
         >
-          <View>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.area}</Text>
-            </View>
-            <Text style={styles.infoTitle}>Area</Text>
-          </View>
-          <View>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.bedroom_num}</Text>
-            </View>
-            <Text style={styles.infoTitle}>Bedrooms</Text>
-          </View>
-          <View>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.bathroom_num}</Text>
-            </View>
-            <Text style={styles.infoTitle}>Bathrooms</Text>
-          </View>
-          <View>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>{property.floor_num}</Text>
-            </View>
-            <Text style={styles.infoTitle}>Floor</Text>
-          </View>
-          <View>
-            <View style={styles.infoBox}>
-              <Text style={styles.infoValue}>
-                {property.is_furnished ? "Yes" : "No"}
-              </Text>
-            </View>
-            <Text style={styles.infoTitle}>Furnished</Text>
-          </View>
+          <PropertyInfoBox title="Area" value={property?.area} />
+          <PropertyInfoBox title="Bedrooms" value={property?.bedroom_num} />
+          <PropertyInfoBox title="Bathrooms" value={property?.bathroom_num} />
+          <PropertyInfoBox title="Floor" value={property?.floor_num} />
+          <PropertyInfoBox title="Furnished" value={property?.is_furnished ? "Yes" : "No"} />
         </ScrollView>
 
-        <Text style={styles.title}>{property.title}</Text>
-        <Text style={styles.address}>{property.address}</Text>
-        <Text style={styles.description}>{property.description}</Text>
+        <Text style={styles.title}>{property?.title}</Text>
+        <Text style={styles.address}>{property?.address}</Text>
+        <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>JD {property.price} </Text>
+          <Text style={styles.price}>JD {property?.price} </Text>
           <Text style={styles.period}>
-            / {property.rental_period.split("")[0].toUpperCase() +
-              property.rental_period.slice(1).toLowerCase()}
+            -{" "}
+            {property?.rental_period?.split("")[0].toUpperCase() +
+              property?.rental_period?.slice(1).toLowerCase()}
           </Text>
         </View>
-        <TouchableOpacity
-          activeOpacity={0.7}
-          style={[styles.wideBtn, styles.outlined]}
-        >
-          <Ionicons name="location" size={25} color="#508D4E" />
-          <Text style={[styles.wideBtnTxt, { color: "#508D4E" }]}>
-            {" "}
-            LOCATION
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.7} style={styles.wideBtn}>
-          <Ionicons name="eye" size={25} color="#fff" />
-          <Text style={styles.wideBtnTxt}> REQUEST TOUR</Text>
-        </TouchableOpacity>
-        <Reviews seeAll reviews={reviews} />
+        {(!property.is_requested && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
+        <Button additionalStyles={{ width: "90%" }} text="location" outline />
+        <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
   );
@@ -124,30 +86,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     height: 100,
   },
-  infoBox: {
-    width: 75,
-    height: 75,
-    backgroundColor: "#f7f7f7",
-    borderRadius: 15,
-    borderWidth: 0.2,
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 15,
-  },
-  infoTitle: {
-    fontWeight: "500",
-    width: "100%",
-    textAlign: "center",
-    marginTop: 10,
-    fontSize: 13,
-  },
-  infoValue: {
-    textAlign: "center",
-    color: "#508D4E",
-    fontWeight: "600",
-    fontSize: 18,
-    width: "70%",
-  },
   title: {
     fontSize: 22,
     fontWeight: "500",
@@ -155,7 +93,9 @@ const styles = StyleSheet.create({
   },
   address: {
     width: "90%",
-    marginVertical: 10,
+    marginTop: 2,
+    marginBottom: 10,
+    color: "#444"
   },
   description: {
     width: "90%",
@@ -193,6 +133,6 @@ const styles = StyleSheet.create({
   },
   period: {
     fontSize: 16,
-    color: "#828282"
+    color: "#828282",
   },
 });

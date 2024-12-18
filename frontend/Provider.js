@@ -1,7 +1,8 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import Context from "./Context";
-import { get, post, setAuthorizationToken } from "./fetch";
+import { post, setAuthorizationToken } from "./fetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Alert } from "react-native";
 
 const Provider = ({ children }) => {
   const [token, setToken] = useState("");
@@ -10,23 +11,12 @@ const Provider = ({ children }) => {
   const [loading, setLoading] = useState(false);
 
   const logout = async () => {
+    setLoading(true);
     await AsyncStorage.clear();
     setIsAuthenticated(false);
     setToken("");
+    setLoading(false);
   };
-
-  useEffect(() => {
-    const fetchToken = async () => {
-      const storedToken = await AsyncStorage.getItem("token");
-      if (storedToken) {
-        setToken(storedToken);
-        setAuthorizationToken(storedToken);
-      } else {
-        setIsAuthenticated(false);
-      }
-    };
-    fetchToken();
-  }, []);
 
   const decodeJWT = () => {
     if (!token) return;
@@ -42,34 +32,55 @@ const Provider = ({ children }) => {
   };
 
   useEffect(() => {
-    // if (token) {
+    if (token) {
       const decodedToken = decodeJWT();
-      console.log(decodedToken);
       setUser(decodedToken);
-    // }
-    
+      console.log(decodedToken)
+    }
   }, [token]);
 
-  const auth = (body) => {
+  useEffect(() => {
+    const fetchToken = async () => {
+      const storedToken = await AsyncStorage.getItem("token");
+      if (storedToken) {
+        setAuthorizationToken(storedToken);
+        post("users/generate-new-token")
+          .then((response) => {
+            console.log(response)
+            setToken(response.data.data);
+            setAuthorizationToken(response.data.data);
+            AsyncStorage.setItem("token", response.data.data);
+            setIsAuthenticated(true);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      } else {
+        setIsAuthenticated(false);
+      }
+    };
+    fetchToken();
+  }, []);
+
+  const auth = async (body) => {
     setLoading(true);
-    post("users/login", body)
-      .then((response) => {
-        setToken(response.data.token);
-        setIsAuthenticated(true);
-        setAuthorizationToken(response.data.token);
-        AsyncStorage.setItem("token", response.data.token);
-      })
-      .catch((error) => {
-        console.log(error);
-      })
-      .finally(() => setLoading(false));
+    try {
+      const response = await post("users/login", body);
+      // await AsyncStorage.setItem("token", response.data.token);
+      setToken(response.data);
+      setIsAuthenticated(true);
+      setAuthorizationToken(response.data);
+    } catch {
+      Alert.alert("Incorrect email or password", "Make sure you entered the right credentials", [{ text: "OK" }]);
+      logout();
+    }
+    setLoading(false);
   };
 
   const signUp = (body) => {
     setLoading(true);
     post("users/signUp", body)
       .then((response) => {
-        console.log(response)
         setToken(response.user.data.token);
         setIsAuthenticated(true);
         setAuthorizationToken(response.user.token);
@@ -82,7 +93,18 @@ const Provider = ({ children }) => {
   };
 
   return (
-    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated }}>
+    <Context.Provider
+      value={{
+        user,
+        token,
+        auth,
+        signUp,
+        logout,
+        loading,
+        setLoading,
+        isAuthenticated,
+      }}
+    >
       {children}
     </Context.Provider>
   );

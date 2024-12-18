@@ -3,7 +3,7 @@ import {
   DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
-import { NavigationContainer } from "@react-navigation/native";
+import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import {
@@ -18,7 +18,7 @@ import {
 import { useContext } from "react";
 import Context from "./Context";
 import "./gesture-handler";
-import logo from "./assets/logo.png";
+import logo from "./assets/maskn-wide.png";
 
 import SignupScreen from "./Screens/Authentication/SignupScreen";
 import SigninScreen from "./Screens/Authentication/SigninScreen";
@@ -27,6 +27,13 @@ import HomeScreen from "./Screens/HomeScreen";
 import PropertyScreen from "./Screens/PropertyScreen";
 import ProfileScreen from "./Screens/ProfileScreen";
 import TourRequestsScreen from "./Screens/TourRequestsScreen";
+import RentHistory from "./Screens/RentHistory";
+import MyProperties from "./Screens/MyProperties";
+import BecomeRenter from "./Screens/BecomeRenter";
+import Payment from "./Screens/Payment";
+import UtilitiesScreen from "./Screens/UtilitiesScreen";
+import NotificationsScreen from "./Screens/NotificationsScreen";
+import PostProperty from "./Screens/PostProperty";
 
 const Drawer = createDrawerNavigator();
 
@@ -39,81 +46,92 @@ function CustomDrawerContent({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={styles.userInfoSection}>
-        <View
-          source={require("./assets/hazodeh.png")}
-          style={styles.profileImage}
-        >
-          <Ionicons
-            name="person"
-            color="#666"
-            size={50}
+    <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
+      <View>
+        <View style={styles.userInfoSection}>
+          <View
+            // source={require("./assets/hazodeh.png")}
+            style={styles.profileImage}
+          >
+            <Ionicons name="person" color="#666" size={50} />
+          </View>
+          <Text style={styles.name}>
+            {user?.firstName} {user?.lastName}
+          </Text>
+          <Text style={styles.userName}>{user?.userName}</Text>
+        </View>
+
+        <View style={styles.drawerContent}>
+          <DrawerItem
+            label="My Profile"
+            style={styles.drawerItem}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => (
+              <Ionicons name="person-outline" size={24} color="#fff" />
+            )}
+            onPress={() => handleNavigation("Profile")}
+          />
+          <DrawerItem
+            label="Tour Requests"
+            labelStyle={styles.drawerItemLabel}
+            style={styles.drawerItem}
+            icon={() => <Ionicons name="eye-outline" size={24} color="#fff" />}
+            onPress={() => handleNavigation("TourRequests")}
+          />
+          <DrawerItem
+            label="Rent History"
+            style={styles.drawerItem}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => <Ionicons name="time-outline" size={24} color="#fff" />}
+            onPress={() => handleNavigation("RentHistory")}
+          />
+          {user.role === 1 ? (
+            <DrawerItem
+              label="Become a Renter"
+              labelStyle={styles.drawerItemLabel}
+              style={styles.drawerItem}
+              icon={() => (
+                <Ionicons name="key-outline" size={24} color="#fff" />
+              )}
+              onPress={() => handleNavigation("BecomeRenter")}
+            />
+          ) : (
+            <DrawerItem
+              label="My Properties"
+              labelStyle={styles.drawerItemLabel}
+              style={styles.drawerItem}
+              icon={() => (
+                <Ionicons name="key-outline" size={24} color="#fff" />
+              )}
+              onPress={() => handleNavigation("MyProperties")}
+            />
+          )}
+          <DrawerItem
+            label="Help"
+            style={styles.drawerItem}
+            labelStyle={styles.drawerItemLabel}
+            icon={() => (
+              <Ionicons name="help-circle-outline" size={24} color="#fff" />
+            )}
+            onPress={() => {
+              navigation.closeDrawer();
+              Alert.alert("Unavailable", "This screen is not ready yet.");
+            }}
           />
         </View>
-        <Text style={styles.name}>
-          {user?.firstName} {user?.lastName}
-        </Text>
-        <Text style={styles.userName}>{user?.username}</Text>
-      </View>
-
-      <DrawerContentScrollView bounces={false} style={styles.drawerContent}>
-        <DrawerItem
-          label="My Profile"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="person" size={24} color="#fff" />}
-          onPress={() => handleNavigation("Profile")}
-        />
-        <DrawerItem
-          label="Requested Tours"
-          labelStyle={styles.drawerItemLabel}
-          style={styles.drawerItem}
-          icon={() => <Ionicons name="eye" size={24} color="#fff" />}
-          onPress={() => handleNavigation("TourRequests")}
-        />
-        <DrawerItem
-          label="Rent History"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="time" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
-        />
-        <DrawerItem
-          label="Become a Renter"
-          labelStyle={styles.drawerItemLabel}
-          style={styles.drawerItem}
-          icon={() => <Ionicons name="key" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
-        />
-        <DrawerItem
-          label="Help"
-          style={styles.drawerItem}
-          labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="help-circle" size={24} color="#fff" />}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
-        />
-      </DrawerContentScrollView>
-
-      <View style={styles.separatorContainer}>
-        <View style={styles.separator} />
       </View>
 
       <View style={styles.logoutSection}>
+        <View style={styles.separatorContainer}>
+          <View style={styles.separator} />
+        </View>
         <DrawerItem
           label="Settings"
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
-          icon={() => <Ionicons name="settings" size={27} color="#fff" />}
+          icon={() => (
+            <Ionicons name="settings-outline" size={27} color="#fff" />
+          )}
           onPress={() => {
             navigation.closeDrawer();
             Alert.alert("Unavailable", "This screen is not ready yet.");
@@ -138,6 +156,7 @@ function CustomDrawerContent({ navigation }) {
 
 function DrawerNavigation() {
   const { isAuthenticated } = useContext(Context);
+  const navigation = useNavigation();
   return (
     <Drawer.Navigator
       drawerContent={(props) => <CustomDrawerContent {...props} />}
@@ -147,6 +166,10 @@ function DrawerNavigation() {
             backgroundColor: "#508D4E",
           },
           headerTintColor: "#fff",
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: "600",
+          },
           drawerStyle: {
             backgroundColor: "#508D4E",
           },
@@ -155,7 +178,7 @@ function DrawerNavigation() {
           drawerItemStyle: {
             paddingVertical: 5,
           },
-          drawerType: "front",
+          // drawerType: "front",
           swipeEnabled: isAuthenticated,
           gestureEnabled: isAuthenticated,
         };
@@ -189,16 +212,16 @@ function DrawerNavigation() {
           headerTitle: () => (
             <Image
               source={logo}
-              style={{ height: 20, resizeMode: "contain" }}
+              style={{ width: 100,height: 25, resizeMode: "contain" }}
             />
           ),
           headerRight: () => (
             <TouchableOpacity
               activeOpacity={0.7}
-              onPress={() => alert("Notifications")}
+              onPress={() => navigation.navigate("Notifications")}
               style={{ marginRight: 15 }}
             >
-              <Ionicons name="notifications" size={24} color="#fff" />
+              <Ionicons name="notifications-outline" size={24} color="#fff" />
             </TouchableOpacity>
           ),
         }}
@@ -238,8 +261,12 @@ export default function Navigation() {
             drawerIcon: ({ color }) => (
               <Ionicons name="person-outline" size={24} color={color} />
             ),
-            title: "My profile",
+            title: "My Profile",
           }}
+        />
+        <Stack.Screen
+          name="Notifications"
+          component={NotificationsScreen}
         />
         <Stack.Screen
           name="PropertyDetails"
@@ -255,6 +282,36 @@ export default function Navigation() {
             title: "Tour Requests",
           }}
         />
+        <Stack.Screen
+          name="RentHistory"
+          component={RentHistory}
+          options={{
+            title: "Rent History",
+          }}
+        />
+        <Stack.Screen
+          name="MyProperties"
+          component={MyProperties}
+          options={{
+            title: "My Properties",
+          }}
+        />
+        <Stack.Screen
+          name="PostProperty"
+          component={PostProperty}
+          options={{
+            title: "New Properties",
+          }}
+        />
+        <Stack.Screen
+          name="BecomeRenter"
+          component={BecomeRenter}
+          options={{
+            title: "Become a Renter",
+          }}
+        />
+        <Stack.Screen name="Payment" component={Payment} />
+        <Stack.Screen name="Utilities" component={UtilitiesScreen} />
         {!isAuthenticated && (
           <>
             <Stack.Screen
@@ -293,17 +350,17 @@ const styles = StyleSheet.create({
   },
   name: {
     color: "#fff",
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginTop: 10,
   },
   userName: {
     color: "#fff",
-    fontSize: 15,
+    fontSize: 17,
     marginTop: 2,
   },
   drawerContent: {
-    padding: 0,
+    marginTop: 20
   },
   drawerItem: {
     paddingLeft: 10,
@@ -311,11 +368,13 @@ const styles = StyleSheet.create({
   drawerItemLabel: {
     fontSize: 18,
     color: "#fff",
-    fontWeight: "bold",
+    fontWeight: "600",
+    marginLeft: -15,
   },
   separatorContainer: {
     width: "100%",
     alignItems: "center",
+    marginBottom: 20,
   },
   separator: {
     backgroundColor: "white",
@@ -323,6 +382,6 @@ const styles = StyleSheet.create({
     height: 1,
   },
   logoutSection: {
-    paddingVertical: 20,
+    // padding: 20,
   },
 });

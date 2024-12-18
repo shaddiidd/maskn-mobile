@@ -18,11 +18,11 @@ export default function SigninScreen({ navigation }) {
   const { auth } = useContext(Context);
   const [values, setValues] = useState({
     email: {
-      value: "anasbajawi390@gmail.com",
+      value: "abdullah.shadid49@gmail.com",
       error: false,
     },
     password: {
-      value: "Anas@2001",
+      value: "abdullah",
       error: false,
     },
   });
