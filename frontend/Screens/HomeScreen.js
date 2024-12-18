@@ -1,12 +1,4 @@
-import {
-  StyleSheet,
-  View,
-  RefreshControl,
-  ScrollView,
-  Text,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, View, RefreshControl, ScrollView, Text, TouchableWithoutFeedback, Keyboard } from "react-native";
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
