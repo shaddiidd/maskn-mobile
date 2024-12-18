@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { formatDistanceToNow } from "date-fns";
+import { capitalizeFirstLetter } from "../helpers/textFunctions";
 
 export default function NotificationsCard({ notification }) {
   return (
@@ -13,9 +14,9 @@ export default function NotificationsCard({ notification }) {
           {notification.content}
         </Text>
         <Text style={styles.time}>
-          {formatDistanceToNow(new Date(notification.created), {
+          {capitalizeFirstLetter(formatDistanceToNow(new Date(notification.created), {
             addSuffix: true,
-          })}
+          }))}
         </Text>
       </View>
     </TouchableOpacity>
