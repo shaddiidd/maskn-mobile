@@ -1,12 +1,11 @@
 const contractService = require('../services/contractService');
+const AppError = require('../utils/AppError'); // Assuming this is your custom error class
 
-const generateContract = async (req, res) => {
+const generateContract = async (req, res, next) => {
   try {
-    // Extract request ID from URL parameters
-    const requestId = req.params.requestId;
-    const ownerId = req.token.userId
-    // Extract user-provided contract data from the request body
-    const { startDate, endDate, additionalTerms } = req.body;
+    const requestId = req.params.requestId; // Extract request ID from URL parameters
+    const ownerId = req.token.userId; // Extract user ID from token
+    const { startDate, endDate, additionalTerms } = req.body; // Extract contract data
 
     // Call the service to generate the contract
     const contractHtml = await contractService.createContract(
@@ -16,22 +15,32 @@ const generateContract = async (req, res) => {
     );
 
     // Check if the contract service returned an error response
-    if (contractHtml.success === false) {
-      return res.status(400).json({
-        success: false,
-        message: contractHtml.message,
-      });
+    if (!contractHtml.success) {
+      return next(
+        new AppError(
+          contractHtml.message || 'Invalid contract data',
+          400 // Bad Request
+        )
+      );
     }
 
-    // Send the generated contract as an HTML response
-    res.status(200).send(contractHtml);
+    // Send success response
+    res.success(
+      contractHtml, // Data
+      'Contract generated successfully', // Message
+      200 // Status code
+    );
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to generate contract',
-      error: error.message,
-    });
+    // Forward errors to the centralized error handler
+    next(
+      new AppError(
+        error.message || 'Failed to generate contract',
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
 module.exports = { generateContract };
+

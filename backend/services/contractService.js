@@ -29,7 +29,7 @@ const createContract = async (contractData, requestId, ownerId) => {
     }
 
     // Check if the tour request status is not approved
-    if (request.status !== "approved") {
+    if (request.status !== "approved") { 
       return {
         success: false,
         message:

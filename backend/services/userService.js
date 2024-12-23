@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const OwnersRentalRequest = require("../models/ownerRentalRequests");
 const AppError = require("../utils/AppError");
+const { where } = require("sequelize");
 
 const createUser = async (userData, files) => {
   try {
@@ -234,6 +235,29 @@ const refreshToken = async (userId) => {
   return token; // Return only the token
 };
 
+const terminateUserService = async (userId) => {
+  try {
+    const deletedCount = await User.destroy({where : {user_id : userId}});
+
+    if (deletedCount === 0) {
+      throw new AppError("user not found or unauthorized access", 404);
+    }
+    
+    return {
+      success : true,
+      message : "user is deleted successfully"
+    }
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to delete user",
+        error.statusCode || 500,
+        error.details
+      )
+    );
+  }
+};
+
 module.exports = {
   createUser,
   findAllUsers,
@@ -242,5 +266,6 @@ module.exports = {
   RequestToBecomeRenterService,
   getAllOwnersRequestsService,
   refreshToken,
-  findUserByUserId
+  findUserByUserId,
+  terminateUserService
 };
