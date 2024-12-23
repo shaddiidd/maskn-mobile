@@ -16,20 +16,8 @@ import { get } from "../fetch";
 
 export default function RentHistory() {
   const [properties, setProperties] = useState([
-    {
-      property_id: 1,
-      title: "Property 1",
-      price: 320,
-      rating: 4.5,
-      date: "Jul 2023 - ",
-    },
-    {
-      property_id: 2,
-      title: "Property 2",
-      price: 350,
-      rating: 4.5,
-      date: "Jul 2023 - ",
-    },
+    { property_id: 1, title: "Property 1", price: 320, rating: 4.5, date: "Jul 2023 - " },
+    { property_id: 2, title: "Property 2", price: 350, rating: 4.5, date: "Jul 2023 - " },
   ]);
 
   // useEffect(() => {
@@ -44,16 +32,7 @@ export default function RentHistory() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={{
-          alignItems: "center",
-          minHeight: "100%",
-          justifyContent: properties?.length ? "flex-start" : "center",
-          paddingTop: 20,
-          rowGap: 15,
-        }}
-        style={{ flex: 1, width: "100%" }}
-      >
+      <ScrollView contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]} style={{ flex: 1, width: "100%" }}>
         {properties?.length ? (
           properties?.map((property) => (
             <PropertyCard key={property.property_id} property={property} />
@@ -61,16 +40,7 @@ export default function RentHistory() {
         ) : (
           <>
             <Ionicons name="home-outline" size={50} color="#666" />
-            <Text
-              style={{
-                color: "#666",
-                fontSize: 17,
-                marginTop: 5,
-                marginBottom: 100,
-              }}
-            >
-              Nothing to show
-            </Text>
+            <Text style={styles.noContent}>Nothing to show</Text>
           </>
         )}
       </ScrollView>
@@ -85,12 +55,24 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  scrollContainer: {
+    alignItems: "center",
+    minHeight: "100%",
+    paddingTop: 20,
+    rowGap: 15,
+  },
   searchContainer: {
     marginVertical: 15,
     flexDirection: "row",
     width: "90%",
     justifyContent: "space-between",
     height: 50,
+  },
+  noContent: {
+    color: "#666",
+    fontSize: 17,
+    marginTop: 5,
+    marginBottom: 100,
   },
   filterBtn: {
     backgroundColor: "#508D4E",

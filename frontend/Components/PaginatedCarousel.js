@@ -3,7 +3,6 @@ import Carousel from 'react-native-reanimated-carousel';
 import { useState } from 'react';
 
 export default function PaginatedCarousel({ propertyImages }) {
-
   const windowWidth = Dimensions.get('window').width;
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -23,13 +22,7 @@ export default function PaginatedCarousel({ propertyImages }) {
       />
       <View style={styles.paginationContainer}>
         {propertyImages.map((_, index) => (
-          <View
-            key={index}
-            style={[
-              styles.dot,
-              currentIndex === index ? styles.activeDot : styles.inactiveDot,
-            ]}
-          />
+          <View key={index} style={[styles.dot, currentIndex === index ? styles.activeDot : styles.inactiveDot]} />
         ))}
       </View>
     </View>
