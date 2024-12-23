@@ -423,6 +423,48 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   }
 };
 
+const getPropertyByIdForAdminService = async (propertyId) => {
+  try {
+    const property = await Property.findByPk(propertyId, {
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["first_name", "last_name"],
+        },
+        {
+          model: VillageName,
+          as: "village",
+          attributes: ["village_name"],
+        },
+        {
+          model: NeighborhoodNumber,
+          as: "neighborhood",
+          attributes: ["name"],
+        },
+        {
+          model: BlockName,
+          as: "block",
+          attributes: ["block_name"],
+        },
+      ],
+    });
+
+    if (!property) {
+      throw new AppError(
+        "Property not found, rented or not approved by admin",
+        404
+      );
+    }
+
+    return { property };
+  } catch (error) {
+    throw new AppError("Failed to fetch property details", 500, {
+      details: error.message,
+    });
+  }
+};
+
 module.exports = {
   createProperty,
   getAllProperties,
@@ -433,4 +475,5 @@ module.exports = {
   getRequestToursByUserId,
   acceptTourRequestService,
   getPropertyByPropertyIdService,
+  getPropertyByIdForAdminService
 };

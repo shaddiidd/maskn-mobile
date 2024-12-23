@@ -17,6 +17,7 @@ const {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
+  getPropertyByIdByAdmin
 } = require("../controllers/property");
 
 propertyRouter.post(
@@ -36,6 +37,7 @@ propertyRouter.post("/request-tour/:propertyId", auth, requestTour);
 propertyRouter.get("/get-tour-requests", auth, getTourRequests);
 propertyRouter.post("/accept-tour-request/:requestId", auth, acceptTourRequest)
 propertyRouter.get("/get-property/:propertyId", optionalAuth, getPropertyById)
+propertyRouter.get("/get-property-by-admin/:propertyId", auth, authorization("Manage Properties"),getPropertyByIdByAdmin)
 
 
 module.exports = propertyRouter;

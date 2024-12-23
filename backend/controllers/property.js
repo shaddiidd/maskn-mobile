@@ -291,7 +291,6 @@ const getPropertyById = async (req, res, next) => {
     const { propertyId } = req.params;
     const tenantId = req.token?.userId || null; // Check if tenantId is provided
     console.log(tenantId);
-    
 
     // Fetch property data using the service
     const propertyData = await propertyService.getPropertyByPropertyIdService(
@@ -317,6 +316,29 @@ const getPropertyById = async (req, res, next) => {
   }
 };
 
+const getPropertyByIdByAdmin = async (req, res, next) => {
+  try {
+    const propertyId = req.params.propertyId;
+
+    const propertyData = await propertyService.getPropertyByIdForAdminService(
+      propertyId
+    );
+
+    res.success(
+      propertyData, // Data
+      "Property details fetched successfully", // Message
+      200 // Status code
+    );
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
+  }
+};
 
 module.exports = {
   addProperty,
@@ -330,4 +352,5 @@ module.exports = {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
+  getPropertyByIdByAdmin
 };
