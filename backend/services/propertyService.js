@@ -7,7 +7,7 @@ const BlockName = require("../models/blockName");
 const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
-const { filterFields } = require("../utils/fieldUtils");
+const { filterFields } = require("../utils/propertyUtils");
 
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property

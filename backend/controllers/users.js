@@ -186,6 +186,23 @@ const generateNewToken = async (req, res, next) => {
   }
 };
 
+const terminateUser = async(req, res, next) =>{
+  const userId = req.params.userId
+  try {
+    const result = await userService.terminateUserService(userId)
+    if (result) {
+      return res.success(result, `The user with ${userId} has been deleted ` , 203)
+    }
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to generate token",
+        error.statusCode || 500
+      )
+    );
+  }
+}
+
 module.exports = {
   signUp,
   getAllUsers,
@@ -194,5 +211,6 @@ module.exports = {
   acceptOwnerRequest,
   getAllOwnersRequests,
   generateNewToken,
-  getUserByUserId
+  getUserByUserId,
+  terminateUser
 };
