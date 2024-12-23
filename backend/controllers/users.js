@@ -50,7 +50,23 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const getUserByUserId = async (req, res, next) =>{
+  const userId = req.params.userId
+  try {
+    //cal service ti fetch user by passing user id 
+    const user = await userService.findUserByUserId(userId)
 
+    res.success(
+      {user},
+      `user with id ${userId} is retrived`,
+      200
+    )
+  } catch (error) {
+    next(
+      new AppError("Failed to retriev this user", 500, {details : error.message})
+    )
+  }
+}
 
 const login = async (req, res, next) => {
   try {
@@ -178,4 +194,5 @@ module.exports = {
   acceptOwnerRequest,
   getAllOwnersRequests,
   generateNewToken,
+  getUserByUserId
 };
