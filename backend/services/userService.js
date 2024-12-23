@@ -248,13 +248,12 @@ const terminateUserService = async (userId) => {
       message : "user is deleted successfully"
     }
   } catch (error) {
-    next(
-      new AppError(
+    
+      throw new AppError(
         error.message || "Failed to delete user",
         error.statusCode || 500,
         error.details
       )
-    );
   }
 };
 
