@@ -1,9 +1,9 @@
 const Property = require("../models/properties");
 const TourRequest = require("../models/tourRequests");
 const User = require("../models/users");
-const NeighborhoodNumber = require("../models/neighborhoodNumber")
-const VillageName = require("../models/villageName")
-const BlockName = require("../models/blockName")
+const NeighborhoodNumber = require("../models/neighborhoodNumber");
+const VillageName = require("../models/villageName");
+const BlockName = require("../models/blockName");
 const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
@@ -103,39 +103,40 @@ const getAllProperties = async (userRole = null) => {
           {
             model: NeighborhoodNumber,
             as: "neighborhood",
-            attributes : ["name"]
+            attributes: ["name"],
           },
           {
-            model : BlockName,
-            as : "block",
-            attributes : ["block_name"]
-          }
+            model: BlockName,
+            as: "block",
+            attributes: ["block_name"],
+          },
         ],
       });
     } else {
       // Regular users fetch only available properties
-      properties = await Property.findAll({include: [
-        {
-          model: User,
-          as: "user",
-          attributes: ["first_name", "last_name"],
-        },
-        {
-          model: VillageName,
-          as: "village",
-          attributes: ["village_name"],
-        },
-        {
-          model: NeighborhoodNumber,
-          as: "neighborhood",
-          attributes : ["name"]
-        },
-        {
-          model : BlockName,
-          as : "block",
-          attributes : ["block_name"]
-        }
-      ],
+      properties = await Property.findAll({
+        include: [
+          {
+            model: User,
+            as: "user",
+            attributes: ["first_name", "last_name"],
+          },
+          {
+            model: VillageName,
+            as: "village",
+            attributes: ["village_name"],
+          },
+          {
+            model: NeighborhoodNumber,
+            as: "neighborhood",
+            attributes: ["name"],
+          },
+          {
+            model: BlockName,
+            as: "block",
+            attributes: ["block_name"],
+          },
+        ],
         where: { post_status_id: 2, mark_as_rented: 0 },
       });
     }
@@ -267,10 +268,19 @@ const deletePropertyService = async (propertyId, userId, role) => {
 const requestTourByTenant = async (tenantId, propertyId) => {
   try {
     // Find the property
-    const property = await Property.findByPk(propertyId);
+    const property = await Property.findOne({
+      where: {
+        property_id: propertyId, // Assuming `id` is the primary key field
+        post_status_id: 2,
+        mark_as_rented: 0,
+      },
+    });
 
     if (!property) {
-      throw new AppError("Property not found", 404);
+      throw new AppError(
+        "Property not found, rented or not approved by admin",
+        404
+      );
     }
 
     const ownerId = property.owner_id;
@@ -358,40 +368,53 @@ const acceptTourRequestService = async (ownerId, requestId) => {
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {
     // Fetch the property
-    const property = await Property.findByPk(propertyId);
+    const property = await Property.findOne({
+      where: {
+        property_id: propertyId,
+        post_status_id: 2,
+        mark_as_rented: 0,
+      },
+    });
 
     if (!property) {
-      throw new AppError("Property not found", 404);
+      throw new AppError("Property not found or not approved by admin", 404);
     }
 
-    // Check for an approved tour request if tenantId is provided
-    if (tenantId) {
-      const approvedRequest = await TourRequest.findOne({
-        where: {
-          property_id: propertyId,
-          tenant_id: tenantId,
-          status: "approved",
-        },
-      });
+    // If tenantId is not provided, return property alone
+    if (!tenantId) {
+      return property;
+    }
 
-      // If an approved request exists, include contact information
-      if (approvedRequest) {
+    // Fetch the tour request for the tenant
+    const Request = await TourRequest.findOne({
+      where: {
+        property_id: propertyId,
+        tenant_id: tenantId,
+      },
+    });
+
+    // Handle cases based on the request status
+    if (Request) {
+      if (Request.status === "approved") {
+        // Include contact information if the request is approved
         const propertyWithContact = await Property.findOne({
           where: { property_id: propertyId },
           include: [
             {
               model: User,
-              as: "owner", // Assuming a relationship alias
+              as: "user", // Assuming a relationship alias
               attributes: ["phone_number"],
             },
           ],
         });
 
-        return propertyWithContact; // Return property with contact info
+        return propertyWithContact;
+      } else if (Request.status === "pending") {
+        return { property, status: Request.status };
       }
     }
 
-    // Return the property without contact info
+    // If no request exists or no specific logic applies, return the property alone
     return property;
   } catch (error) {
     throw new AppError("Failed to fetch property details", 500, {
