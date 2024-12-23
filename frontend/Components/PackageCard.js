@@ -6,28 +6,20 @@ import { formatDate } from "../helpers/dateFunctions";
 
 export default function PackageCard({ pack }) {
   const navigation = useNavigation();
-  return (
-    <TouchableOpacity
-      style={{ width: "100%" }}
-      activeOpacity={0.7}
-      onPress={() =>
-        navigation.navigate("Payment", {
-          id: pack.packageId,
-          name: `${pack.name} Plan`,
-          price: pack.price,
-          additionalInfo: {
-            From: formatDate(Date.now()),
-            To: formatDate(Date.now() + 30 * 24 * 60 * 60 * 1000),
-          }
-        })
+  const handlePress = () => 
+    navigation.navigate("Payment", {
+      id: pack.packageId,
+      name: `${pack.name} Plan`,
+      price: pack.price,
+      additionalInfo: {
+        From: formatDate(Date.now()),
+        To: formatDate(Date.now() + 30 * 24 * 60 * 60 * 1000),
       }
-    >
-      <LinearGradient
-        colors={["#508D4E", "#8AB489"]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.container}
-      >
+    })
+
+  return (
+    <TouchableOpacity style={{ width: "100%" }} activeOpacity={0.7} onPress={handlePress}>
+      <LinearGradient colors={["#508D4E", "#8AB489"]} start={{ x: 0.5, y: 0 }} end={{ x: 0.5, y: 1 }} style={styles.container}>
         <View style={{ flexDirection: "row", alignItems: "center" }}>
           <View style={styles.iconContainer}>
             <Ionicons name="home" size={30} color="#508D4E" />

@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Alert } from "react-native";
 
 const baseURL = "http://localhost:5002/";
 
@@ -10,7 +11,6 @@ const axiosInstance = axios.create({
 });
 
 export const setAuthorizationToken = (token) => {
-  console.log("Token from axios:", token);
   axiosInstance.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 };
 
@@ -21,7 +21,7 @@ export const get = async (url) => {
     return response.data;
   } catch (error) {
     if (!error.response.data) {
-      alert("There seems to be a problem. Pease try again later");
+      Alert.alert("Error", "There seems to be a problem. Pease try again later");
     } else {
       throw error;
     }

@@ -3,22 +3,20 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function BillCard({ bill }) {
   const navigation = useNavigation();
+  const handlePress = () => {
+    navigation.navigate("Payment", {
+      name: "Water Bill",
+      price: "53.762",
+      additionalInfo: {
+        Reference: "01/76515/185241",
+        Month: "September",
+      },
+    })
+  }
   return (
     <View activeOpacity={0.7} style={styles.container}>
       <Text style={styles.title}>Water Bill</Text>
-      <TouchableOpacity
-        onPress={() =>
-          navigation.navigate("Payment", {
-            name: "Water Bill",
-            price: "53.762",
-            additionalInfo: {
-              Reference: "01/76515/185241",
-              Month: "September",
-            },
-          })
-        }
-        activeOpacity={0.7}
-      >
+      <TouchableOpacity onPress={handlePress} activeOpacity={0.7}>
         <Text style={styles.payBtn}>Pay</Text>
       </TouchableOpacity>
     </View>

@@ -1,39 +1,47 @@
-import {
-  StyleSheet,
-  SafeAreaView,
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { StyleSheet, SafeAreaView, ScrollView, View, Text, Alert } from "react-native";
 import PaginatedCarousel from "../Components/PaginatedCarousel";
-import { Ionicons } from "@expo/vector-icons";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
 import PropertyInfoBox from "../Components/PropertyInfoBox";
-import { post } from "../fetch";
-import { useContext } from "react";
+import { get } from "../fetch";
 import Context from "../Context";
+import { capitalizeFirstLetter, formatPrice } from "../helpers/textFunctions";
 
 export default function PropertyScreen({ route }) {
-  const { property } = route.params;
-  const { user } = useContext(Context);
+  const [property, setProperty] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const { property_id } = route.params;
+  const { user, setLoading } = useContext(Context);
+
+  const getProperty = async () => {
+    try {
+      const response = await get(`property/get-property-with-id/${property_id}`);
+      setProperty(response.data);
+    } catch (error) {
+      console.log(error.response.data.details);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+  useEffect(() => {
+    setLoading(true);
+    getProperty();
+  }, []);
 
   const handleRequestTour = () => {
-    post(`property/request-tour/${property.property_id}`)
-      .then(() => {
-        Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]);
-      })
-      .catch((err) => {
-        Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]);
-      });
+    post(`property/request-tour/${property_id}`)
+      .then(() => Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]))
+      .catch(() => Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]));
   }
+  
   const reviews = [
     { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
     { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
   ];
 
+  if (!property) return null;
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
@@ -42,11 +50,7 @@ export default function PropertyScreen({ route }) {
         ) : (
           <PaginatedCarousel propertyImages={[require("../assets/house.png")]} />
         )}
-        <ScrollView
-          contentContainerStyle={styles.infoBoxesContainer}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        >
+        <ScrollView contentContainerStyle={styles.infoBoxesContainer} horizontal showsHorizontalScrollIndicator={false}>
           <PropertyInfoBox title="Area" value={property?.area} />
           <PropertyInfoBox title="Bedrooms" value={property?.bedroom_num} />
           <PropertyInfoBox title="Bathrooms" value={property?.bathroom_num} />
@@ -58,12 +62,8 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>JD {property?.price} </Text>
-          <Text style={styles.period}>
-            -{" "}
-            {property?.rental_period?.split("")[0].toUpperCase() +
-              property?.rental_period?.slice(1).toLowerCase()}
-          </Text>
+          <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>
+          <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>
         </View>
         {(!property.is_requested && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />

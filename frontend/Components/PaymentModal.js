@@ -11,21 +11,9 @@ import { Ionicons } from "@expo/vector-icons";
 import PaymentMethodCard from "./PaymentMethodCard";
 import Button from "./Button";
 
-const PaymentModal = ({
-  id,
-  name,
-  price,
-  additionalInfo,
-  onClose,
-  paymentMethod,
-}) => {
+const PaymentModal = ({ id, name, price, additionalInfo, onClose, paymentMethod }) => {
   return (
-    <Modal
-      visible={paymentMethod !== null}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
-    >
+    <Modal visible={paymentMethod !== null} transparent={true} animationType="slide" onRequestClose={onClose}>
       <View style={styles.modalBackground}>
         <View style={styles.container}>
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
@@ -34,21 +22,11 @@ const PaymentModal = ({
           <Text style={styles.title}>{name}</Text>
 
           {Object.entries(additionalInfo).map(([key, value]) => (
-            <Text key={key} style={styles.additionalInfo}>
-              {key}: {value}
-            </Text>
+            <Text key={key} style={styles.additionalInfo}>{key}: {value}</Text>
           ))}
-
           <Text style={styles.price}>{price} JOD</Text>
-
           <PaymentMethodCard paymentMethod={paymentMethod} />
-
-          <Button
-            compressed
-            text="pay"
-            onPress={onClose}
-            additionalStyles={{ marginTop: 0 }}
-          />
+          <Button compressed text="pay" onPress={onClose} additionalStyles={{ marginTop: 0 }} />
         </View>
       </View>
     </Modal>

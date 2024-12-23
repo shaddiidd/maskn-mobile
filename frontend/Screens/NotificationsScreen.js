@@ -16,41 +16,9 @@ export default function NotificationsScreen() {
     //     console.log(error);
     //   });
     setNotifications([
-      {
-        id: 1,
-        content: "lorem ipsum dolor sit amet consectetur adipisicing elit",
-        created: Date.now(),
-      },
-      {
-        id: 2,
-        content: "lorem ipsum dolor sit amet consectetur",
-        created: Date.now(),
-      },
-      {
-        id: 3,
-        content: "lorem ipsum dolor sit amet consectetur adipisicing",
-        created: Date.now(),
-      },
-      {
-        id: 4,
-        content: "lorem ipsum dolor sit amet consectetur adipisicing elit ipsam",
-        created: Date.now(),
-      },
-      {
-        id: 5,
-        content: "lorem ipsum dolor",
-        created: Date.now(),
-      },
-      {
-        id: 6,
-        content: "lorem ipsum dolor sit amet consectetur",
-        created: Date.now(),
-      },
-      {
-        id: 7,
-        content: "lorem ipsum dolor sit amet consectetur",
-        created: Date.now(),
-      },
+      { id: 1, content: "lorem ipsum dolor sit amet consectetur adipisicing elit", created: Date.now() },
+      { id: 2, content: "lorem ipsum dolor sit amet consectetur", created: Date.now() },
+      { id: 3, content: "lorem ipsum dolor sit amet consectetur adipisicing", created: Date.now() },
     ])
   }, []);
 

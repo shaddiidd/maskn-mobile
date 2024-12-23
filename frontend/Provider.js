@@ -14,6 +14,7 @@ const Provider = ({ children }) => {
     setLoading(true);
     await AsyncStorage.clear();
     setIsAuthenticated(false);
+    setAuthorizationToken("");
     setToken("");
     setLoading(false);
   };
@@ -35,28 +36,25 @@ const Provider = ({ children }) => {
     if (token) {
       const decodedToken = decodeJWT();
       setUser(decodedToken);
-      console.log(decodedToken)
     }
   }, [token]);
 
   useEffect(() => {
     const fetchToken = async () => {
       const storedToken = await AsyncStorage.getItem("token");
-      if (storedToken) {
-        setAuthorizationToken(storedToken);
-        post("users/generate-new-token")
-          .then((response) => {
-            console.log(response)
-            setToken(response.data.data);
-            setAuthorizationToken(response.data.data);
-            AsyncStorage.setItem("token", response.data.data);
-            setIsAuthenticated(true);
-          })
-          .catch((error) => {
-            console.log(error);
-          });
-      } else {
+      if (!storedToken) {
         setIsAuthenticated(false);
+        return
+      } 
+      setAuthorizationToken(storedToken);
+      try {
+        const response = await post("users/generate-new-token");
+        setToken(response.data.token);
+        setAuthorizationToken(response.data.token);
+        AsyncStorage.setItem("token", response.data.token);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.log(error);
       }
     };
     fetchToken();
@@ -66,30 +64,31 @@ const Provider = ({ children }) => {
     setLoading(true);
     try {
       const response = await post("users/login", body);
-      // await AsyncStorage.setItem("token", response.data.token);
-      setToken(response.data);
+      await AsyncStorage.setItem("token", response.data.token);
+      setToken(response.data.token);
       setIsAuthenticated(true);
-      setAuthorizationToken(response.data);
+      setAuthorizationToken(response.data.token);
     } catch {
       Alert.alert("Incorrect email or password", "Make sure you entered the right credentials", [{ text: "OK" }]);
       logout();
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  const signUp = (body) => {
+  const signUp = async (body) => {
     setLoading(true);
-    post("users/signUp", body)
-      .then((response) => {
-        setToken(response.user.data.token);
-        setIsAuthenticated(true);
-        setAuthorizationToken(response.user.token);
-        AsyncStorage.setItem("token", response.user.token);
-      })
-      .catch((error) => {
-        console.log("error:", error.response.data);
-      })
-      .finally(() => setLoading(false));
+    try {
+      const response = await post("users/signUp", body);
+      setToken(response.data.token);
+      setIsAuthenticated(true);
+      setAuthorizationToken(response.data.token);
+      AsyncStorage.setItem("token", response.data.token);
+    } catch (error) {
+      console.log(error.response.data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

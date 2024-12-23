@@ -30,58 +30,58 @@ const TourRequestsCard = ({ item }) => (
 export default TourRequestsCard;
 
 const styles = StyleSheet.create({
-    card: {
-        borderWidth: 1,
-        width: "100%",
-        padding: 10,
-        marginTop: 20,
-        borderRadius: 10,
-        borderColor: "#D9D9D9",
-        alignItems: "center",
-        elevation: 0,
-        backgroundColor: '#fff',
-    },
-    cardContent: {
-        width: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        justifyContent: "space-between",
-    },
-    profile_picture: {
-        width: 60,
-        height: 60,
-        borderRadius: 40,
-        marginRight: 10,
-    },
-    name: {
-        fontSize: 18,
-        fontWeight: "500",
-    },
-    property: {
-        fontSize: 15,
-        fontWeight: "500",
-        color: "grey",
-        marginTop: 2
-    },
-    actions: {
-        flexDirection: "row"
-    },
-    action: {
-        backgroundColor: "#508D4E",
-        borderRadius: 50,
-        padding: 5,
-        marginLeft: 7
-    },
-    separator: {
-      height: 1,
-      width: "100%",
-      backgroundColor: "#D9D9D9",
-      marginTop: 15,
-      marginBottom: 10,
-    },
-    viewProfile: {
-      fontSize: 15,
-      fontWeight: "500",
-      color: "#508D4E",
-    }
+  card: {
+    borderWidth: 1,
+    width: "100%",
+    padding: 10,
+    marginTop: 20,
+    borderRadius: 10,
+    borderColor: "#D9D9D9",
+    alignItems: "center",
+    elevation: 0,
+    backgroundColor: '#fff',
+  },
+  cardContent: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  profile_picture: {
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    marginRight: 10,
+  },
+  name: {
+    fontSize: 18,
+    fontWeight: "500",
+  },
+  property: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "grey",
+    marginTop: 2
+  },
+  actions: {
+    flexDirection: "row"
+  },
+  action: {
+    backgroundColor: "#508D4E",
+    borderRadius: 50,
+    padding: 5,
+    marginLeft: 7
+  },
+  separator: {
+    height: 1,
+    width: "100%",
+    backgroundColor: "#D9D9D9",
+    marginTop: 15,
+    marginBottom: 10,
+  },
+  viewProfile: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#508D4E",
+  }
 });

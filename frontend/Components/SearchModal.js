@@ -17,12 +17,7 @@ export default function SearchModal() {
 
   return (
     <>
-      {/* Search Button */}
-      <TouchableOpacity
-        style={styles.container}
-        activeOpacity={0.7}
-        onPress={() => setIsOpen(true)}
-      >
+      <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={() => setIsOpen(true)}>
         <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 8 }}>
           <Ionicons name="search" size={24} color="#508D4E" />
           <View>
@@ -35,24 +30,14 @@ export default function SearchModal() {
         </View>
       </TouchableOpacity>
 
-      {/* Modal for Filters */}
       <Modal visible={isOpen} transparent animationType="slide">
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalTitle}>Filter Properties</Text>
-
-            {/* Search Text */}
             <View style={styles.filterSection}>
               <Text style={styles.filterLabel}>Search Text:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter Location"
-                value={location}
-                onChangeText={setLocation}
-              />
+              <TextInput style={styles.input} placeholder="Enter Location" value={location} onChangeText={setLocation} />
             </View>
-
-            {/* Price Range Filter */}
             <View style={styles.filterSection}>
               <Text style={styles.filterLabel}>Price: ${price}</Text>
               <Slider
@@ -68,32 +53,15 @@ export default function SearchModal() {
               />
             </View>
 
-            {/* Property Type Filter */}
             <View style={styles.filterSection}>
               <Text style={styles.filterLabel}>Property Type:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter Property Type"
-                value={propertyType}
-                onChangeText={setPropertyType}
-              />
+              <TextInput style={styles.input} placeholder="Enter Property Type" value={propertyType} onChangeText={setPropertyType} />
             </View>
-
-            {/* Location Filter */}
             <View style={styles.filterSection}>
               <Text style={styles.filterLabel}>Location:</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Enter Location"
-                value={location}
-                onChangeText={setLocation}
-              />
+              <TextInput style={styles.input} placeholder="Enter Location" value={location} onChangeText={setLocation} />
             </View>
-
-            {/* Apply Filters Button */}
             <Button text="Apply Filters" onPress={handleApplyFilters} />
-
-            {/* Close Modal Button */}
             <TouchableOpacity onPress={() => setIsOpen(false)} style={styles.closeButton}>
               <Text style={styles.closeButtonText}>Close</Text>
             </TouchableOpacity>

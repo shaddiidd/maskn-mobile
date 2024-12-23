@@ -17,24 +17,16 @@ import { Ionicons } from "@expo/vector-icons";
 export default function SigninScreen({ navigation }) {
   const { auth } = useContext(Context);
   const [values, setValues] = useState({
-    email: {
-      value: "abdullah.shadid49@gmail.com",
-      error: false,
-    },
-    password: {
-      value: "abdullah",
-      error: false,
-    },
+    email: { value: "abdullah.shadid49@gmail.com", error: false },
+    password: { value: "abdullah", error: false },
   });
 
   const handleSubmit = () => {
     let isValid = true;
-
     if (!values.email.value) {
       setValues((prev) => ({ ...prev, email: { ...prev.email, error: true } }));
       isValid = false;
     }
-
     if (!values.password.value) {
       setValues((prev) => ({
         ...prev,
@@ -42,7 +34,6 @@ export default function SigninScreen({ navigation }) {
       }));
       isValid = false;
     }
-
     if (isValid) {
       auth({
         email: values.email.value,
@@ -52,32 +43,13 @@ export default function SigninScreen({ navigation }) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <StatusBar barStyle="dark-content" />
-
-      <SafeAreaView
-        style={{
-          flex: 1,
-          width: "100%",
-          alignItems: "center",
-          justifyContent: "space-between",
-        }}
-      >
-        <TouchableOpacity
-          activeOpacity={0.7}
-          onPress={() => navigation.navigate("Home")}
-          style={styles.close}
-        >
+      <SafeAreaView style={styles.safeArea}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Home")} style={styles.close}>
           <Ionicons name="close" size={25} />
         </TouchableOpacity>
-        <Image
-          style={styles.logo}
-          source={require("../../assets/maskn-green.png")}
-        />
-
+        <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
         <View style={{ width: "90%", alignItems: "center" }}>
           <Text style={styles.title}>Sign In</Text>
           <Text style={styles.subtitle}>Enter your email and password</Text>
@@ -99,27 +71,17 @@ export default function SigninScreen({ navigation }) {
             }
             error={values.password.error}
           />
-          <TouchableOpacity
-            activeOpacity={0.7}
-            style={styles.button}
-            onPress={handleSubmit}
-          >
+          <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>SIGN IN</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={{ width: "100%", alignItems: "center", marginTop: 20 }}
-            activeOpacity={0.7}
-          >
+          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 20 }} activeOpacity={0.7}>
             <Text style={styles.signupText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.signupPrompt}>
           <Text style={styles.signupQuestion}>Don't have an account? </Text>
-          <TouchableOpacity
-            activeOpacity={0.7}
-            onPress={() => navigation.navigate("Signup")}
-          >
+          <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signup")}>
             <Text style={styles.signupText}>Sign up</Text>
           </TouchableOpacity>
         </View>
@@ -132,6 +94,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  safeArea: {
+    flex: 1,
+    width: "100%",
     alignItems: "center",
     justifyContent: "space-between",
   },

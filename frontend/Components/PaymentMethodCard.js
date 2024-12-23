@@ -9,28 +9,15 @@ export default function PaymentMethodCard({ paymentMethod, onPress, remove }) {
       "Delete Payment Method",
       "Are you sure you want to delete this payment method?",
       [
-        {
-          text: "Cancel",
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: remove,
-        },
+        { text: "Cancel", style: "cancel", },
+        { text: "Delete", style: "destructive", onPress: remove },
       ]
     );
   };  
   return (
     <TouchableOpacity style={styles.container} activeOpacity={onPress ? 0.7 : 1} onPress={onPress}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Image
-          source={
-            paymentMethod?.type === "visa"
-              ? require("../assets/card-icons/visa.png")
-              : require("../assets/card-icons/master.png")
-          }
-        />
+        <Image source={ paymentMethod?.type === "visa" ? require("../assets/card-icons/visa.png") : require("../assets/card-icons/master.png")} />
         <View style={{ marginLeft: 15 }}>
           <Text style={styles.name}>{paymentMethod?.name}</Text>
           <Text style={styles.number}>{paymentMethod?.displayNumber}</Text>

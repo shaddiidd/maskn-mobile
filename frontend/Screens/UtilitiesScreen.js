@@ -12,20 +12,7 @@ export default function UtilitiesScreen() {
     { id: 1, type: "electricity", payed: true, month: 0 },
   ]);
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
   const groupedUtilities = utilities.reduce((acc, utility) => {
     const monthName = months[utility.month];
