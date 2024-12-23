@@ -286,7 +286,7 @@ const acceptTourRequest = async (req, res, next) => {
   }
 };
 
-const getPropertyForApprovedTenant = async (req, res, next) => {
+const getPropertyById = async (req, res, next) => {
   try {
     const { propertyId } = req.params;
     const tenantId = req.token?.userId || null; // Check if tenantId is provided
@@ -317,33 +317,6 @@ const getPropertyForApprovedTenant = async (req, res, next) => {
   }
 };
 
-const getPropertyForPublicView = async (req, res, next) => {
-  try {
-    const { propertyId } = req.params;
-
-    // Fetch the property details (no tenantId provided for public view)
-    const propertyData = await propertyService.getPropertyByPropertyIdService(
-      propertyId,
-      null
-    );
-
-    // Send success response
-    res.success(
-      propertyData, // Data
-      "Property details fetched successfully", // Message
-      200 // Status code
-    );
-  } catch (error) {
-    // Forward errors to the centralized error handler
-    next(
-      new AppError(
-        error.message || "Failed to fetch property details",
-        error.statusCode || 500,
-        error.details
-      )
-    );
-  }
-};
 
 module.exports = {
   addProperty,
@@ -356,6 +329,5 @@ module.exports = {
   requestTour,
   getTourRequests,
   acceptTourRequest,
-  getPropertyForApprovedTenant,
-  getPropertyForPublicView,
+  getPropertyById,
 };
