@@ -327,6 +327,22 @@ const getRequestToursByUserId = async (userId) => {
       where: {
         [Op.or]: [{ owner_id: userId }, { tenant_id: userId }],
       },
+      include: [
+        {
+          model: User,
+          as: "owner", // Assuming a relationship alias
+          attributes: ["first_name", "last_name", "profile_photo"],
+        },
+        {
+          model : User,
+          as : "tenant",
+          attributes: ["first_name", "last_name", "profile_photo"],
+        },{
+          model : Property,
+          as : "property",
+          attributes : ["title"]
+        }
+      ],
     });
 
     return requests; // Return the fetched tour requests directly
@@ -475,5 +491,5 @@ module.exports = {
   getRequestToursByUserId,
   acceptTourRequestService,
   getPropertyByPropertyIdService,
-  getPropertyByIdForAdminService
+  getPropertyByIdForAdminService,
 };
