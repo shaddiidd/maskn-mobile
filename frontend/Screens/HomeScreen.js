@@ -1,4 +1,4 @@
-import { StyleSheet, View, RefreshControl, ScrollView, Text, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { StyleSheet, View, RefreshControl, ScrollView, Text, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
@@ -15,9 +15,8 @@ export default function HomeScreen() {
     try {
       const response = await get("property")
       setProperties(response.data);
-    } catch (error) {
-      setProperties([]);
-      console.log(error);
+    } catch {
+      Alert.alert("Error", "Failed to get properties");
     } finally {
       setRefreshing(false);
       setLoading(false);
@@ -29,8 +28,7 @@ export default function HomeScreen() {
     fetchProperties();
   }, []);
 
-  if (properties === null) return <></>
-
+  if (properties === null) return <></>;
   return (
     <View style={styles.container}>
       <SearchModal />
