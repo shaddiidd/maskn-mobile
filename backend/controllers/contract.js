@@ -5,17 +5,17 @@ const generateContract = async (req, res, next) => {
   try {
     const requestId = req.params.requestId; // Extract request ID from URL parameters
     const ownerId = req.token.userId; // Extract user ID from token
-    const { startDate, endDate, additionalTerms } = req.body; // Extract contract data
+    const { startDate, endDate, additionalTerms, signture } = req.body; // Extract contract data
 
     // Call the service to generate the contract
     const contractHtml = await contractService.createContract(
-      { startDate, endDate, additionalTerms },
+      { startDate, endDate, additionalTerms, signture },
       requestId,
       ownerId
     );
 
     // Check if the contract service returned an error response
-    if (!contractHtml.success) {
+    if (!contractHtml) {
       return next(
         new AppError(
           contractHtml.message || 'Invalid contract data',
