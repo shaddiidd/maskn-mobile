@@ -18,6 +18,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function ProfileScreen() {
   const navigation = useNavigation();
   const { user } = useContext(Context);
+
   const infoItems = [
     { icon: "work-outline", text: "Student" },
     { icon: "people-outline", text: "Single" },

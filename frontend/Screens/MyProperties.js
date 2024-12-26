@@ -1,36 +1,32 @@
-import {
-  StyleSheet,
-  SafeAreaView,
-  View,
-  TextInput,
-  TouchableOpacity,
-  ScrollView,
-  Text,
-  TouchableWithoutFeedback,
-  Keyboard,
-} from "react-native";
+import { StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Text, Alert } from "react-native";
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { get } from "../fetch";
 import { useNavigation } from "@react-navigation/native";
+import Context from "../Context";
 
 export default function MyProperties() {
   const navigation = useNavigation();
-  const [properties, setProperties] = useState([
-    { property_id: 1, title: "Property 1", price: 320, rating: 4.5, date: "Jul 2023 - " },
-    { property_id: 2, title: "Property 2", price: 350, rating: 4.5, date: "Jul 2023 - " },
-  ]);
+  const { setLoading } = useContext(Context);
+  const [properties, setProperties] = useState([]);
 
-  // useEffect(() => {
-  //   get("myProperties")
-  //     .then((response) => {
-  //       setProperties(response.result);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
+  const fetchProperties = async () => {
+    try {
+      const response = await get("property/get-by-user-id");
+      setProperties(response.data);
+    } catch (error) {
+      console.log(error);
+      Alert.alert("Error", "Failed to get properties");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    fetchProperties();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
