@@ -3,9 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'reac
 import { Ionicons } from '@expo/vector-icons';
 import Slider from "@react-native-community/slider";
 import Button from './Button';
+import TextField from './TextField';
 
-export default function SearchModal() {
+export default function SearchModal({ handleSearch }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [price, setPrice] = useState(100000);
   const [propertyType, setPropertyType] = useState('');
   const [location, setLocation] = useState('');
@@ -33,38 +35,21 @@ export default function SearchModal() {
       <Modal visible={isOpen} transparent animationType="slide">
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
+            <TouchableOpacity onPress={() => setIsOpen(false)} style={styles.closeButton}>
+              <Ionicons name="close" size={22} color="#666" />
+            </TouchableOpacity>
+
             <Text style={styles.modalTitle}>Filter Properties</Text>
-            <View style={styles.filterSection}>
-              <Text style={styles.filterLabel}>Search Text:</Text>
-              <TextInput style={styles.input} placeholder="Enter Location" value={location} onChangeText={setLocation} />
-            </View>
+
+            <TextField placeholder="Search" value={searchText} onChangeText={setSearchText} />
             <View style={styles.filterSection}>
               <Text style={styles.filterLabel}>Price: ${price}</Text>
-              <Slider
-                style={styles.slider}
-                minimumValue={50000}
-                maximumValue={1000000}
-                step={10000}
-                value={price}
-                onValueChange={setPrice}
-                minimumTrackTintColor="#508D4E"
-                maximumTrackTintColor="#000000"
-                thumbTintColor="#508D4E"
-              />
+              <Slider style={styles.slider} minimumValue={50000} maximumValue={1000000} step={10000} value={price} onValueChange={setPrice} minimumTrackTintColor="#508D4E" maximumTrackTintColor="#000000" thumbTintColor="#508D4E" />
             </View>
+            <TextField placeholder="Property Type" value={propertyType} onChangeText={setPropertyType} />
+            <TextField placeholder="Location" value={location} onChangeText={setLocation} />
 
-            <View style={styles.filterSection}>
-              <Text style={styles.filterLabel}>Property Type:</Text>
-              <TextInput style={styles.input} placeholder="Enter Property Type" value={propertyType} onChangeText={setPropertyType} />
-            </View>
-            <View style={styles.filterSection}>
-              <Text style={styles.filterLabel}>Location:</Text>
-              <TextInput style={styles.input} placeholder="Enter Location" value={location} onChangeText={setLocation} />
-            </View>
-            <Button text="Apply Filters" onPress={handleApplyFilters} />
-            <TouchableOpacity onPress={() => setIsOpen(false)} style={styles.closeButton}>
-              <Text style={styles.closeButtonText}>Close</Text>
-            </TouchableOpacity>
+            <Button text="Apply Filters" compressed onPress={handleApplyFilters} />
           </View>
         </View>
       </Modal>
@@ -112,22 +97,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     width: '100%',
     padding: 20,
-    paddingBottom: 30,
+    paddingBottom: 40,
     borderRadius: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    rowGap: 2,
+
   },
   modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  filterSection: {
-    marginBottom: 20,
+    fontSize: 24,
+    fontWeight: "600",
+    marginTop: 10,
+    marginBottom: 15,
+    width: "100%",
   },
   filterLabel: {
     fontSize: 16,
@@ -160,9 +145,8 @@ const styles = StyleSheet.create({
   },
   closeButton: {
     alignItems: 'center',
-  },
-  closeButtonText: {
-    color: '#888',
-    fontSize: 14,
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
 });

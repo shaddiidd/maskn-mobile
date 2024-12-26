@@ -1,9 +1,9 @@
 import { TextInput, View, Text, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default function TextField({ value, setValue, placeholder, icon, error, small = false, textarea = false }) {
+export default function TextField({ value, setValue, placeholder, icon, error, small = false, textarea = false, additionalStyles = {} }) {
   return (
-    <View style={[styles.container, small && { flex: 1 }]}>
+    <View style={[styles.container, small && { flex: 1 }, additionalStyles]}>
       {icon && <Ionicons name={icon} size={25} style={{ marginRight: 10 }} />}
       <TextInput
         placeholder={placeholder}
