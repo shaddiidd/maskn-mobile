@@ -29,8 +29,7 @@ export default function HomeScreen() {
     fetchProperties();
   }, []);
 
-  if (properties === null) return <></>
-
+  if (properties === null) return <></>;
   return (
     <View style={styles.container}>
       <SearchModal />

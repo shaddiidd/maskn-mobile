@@ -50,7 +50,23 @@ const getAllUsers = async (req, res, next) => {
   }
 };
 
+const getUserByUserId = async (req, res, next) =>{
+  const userId = req.params.userId
+  try {
+    //cal service ti fetch user by passing user id 
+    const user = await userService.findUserByUserId(userId)
 
+    res.success(
+      {user},
+      `user with id ${userId} is retrived`,
+      200
+    )
+  } catch (error) {
+    next(
+      new AppError("Failed to retriev this user", 500, {details : error.message})
+    )
+  }
+}
 
 const login = async (req, res, next) => {
   try {
@@ -170,6 +186,23 @@ const generateNewToken = async (req, res, next) => {
   }
 };
 
+const terminateUser = async(req, res, next) =>{
+  const userId = req.params.userId
+  try {
+    const result = await userService.terminateUserService(userId)
+    if (result) {
+      return res.success(result, `The user with ${userId} has been deleted ` , 203)
+    }
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to generate token",
+        error.statusCode || 500
+      )
+    );
+  }
+}
+
 module.exports = {
   signUp,
   getAllUsers,
@@ -178,4 +211,6 @@ module.exports = {
   acceptOwnerRequest,
   getAllOwnersRequests,
   generateNewToken,
+  getUserByUserId,
+  terminateUser
 };
