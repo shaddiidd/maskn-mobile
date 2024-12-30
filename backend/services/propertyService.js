@@ -334,14 +334,15 @@ const getRequestToursByUserId = async (userId) => {
           attributes: ["first_name", "last_name", "profile_photo"],
         },
         {
-          model : User,
-          as : "tenant",
+          model: User,
+          as: "tenant",
           attributes: ["first_name", "last_name", "profile_photo"],
-        },{
-          model : Property,
-          as : "property",
-          attributes : ["title"]
-        }
+        },
+        {
+          model: Property,
+          as: "property",
+          attributes: ["title"],
+        },
       ],
     });
 
@@ -481,6 +482,43 @@ const getPropertyByIdForAdminService = async (propertyId) => {
   }
 };
 
+const getAllVillagesService = async () => {
+  try {
+    const villages = await VillageName.findAll();
+    return { villages }; // Empty array if no villages
+  } catch (error) {
+    throw new AppError("Failed to fetch villages", 500, {
+      details: error.message,
+    });
+  }
+};
+
+
+const getBlockAndNieghbourhoodByIdService = async (villageId) => {
+  try {
+    const blocks = await BlockName.findAll({
+      where: { village_id: villageId },
+      include: [
+        {
+          model: NeighborhoodNumber,
+          as: "neighborhoods", // Use the alias defined in the association
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    if (!blocks || blocks.length === 0) {
+      throw new AppError("Blocks and neighborhoods not found", 404);
+    }
+
+    return { blocks };
+  } catch (error) {
+    throw new AppError("Failed to fetch blocks and neighborhoods", 500, {
+      details: error.message,
+    });
+  }
+};
+
 module.exports = {
   createProperty,
   getAllProperties,
@@ -492,4 +530,6 @@ module.exports = {
   acceptTourRequestService,
   getPropertyByPropertyIdService,
   getPropertyByIdForAdminService,
+  getAllVillagesService,
+  getBlockAndNieghbourhoodByIdService
 };

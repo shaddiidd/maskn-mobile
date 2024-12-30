@@ -340,6 +340,39 @@ const getPropertyByIdByAdmin = async (req, res, next) => {
   }
 };
 
+const getAllVillages = async (req, res, next) => {
+  try {
+    const data = await propertyService.getAllVillagesService();
+    res.status(200).json({
+      message: "Villages fetched successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getBlockAndNieghbourhoodById = async (req, res, next) => {
+  try {
+    const { villageId } = req.params;
+
+    if (!villageId) {
+      return res.status(400).json({
+        message: "Village ID is required",
+      });
+    }
+
+    const data = await propertyService.getBlockAndNieghbourhoodByIdService(villageId);
+    res.status(200).json({
+      message: "Blocks and neighborhoods fetched successfully",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
 module.exports = {
   addProperty,
   getAllProperties,
@@ -352,5 +385,7 @@ module.exports = {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
-  getPropertyByIdByAdmin
+  getPropertyByIdByAdmin, 
+  getAllVillages,
+  getBlockAndNieghbourhoodById
 };
