@@ -21,12 +21,11 @@ const saveContractTerms = async (contractId, terms) => {
   await ContractAdditionalTerms.bulkCreate(termsData);
 };
 
-// Function to upload HTML to Cloudinary
 const uploadHtmlToCloudinary = (htmlContent, requestId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.v2.uploader.upload_stream(
       {
-        resource_type: "raw",
+        resource_type: "auto", // Change to "auto" for better handling
         folder: "contracts",
         public_id: `contract-${requestId}`,
         format: "pdf", // Save as PDF file
@@ -89,7 +88,7 @@ const createContractPDF = async (htmlContent, outputPath) => {
   }
 };
 
-// Main function to create a contract
+
 const createContract = async (requestId) => {
   try {
     // Fetch and validate the tour request
@@ -103,19 +102,48 @@ const createContract = async (requestId) => {
     if (request.status !== "approved")
       throw new AppError("Tour request not approved", 403);
 
-    const propertyExists = await Contract.findAll({
-      where: { property_id: request.property_id },
+    // Check if a contract already exists for the property
+    const existingContract = await Contract.findOne({
+      where: {
+        property_id: request.property_id,
+        status: { [Op.ne]: "expired" }, // Not expired contracts
+      },
     });
-    const contractExists = propertyExists.find(
-      (property) => property.status !== "expired"
-    );
-    console.log(contractExists);
 
-    if (contractExists)
-      throw new AppError(
-        "cant make another contract for property if one already exists",
-        403
-      );
+    if (existingContract) {
+      // Fetch contract terms for the existing contract
+      const existingContractTerms = await ContractAdditionalTerms.findAll({
+        where: { contract_id: existingContract.contract_id },
+        attributes: ["term"],
+      });
+
+      // Fetch property details
+      const property = await Property.findByPk(request.property_id, {
+        include: [
+          { model: User, as: "user", attributes: ["first_name", "last_name"] },
+          { model: VillageName, as: "village", attributes: ["village_name"] },
+          { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+          { model: BlockName, as: "block", attributes: ["block_name"] },
+        ],
+      });
+
+      if (!property) throw new AppError("Property details not found", 404);
+
+      return {
+        success: true,
+        message: "Contract already exists",
+        data: {
+          contractInfo: existingContract,
+          property,
+          tenant: {
+            first_name: request.tenant.first_name,
+            last_name: request.tenant.last_name,
+          },
+          terms: existingContractTerms.slice(13),
+        },
+      };
+    }
+
     // Fetch and validate the property details
     const property = await Property.findByPk(request.property_id, {
       include: [
@@ -126,8 +154,7 @@ const createContract = async (requestId) => {
       ],
     });
 
-    if (!property)
-      throw new AppError("Property not found or not approved", 404);
+    if (!property) throw new AppError("Property not found or not approved", 404);
 
     const ownerName = `${property.user.first_name} ${property.user.last_name}`;
     const tenantName = `${request.tenant.first_name} ${request.tenant.last_name}`;
@@ -156,47 +183,35 @@ const createContract = async (requestId) => {
       return term.dataValues.term;
     });
 
-    const templatePath = path.join(
-      __dirname,
-      "../resources/templates/contractTemplate.html"
-    );
-    let contractTemplate = await fs.readFile(templatePath, "utf8");
-    contractTemplate = contractTemplate
-      .replace("{{landlordName}}", ownerName)
-      .replace("{{tenantName}}", tenantName)
-      .replace("{{blockNumber}}", propertyDetails.block)
-      .replace("{{buildingNumber}}", propertyDetails.building)
-      .replace("{{apartmentNumber}}", propertyDetails.apartment)
-      .replace("{{rentalDuration}}", `${startDate} الى ${endDate}`)
-      .replace("{{startDate}}", startDate)
-      .replace("{{endDate}}", endDate)
-      .replace("{{NeighborhoodNumber}}", propertyDetails.neighborhood)
-      .replace("{{villageName}}", propertyDetails.village)
-      .replace(
-        "{{terms}}",
-        defaultTermsArray.map((term) => `<li>${term}</li>`).join("")
-      );
-
-    // Upload HTML to Cloudinary
-
     // Save contract details to the database
     const newContract = await Contract.create({
       owner_id: property.owner_id,
       tenant_id: request.tenant_id,
       property_id: property.property_id,
-      // start_date: startDate,
-      // end_date: endDate,
       status: "partialy signed",
-      // contract_pdf: uploadResult.secure_url, // URL to the uploaded HTML file
     });
 
+    // Save additional terms
     await saveContractTerms(newContract.contract_id, defaultTermsArray);
 
+    // Fetch contract terms for the newly created contract
+    const newContractTerms = await ContractAdditionalTerms.findAll({
+      where: { contract_id: newContract.contract_id },
+      attributes: ["term"],
+    });
+
     return {
-      cloudinaryUrl: uploadResult.secure_url,
-      contractInfo: newContract,
-      property: property,
-      tenant: request.tenant,
+      success: true,
+      message: "Contract generated successfully",
+      data: {
+        contractInfo: newContract,
+        property,
+        tenant: {
+          first_name: request.tenant.first_name,
+          last_name: request.tenant.last_name,
+        },
+        terms: newContractTerms,
+      },
     };
   } catch (error) {
     console.error("Error generating contract:", error.message);
@@ -206,6 +221,8 @@ const createContract = async (requestId) => {
     });
   }
 };
+
+
 
 const previewContractService = async (userId, contractId) => {
   try {
@@ -369,6 +386,7 @@ const signContractService = async (userId, contractId, body) => {
       end_date,
     } = body;
 
+    // Fetch the contract
     const contract = await Contract.findOne({
       where: {
         [Op.or]: [{ owner_id: userId }, { tenant_id: userId }],
@@ -380,13 +398,13 @@ const signContractService = async (userId, contractId, body) => {
       throw new AppError("Contract not found", 404);
     }
 
-    // Determine if the user is the owner or tenant
+    // Determine user role
     const isOwner = contract.owner_id === userId;
     const isTenant = contract.tenant_id === userId;
 
-    if (!isOwner && contract.status == "not signed") {
+    if (!isOwner && contract.status === "not signed") {
       throw new AppError(
-        "Tenant is not authorized to view this contract while it's not signed by owner",
+        "Tenant is not authorized to view this contract while it's not signed by the owner",
         403
       );
     }
@@ -395,7 +413,7 @@ const signContractService = async (userId, contractId, body) => {
       throw new AppError("User is not authorized to sign this contract", 403);
     }
 
-    // Validate and assign dates for owner
+    // Update contract fields based on role
     if (isOwner) {
       if (!start_date || !end_date) {
         throw new AppError(
@@ -406,6 +424,10 @@ const signContractService = async (userId, contractId, body) => {
 
       if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
         throw new AppError("Invalid start date or end date provided.", 400);
+      }
+
+      if (dayjs(end_date).isBefore(dayjs(start_date))) {
+        throw new AppError("End date must be after start date", 400);
       }
 
       contract.owner_signature = user_signature;
@@ -419,29 +441,136 @@ const signContractService = async (userId, contractId, body) => {
       contract.tenant_witness_name = witness_name;
       contract.tenant_witness_signature = witness_signature;
       contract.status = "signed";
+
+      // Mark property as rented and update tenant_id
+      const property = await Property.findOne({
+        where: { property_id: contract.property_id },
+      });
+
+      if (!property) {
+        throw new AppError("Property associated with contract not found", 404);
+      }
+
+      property.mark_as_rented = 1;
+      property.tenant_id = userId;
+      await property.save();
     }
 
-    // Save the updated contract
     await contract.save();
 
-    // Prepare response
+    // Generate PDF and upload to Cloudinary if fully signed
+    if (contract.status === "signed") {
+      const property = await Property.findOne({
+        where: { property_id: contract.property_id },
+        include: [
+          { model: VillageName, as: "village", attributes: ["village_name"] },
+          {
+            model: NeighborhoodNumber,
+            as: "neighborhood",
+            attributes: ["name"],
+          },
+          { model: BlockName, as: "block", attributes: ["block_name"] },
+        ],
+      });
+
+      if (!property) {
+        throw new AppError("Property details not found", 404);
+      }
+
+      const contractTerms = await ContractAdditionalTerms.findAll({
+        where: { contract_id: contractId },
+        attributes: ["term"],
+      });
+
+      const termsList = contractTerms
+        .map((term) => `<li>${term.term}</li>`)
+        .join("");
+
+      const ownerName = `${contract.owner_signature ? "Signed" : "Not Signed"}`;
+      const tenantName = "Signed";
+
+      const ownerSignature = contract.owner_signature || "لا يوجد";
+      const tenantSignature = contract.tenant_signature || "لا يوجد";
+      const ownerWitnessSignature =
+        contract.owner_witness_signature || "لا يوجد";
+      const tenantWitnessSignature =
+        contract.tenant_witness_signature || "لا يوجد";
+      const ownerWitnessName = contract.owner_witness_name || "لا يوجد";
+      const tenantWitnessName = contract.tenant_witness_name || "لا يوجد";
+
+      const propertyDetails = {
+        block: property.block?.block_name || "N/A",
+        apartment: property.apartment_number || "N/A",
+        building: property.building_number || "N/A",
+        neighborhood: property.neighborhood?.name || "N/A",
+        village: property.village?.village_name || "N/A",
+      };
+
+      const startDate = dayjs(contract.start_date).isValid()
+        ? dayjs(contract.start_date).format("YYYY-MM-DD")
+        : "غير محدد";
+
+      const endDate = dayjs(contract.end_date).isValid()
+        ? dayjs(contract.end_date).format("YYYY-MM-DD")
+        : "غير محدد";
+
+      const templatePath = path.join(
+        __dirname,
+        "../resources/templates/contractTemplate.html"
+      );
+
+      let contractTemplate = await fs.readFile(templatePath, "utf8");
+
+      contractTemplate = contractTemplate
+        .replace("{{landlordName}}", ownerName)
+        .replace("{{tenantName}}", tenantName)
+        .replace("{{blockNumber}}", propertyDetails.block)
+        .replace("{{buildingNumber}}", propertyDetails.building)
+        .replace("{{apartmentNumber}}", propertyDetails.apartment)
+        .replace("{{rentalDuration}}", `${startDate} الى ${endDate}`)
+        .replace("{{startDate}}", startDate)
+        .replace("{{endDate}}", endDate)
+        .replace("{{NeighborhoodNumber}}", propertyDetails.neighborhood)
+        .replace("{{villageName}}", propertyDetails.village)
+        .replace("{{terms}}", termsList)
+        .replace("{{OwnerSignature}}", ownerSignature)
+        .replace("{{TenantSignature}}", tenantSignature)
+        .replace("{{OwnerWitnessSignature}}", ownerWitnessSignature)
+        .replace("{{TenantWitnessSignature}}", tenantWitnessSignature)
+        .replace("{{OwnerWitnessName}}", ownerWitnessName)
+        .replace("{{TenantWitnessName}}", tenantWitnessName);
+
+      const outputPath = path.join(
+        __dirname,
+        "../output",
+        `contract_${contractId}.pdf`
+      );
+
+      const pdfBuffer = await createContractPDF(contractTemplate, outputPath);
+
+      const cloudinaryResult = await uploadHtmlToCloudinary(
+        pdfBuffer,
+        contractId
+      );
+      const secureUrl = cloudinaryResult.secure_url;
+      const downloadableUrl = `${secureUrl}?attachment=true`;
+
+      contract.contract_pdf = downloadableUrl;
+      await contract.save();
+    }
+
     return {
       message: "Contract signed successfully",
-      updatedFields: isOwner
-        ? {
-            owner_signature: contract.owner_signature,
-            owner_witness_name: contract.owner_witness_name,
-            owner_witness_signature: contract.owner_witness_signature,
-            start_date: contract.start_date,
-            end_date: contract.end_date,
-            status: contract.status,
-          }
-        : {
-            tenant_signature: contract.tenant_signature,
-            tenant_witness_name: contract.tenant_witness_name,
-            tenant_witness_signature: contract.tenant_witness_signature,
-            contract_status: contract.status,
-          },
+      updatedFields: {
+        owner_signature: contract.owner_signature,
+        owner_witness_name: contract.owner_witness_name,
+        owner_witness_signature: contract.owner_witness_signature,
+        tenant_signature: contract.tenant_signature,
+        tenant_witness_name: contract.tenant_witness_name,
+        tenant_witness_signature: contract.tenant_witness_signature,
+        status: contract.status,
+        contract_pdf: contract.contract_pdf || null,
+      },
     };
   } catch (error) {
     throw new AppError("Failed to sign contract", 500, {
@@ -533,10 +662,151 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
   }
 };
 
+const deleteContractService = async (contractId, userId) => {
+  try {
+    // Fetch the contract
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId },
+    });
+
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    // Verify that the user is the owner of the contract
+    if (contract.owner_id !== userId) {
+      throw new AppError("Only the owner can delete the contract", 403);
+    }
+
+    // Check if the contract is signed
+    if (contract.status === "signed") {
+      // Reset tenant_id and mark_as_rented in the Property table
+      await Property.update(
+        { tenant_id: null, mark_as_rented: 0 },
+        { where: { property_id: contract.property_id } }
+      );
+    }
+
+    // Delete the contract
+    await Contract.destroy({ where: { contract_id: contractId } });
+
+    return {
+      success: true,
+      message: "Contract deleted successfully, and property updated",
+    };
+  } catch (error) {
+    throw new AppError("Failed to delete contract", 500, {
+      details: error.message,
+    });
+  }
+};
+
+const renewContractService = async (userId, contractId, renewalData) => {
+  try {
+    const { start_date, end_date } = renewalData;
+
+    // Fetch the contract
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId },
+    });
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    // Authorization check (Only owner can renew)
+    if (userId !== contract.owner_id) {
+      throw new AppError("Only the owner can renew the contract", 403);
+    }
+
+    // Validate contract status
+    if (contract.status === "signed") {
+      throw new AppError(
+        "Contract is already signed and cannot be renewed",
+        400
+      );
+    }
+    if (contract.status === "partialy signed") {
+      throw new AppError(
+        "Contract is partially signed and not eligible for renewal",
+        400
+      );
+    }
+    if (dayjs(contract.end_date).isAfter(dayjs())) {
+      throw new AppError("Contract has not expired yet", 400);
+    }
+
+    // Check property constraints
+    const activePropertyContract = await Contract.findOne({
+      where: {
+        property_id: contract.property_id,
+        status: "signed",
+      },
+    });
+
+    if (activePropertyContract) {
+      throw new AppError(
+        "Cannot renew contract. Property is already rented under another contract.",
+        400
+      );
+    }
+
+    const property = await Property.findOne({
+      where: { property_id: contract.property_id },
+    });
+    if (!property) {
+      throw new AppError("Property associated with contract not found", 404);
+    }
+    if (property.mark_as_rented) {
+      throw new AppError(
+        "Property is marked as rented and cannot be renewed",
+        400
+      );
+    }
+
+    // Validate input data
+    if (!start_date || !end_date) {
+      throw new AppError(
+        "Start date and End date are required for renewal",
+        400
+      );
+    }
+    if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
+      throw new AppError("Invalid start date or end date", 400);
+    }
+    if (dayjs(end_date).isBefore(dayjs(start_date))) {
+      throw new AppError("End date must be after start date", 400);
+    }
+
+    // Update contract for renewal
+    contract.start_date = start_date;
+    contract.end_date = end_date;
+    contract.status = "pending renewal approval"; // New status for renewal
+
+    await contract.save();
+
+    return {
+      success: true,
+      message: "Contract renewed successfully. Pending renewal approval.",
+      data: {
+        contract_id: contract.contract_id,
+        start_date: contract.start_date,
+        end_date: contract.end_date,
+        status: contract.status,
+      },
+    };
+  } catch (error) {
+    throw new AppError("Failed to renew contract", 500, {
+      details: error.message,
+    });
+  }
+};
+
 module.exports = {
   createContract,
   previewContractService,
   signContractService,
   getContractTermsService,
   updateContractTerm,
+  deleteContractService,
+  renewContractService,
 };
