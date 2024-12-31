@@ -216,18 +216,6 @@ const createContract = async (requestId) => {
 
     if (!property) throw new AppError("Property not found or not approved", 404);
 
-    const ownerName = `${property.user.first_name} ${property.user.last_name}`;
-    const tenantName = `${request.tenant.first_name} ${request.tenant.last_name}`;
-    const propertyDetails = {
-      block: property.block.block_name || "N/A",
-      apartment: property.apartment_number || "N/A",
-      building: property.building_number || "N/A",
-      neighborhood: property.neighborhood.name || "N/A",
-      village: property.village.village_name || "N/A",
-    };
-    const startDate = "غير محدد";
-    const endDate = "غير محدد";
-
     // Fetch default terms and validate them
     const defaultTerms = await ContractTerm.findAll({ attributes: ["term"] });
 
@@ -666,6 +654,11 @@ const getContractTermsService = async (ownerId, contractId) => {
 
 const updateContractTerm = async (ownerId, contractId, termId, term) => {
   try {
+
+    if (!term || term.trim() === "") {
+      throw new AppError("Term content cannot be empty", 400);
+    }
+
     let result;
 
     // Validate and fetch the contract
