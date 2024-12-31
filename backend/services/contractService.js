@@ -22,11 +22,68 @@ const saveContractTerms = async (contractId, terms) => {
 };
 
 // Function to upload HTML to Cloudinary
+// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
+//   return new Promise((resolve, reject) => {
+//     const stream = cloudinary.v2.uploader.upload_stream(
+//       {
+//         resource_type: "raw",
+//         folder: "contracts",
+//         public_id: `contract-${requestId}`,
+//         format: "pdf", // Save as PDF file
+//       },
+//       (error, result) => {
+//         if (error) {
+//           console.error("Cloudinary upload failed:", error.message);
+//           return reject(
+//             new Error(`Cloudinary upload failed: ${error.message}`)
+//           );
+//         }
+//         const downloadableUrl = `${result.secure_url
+//           .split("/upload/")
+//           .join("/upload/fl_attachment/")}`;
+//         resolve({ ...result, downloadableUrl });
+//       }
+//     );
+
+//     const bufferStream = new PassThrough();
+//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
+//     bufferStream.pipe(stream);
+//   });
+// };
+
+// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
+//   return new Promise((resolve, reject) => {
+//     const stream = cloudinary.v2.uploader.upload_stream(
+//       {
+//         resource_type: "raw",
+//         folder: "contracts",
+//         public_id: `contract-${requestId}`,
+//         format: "pdf", // Save as PDF file
+//         use_filename: true, // Use the original filename for better control
+//         unique_filename: false, // Prevents adding random strings to the filename
+//       },
+//       (error, result) => {
+//         if (error) {
+//           console.error("Cloudinary upload failed:", error.message);
+//           return reject(
+//             new Error(`Cloudinary upload failed: ${error.message}`)
+//           );
+//         }
+//         resolve(result);
+//       }
+//     );
+
+//     const bufferStream = new PassThrough();
+//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
+//     bufferStream.pipe(stream);
+//   });
+// };
+
 const uploadHtmlToCloudinary = (htmlContent, requestId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.v2.uploader.upload_stream(
       {
-        resource_type: "raw",
+        resource_type: "auto", // Change to "auto" for better handling
         folder: "contracts",
         public_id: `contract-${requestId}`,
         format: "pdf", // Save as PDF file
@@ -47,6 +104,8 @@ const uploadHtmlToCloudinary = (htmlContent, requestId) => {
     bufferStream.pipe(stream);
   });
 };
+
+
 
 const createContractPDF = async (htmlContent, outputPath) => {
   console.log("Starting Puppeteer...");
@@ -359,6 +418,7 @@ const previewContractService = async (userId, contractId) => {
   }
 };
 
+
 const signContractService = async (userId, contractId, body) => {
   try {
     const {
@@ -369,6 +429,7 @@ const signContractService = async (userId, contractId, body) => {
       end_date,
     } = body;
 
+    // Fetch the contract
     const contract = await Contract.findOne({
       where: {
         [Op.or]: [{ owner_id: userId }, { tenant_id: userId }],
@@ -380,13 +441,13 @@ const signContractService = async (userId, contractId, body) => {
       throw new AppError("Contract not found", 404);
     }
 
-    // Determine if the user is the owner or tenant
+    // Determine user role
     const isOwner = contract.owner_id === userId;
     const isTenant = contract.tenant_id === userId;
 
-    if (!isOwner && contract.status == "not signed") {
+    if (!isOwner && contract.status === "not signed") {
       throw new AppError(
-        "Tenant is not authorized to view this contract while it's not signed by owner",
+        "Tenant is not authorized to view this contract while it's not signed by the owner",
         403
       );
     }
@@ -395,7 +456,7 @@ const signContractService = async (userId, contractId, body) => {
       throw new AppError("User is not authorized to sign this contract", 403);
     }
 
-    // Validate and assign dates for owner
+    // Update contract fields based on role
     if (isOwner) {
       if (!start_date || !end_date) {
         throw new AppError(
@@ -419,29 +480,136 @@ const signContractService = async (userId, contractId, body) => {
       contract.tenant_witness_name = witness_name;
       contract.tenant_witness_signature = witness_signature;
       contract.status = "signed";
+
+      // Mark property as rented and update tenant_id
+      const property = await Property.findOne({
+        where: { property_id: contract.property_id },
+      });
+
+      if (!property) {
+        throw new AppError("Property associated with contract not found", 404);
+      }
+
+      property.mark_as_rented = 1;
+      property.tenant_id = userId;
+      await property.save();
     }
 
-    // Save the updated contract
     await contract.save();
 
-    // Prepare response
+    // Generate PDF and upload to Cloudinary if fully signed
+    if (contract.status === "signed") {
+      const property = await Property.findOne({
+        where: { property_id: contract.property_id },
+        include: [
+          { model: VillageName, as: "village", attributes: ["village_name"] },
+          {
+            model: NeighborhoodNumber,
+            as: "neighborhood",
+            attributes: ["name"],
+          },
+          { model: BlockName, as: "block", attributes: ["block_name"] },
+        ],
+      });
+
+      if (!property) {
+        throw new AppError("Property details not found", 404);
+      }
+
+      const contractTerms = await ContractAdditionalTerms.findAll({
+        where: { contract_id: contractId },
+        attributes: ["term"],
+      });
+
+      const termsList = contractTerms
+        .map((term) => `<li>${term.term}</li>`)
+        .join("");
+
+      const ownerName = `${contract.owner_signature ? "Signed" : "Not Signed"}`;
+      const tenantName = "Signed";
+
+      const ownerSignature = contract.owner_signature || "لا يوجد";
+      const tenantSignature = contract.tenant_signature || "لا يوجد";
+      const ownerWitnessSignature =
+        contract.owner_witness_signature || "لا يوجد";
+      const tenantWitnessSignature =
+        contract.tenant_witness_signature || "لا يوجد";
+      const ownerWitnessName = contract.owner_witness_name || "لا يوجد";
+      const tenantWitnessName = contract.tenant_witness_name || "لا يوجد";
+
+      const propertyDetails = {
+        block: property.block?.block_name || "N/A",
+        apartment: property.apartment_number || "N/A",
+        building: property.building_number || "N/A",
+        neighborhood: property.neighborhood?.name || "N/A",
+        village: property.village?.village_name || "N/A",
+      };
+
+      const startDate = dayjs(contract.start_date).isValid()
+        ? dayjs(contract.start_date).format("YYYY-MM-DD")
+        : "غير محدد";
+
+      const endDate = dayjs(contract.end_date).isValid()
+        ? dayjs(contract.end_date).format("YYYY-MM-DD")
+        : "غير محدد";
+
+      const templatePath = path.join(
+        __dirname,
+        "../resources/templates/contractTemplate.html"
+      );
+
+      let contractTemplate = await fs.readFile(templatePath, "utf8");
+
+      contractTemplate = contractTemplate
+        .replace("{{landlordName}}", ownerName)
+        .replace("{{tenantName}}", tenantName)
+        .replace("{{blockNumber}}", propertyDetails.block)
+        .replace("{{buildingNumber}}", propertyDetails.building)
+        .replace("{{apartmentNumber}}", propertyDetails.apartment)
+        .replace("{{rentalDuration}}", `${startDate} الى ${endDate}`)
+        .replace("{{startDate}}", startDate)
+        .replace("{{endDate}}", endDate)
+        .replace("{{NeighborhoodNumber}}", propertyDetails.neighborhood)
+        .replace("{{villageName}}", propertyDetails.village)
+        .replace("{{terms}}", termsList)
+        .replace("{{OwnerSignature}}", ownerSignature)
+        .replace("{{TenantSignature}}", tenantSignature)
+        .replace("{{OwnerWitnessSignature}}", ownerWitnessSignature)
+        .replace("{{TenantWitnessSignature}}", tenantWitnessSignature)
+        .replace("{{OwnerWitnessName}}", ownerWitnessName)
+        .replace("{{TenantWitnessName}}", tenantWitnessName);
+
+      const outputPath = path.join(
+        __dirname,
+        "../output",
+        `contract_${contractId}.pdf`
+      );
+
+      const pdfBuffer = await createContractPDF(contractTemplate, outputPath);
+
+      const cloudinaryResult = await uploadHtmlToCloudinary(
+        pdfBuffer,
+        contractId
+      );
+      const secureUrl = cloudinaryResult.secure_url;
+      const downloadableUrl = `${secureUrl}?attachment=true`;
+
+      contract.contract_pdf = downloadableUrl;
+      await contract.save();
+    }
+
     return {
       message: "Contract signed successfully",
-      updatedFields: isOwner
-        ? {
-            owner_signature: contract.owner_signature,
-            owner_witness_name: contract.owner_witness_name,
-            owner_witness_signature: contract.owner_witness_signature,
-            start_date: contract.start_date,
-            end_date: contract.end_date,
-            status: contract.status,
-          }
-        : {
-            tenant_signature: contract.tenant_signature,
-            tenant_witness_name: contract.tenant_witness_name,
-            tenant_witness_signature: contract.tenant_witness_signature,
-            contract_status: contract.status,
-          },
+      updatedFields: {
+        owner_signature: contract.owner_signature,
+        owner_witness_name: contract.owner_witness_name,
+        owner_witness_signature: contract.owner_witness_signature,
+        tenant_signature: contract.tenant_signature,
+        tenant_witness_name: contract.tenant_witness_name,
+        tenant_witness_signature: contract.tenant_witness_signature,
+        status: contract.status,
+        contract_pdf: contract.contract_pdf || null,
+      },
     };
   } catch (error) {
     throw new AppError("Failed to sign contract", 500, {
@@ -533,10 +701,49 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
   }
 };
 
+const deleteContractService = async (contractId, userId) => {
+  try {
+    // Fetch the contract
+    const contract = await Contract.findOne({ where: { contract_id: contractId } });
+
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    // Verify that the user is the owner of the contract
+    if (contract.owner_id !== userId) {
+      throw new AppError("Only the owner can delete the contract", 403);
+    }
+
+    // Check if the contract is signed
+    if (contract.status === "signed") {
+      // Reset tenant_id and mark_as_rented in the Property table
+      await Property.update(
+        { tenant_id: null, mark_as_rented: 0 },
+        { where: { property_id: contract.property_id } }
+      );
+      }
+
+    // Delete the contract
+    await Contract.destroy({ where: { contract_id: contractId } });
+
+    return {
+      success: true,
+      message: "Contract deleted successfully, and property updated",
+    };
+  } catch (error) {
+    throw new AppError("Failed to delete contract", 500, {
+      details: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createContract,
   previewContractService,
   signContractService,
   getContractTermsService,
   updateContractTerm,
+  deleteContractService
 };

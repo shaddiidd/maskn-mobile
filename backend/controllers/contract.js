@@ -147,11 +147,37 @@ const updateContract = async (req, res, next) => {
 
     res.status(200).json(result);
   } catch (error) {
-    next(error);
+    next(
+      new AppError(
+        error.message || "Failed to update terms of contract",
+        error.statusCode || 500,
+        error.details
+      )
+    );
+  }
+};
+
+const deleteContract = async (req, res, next) => {
+  try {
+    const contractId = req.params.contractId; // Extract contract ID from the route
+    const userId = req.token.userId; // Extract user ID from the authenticated user
+
+    const response = await contractService.deleteContractService(contractId, userId);
+
+    res.status(200).json(response);
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to update terms of contract",
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
 
-module.exports = { generateContract, previewContract, signContract, getContractTerms, updateContract};
+
+module.exports = { generateContract, previewContract, signContract, getContractTerms, updateContract, deleteContract};
 
 
