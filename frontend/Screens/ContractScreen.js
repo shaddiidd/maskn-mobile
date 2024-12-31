@@ -9,7 +9,7 @@ import { post } from "../fetch";
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
     const { request_id } = route.params;
-    const { setLoading } = useContext(Context);
+    const { token, setLoading } = useContext(Context);
     const [contract, setContract] = useState({
         additionalTerms: [
             "سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت",
@@ -21,8 +21,9 @@ export default function ContractScreen({ route }) {
 
     const fetchContract = async () => {
         try {
-            const response = await post(`contract/intiate-contract/${request_id}`);
-            console.log(response.data);
+            // const response = await post(`contract/intiate-contract/${request_id}`);
+            // console.log(response.data);
+            console.log(request_id);
         } catch (error) {
             console.log(error.response.data);
         } finally {
