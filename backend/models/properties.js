@@ -22,6 +22,14 @@ const Property = sequelize.define(
       },
       allowNull: false,
     },
+    tenant_id: {
+      type: DataTypes.STRING,
+      references: {
+        model: User,
+        key: "user_id", // Reference to user_id in User model
+      },
+      allowNull: true,
+    },
     description: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -133,10 +141,21 @@ const Property = sequelize.define(
       allowNull: true, // Photos are optional
     },
     rating: {
-        type: DataTypes.DECIMAL(3, 2), // Decimal type for ratings
-        allowNull: false, // Optional field
-        defaultValue: 5.00,
-      },
+      type: DataTypes.DECIMAL(3, 2), // Decimal type for ratings
+      allowNull: false, // Optional field
+      defaultValue: 5.0,
+    },
+    additional_contact_info: {
+      type: DataTypes.STRING,
+      allowNull: true, // Optional field
+      comment:
+        "Additional contact information, such as a phone number or email",
+    },
+    additional_contact_info_name: {
+      type: DataTypes.STRING,
+      allowNull: true, // Optional field
+      comment: "Name associated with the additional contact information",
+    },
   },
   {
     timestamps: true,
@@ -200,5 +219,6 @@ Property.belongsTo(PropertyPostStatus, {
   foreignKey: "post_status_id",
   as: "status",
 });
+Property.belongsTo(User, { foreignKey: "tenant_id", as: "tenant" });
 
 module.exports = Property;

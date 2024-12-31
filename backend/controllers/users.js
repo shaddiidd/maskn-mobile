@@ -203,6 +203,40 @@ const terminateUser = async(req, res, next) =>{
   }
 }
 
+const updateUser = async (req, res, next) => {
+  try {
+    const userId = req.token.userId; // Assuming userId is from the authenticated token
+    const updateData = req.body;
+
+    // Call the update service
+    const { user, message } = await userService.updateUser(userId, updateData, req.files);
+
+    // Respond with success
+    res.success(
+      { user }, // data
+      message, // message
+      200 // statusCode
+    );
+  } catch (err) {
+    // Handle Sequelize unique constraint errors
+    if (err.name === "SequelizeUniqueConstraintError") {
+      return next(
+        new AppError("A user with this information already exists", 409, {
+          details: err.errors.map((e) => e.message), // Additional error details
+        })
+      );
+    }
+
+    // Pass unexpected errors to the centralized error handler
+    next(
+      new AppError("An unexpected error occurred", 500, {
+        details: err.message,
+      })
+    );
+  }
+};
+
+
 module.exports = {
   signUp,
   getAllUsers,
@@ -212,5 +246,6 @@ module.exports = {
   getAllOwnersRequests,
   generateNewToken,
   getUserByUserId,
-  terminateUser
+  terminateUser,
+  updateUser
 };

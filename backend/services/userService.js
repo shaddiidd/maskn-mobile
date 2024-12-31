@@ -55,6 +55,11 @@ const createUser = async (userData, files) => {
       firstName: newUser.first_name,
       lastName: newUser.last_name,
       profile_photo: newUser.profile_photo,
+      date_of_birth :newUser.date_of_birth,
+      national_number : newUser.national_number,
+      email : newUser.email,
+      rating : newUser.rating,
+      phone_number : newUser.phone_number
     };
 
     // Generate the token
@@ -126,6 +131,11 @@ const loginUser = async (credentials) => {
     firstName: user.first_name,
     lastName: user.last_name,
     profile_photo: user.profile_photo,
+    date_of_birth :user.date_of_birth,
+    national_number : user.national_number,
+    email : user.email,
+    rating : user.rating,
+    phone_number : user.phone_number
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -226,7 +236,13 @@ const refreshToken = async (userId) => {
     role: user.role_id,
     firstName: user.first_name,
     lastName: user.last_name,
-  };
+    profile_photo: user.profile_photo,
+    date_of_birth :user.date_of_birth,
+    national_number : user.national_number,
+    email : user.email,
+    rating : user.rating,
+    phone_number : user.phone_number
+  }
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
 
@@ -257,6 +273,67 @@ const terminateUserService = async (userId) => {
   }
 };
 
+const updateUser = async (userId, updateData, files) => {
+  try {
+    // Destructure updateData fields
+    const {
+      username,
+      first_name,
+      last_name,
+      national_number,
+      date_of_birth,
+      password,
+      nationality,
+      email,
+      phone_number,
+    } = updateData;
+
+    // Find the user by ID
+    const user = await User.findOne({
+      where: { user_id: userId },
+    });
+
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
+
+    // Hash the password if it's being updated
+    let hashedPassword;
+    if (password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Handle profile photo update
+    let photoUrl;
+    if (files && files.length > 0) {
+      photoUrl = files.map((file) => file.path);
+    }
+
+    // Update user fields
+    await user.update({
+      username: username || user.username,
+      first_name: first_name || user.first_name,
+      last_name: last_name || user.last_name,
+      national_number: national_number || user.national_number,
+      date_of_birth: date_of_birth || user.date_of_birth,
+      password: hashedPassword || user.password,
+      nationality: nationality || user.nationality,
+      email: email || user.email,
+      phone_number: phone_number || user.phone_number,
+      profile_photo: photoUrl || user.profile_photo,
+    });
+
+    // Prepare response data
+    return {
+      message: "User updated successfully",
+      user,
+    };
+  } catch (error) {
+    throw error; // Let the controller handle errors
+  }
+};
+
+
 module.exports = {
   createUser,
   findAllUsers,
@@ -266,5 +343,6 @@ module.exports = {
   getAllOwnersRequestsService,
   refreshToken,
   findUserByUserId,
-  terminateUserService
+  terminateUserService,
+  updateUser
 };

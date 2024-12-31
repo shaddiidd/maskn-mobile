@@ -17,7 +17,9 @@ const {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
-  getPropertyByIdByAdmin
+  getPropertyByIdByAdmin,
+  getAllVillages,
+  getBlockAndNieghbourhoodById
 } = require("../controllers/property");
 
 propertyRouter.post(
@@ -38,6 +40,8 @@ propertyRouter.get("/get-tour-requests", auth, getTourRequests);
 propertyRouter.post("/accept-tour-request/:requestId", auth, acceptTourRequest)
 propertyRouter.get("/get-property/:propertyId", optionalAuth, getPropertyById)
 propertyRouter.get("/get-property-by-admin/:propertyId", auth, authorization("Manage Properties"),getPropertyByIdByAdmin)
+propertyRouter.get("/get-villages", getAllVillages)
+propertyRouter.get("/get-/blocks/:villageId", getBlockAndNieghbourhoodById)
 
 
 module.exports = propertyRouter;
