@@ -524,6 +524,7 @@ const getBlockAndNieghbourhoodByIdService = async (villageId) => {
   }
 };
 
+
 module.exports = {
   createProperty,
   getAllProperties,

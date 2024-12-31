@@ -176,8 +176,32 @@ const deleteContract = async (req, res, next) => {
   }
 };
 
+const deleteTerm = async (req, res, next) => {
+  try {
+    const { contractId } = req.params;
+    const { termId } = req.params;
+    const ownerId = req.token.userId; // Assuming `ownerId` is retrieved from the authenticated user's token
+
+    const result = await contractService.deleteTermById(contractId, ownerId, termId);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to update terms of contract",
+        error.statusCode || 500,
+        error.details
+      )
+    );; // Forward to error handling middleware
+  }
+};
 
 
-module.exports = { generateContract, previewContract, signContract, getContractTerms, updateContract, deleteContract};
+
+
+module.exports = { generateContract, previewContract, signContract, getContractTerms, updateContract, deleteContract, deleteTerm};
 
 
