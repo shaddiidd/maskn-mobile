@@ -21,64 +21,6 @@ const saveContractTerms = async (contractId, terms) => {
   await ContractAdditionalTerms.bulkCreate(termsData);
 };
 
-// Function to upload HTML to Cloudinary
-// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.v2.uploader.upload_stream(
-//       {
-//         resource_type: "raw",
-//         folder: "contracts",
-//         public_id: `contract-${requestId}`,
-//         format: "pdf", // Save as PDF file
-//       },
-//       (error, result) => {
-//         if (error) {
-//           console.error("Cloudinary upload failed:", error.message);
-//           return reject(
-//             new Error(`Cloudinary upload failed: ${error.message}`)
-//           );
-//         }
-//         const downloadableUrl = `${result.secure_url
-//           .split("/upload/")
-//           .join("/upload/fl_attachment/")}`;
-//         resolve({ ...result, downloadableUrl });
-//       }
-//     );
-
-//     const bufferStream = new PassThrough();
-//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
-//     bufferStream.pipe(stream);
-//   });
-// };
-
-// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.v2.uploader.upload_stream(
-//       {
-//         resource_type: "raw",
-//         folder: "contracts",
-//         public_id: `contract-${requestId}`,
-//         format: "pdf", // Save as PDF file
-//         use_filename: true, // Use the original filename for better control
-//         unique_filename: false, // Prevents adding random strings to the filename
-//       },
-//       (error, result) => {
-//         if (error) {
-//           console.error("Cloudinary upload failed:", error.message);
-//           return reject(
-//             new Error(`Cloudinary upload failed: ${error.message}`)
-//           );
-//         }
-//         resolve(result);
-//       }
-//     );
-
-//     const bufferStream = new PassThrough();
-//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
-//     bufferStream.pipe(stream);
-//   });
-// };
-
 const uploadHtmlToCloudinary = (htmlContent, requestId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.v2.uploader.upload_stream(
@@ -104,8 +46,6 @@ const uploadHtmlToCloudinary = (htmlContent, requestId) => {
     bufferStream.pipe(stream);
   });
 };
-
-
 
 const createContractPDF = async (htmlContent, outputPath) => {
   console.log("Starting Puppeteer...");
@@ -148,7 +88,6 @@ const createContractPDF = async (htmlContent, outputPath) => {
   }
 };
 
-
 const createContract = async (requestId) => {
   try {
     // Fetch and validate the tour request
@@ -174,15 +113,19 @@ const createContract = async (requestId) => {
       // Fetch contract terms for the existing contract
       const existingContractTerms = await ContractAdditionalTerms.findAll({
         where: { contract_id: existingContract.contract_id },
-        attributes: ["term"],
       });
+      console.log("existingContractTerms", existingContractTerms);
 
       // Fetch property details
       const property = await Property.findByPk(request.property_id, {
         include: [
           { model: User, as: "user", attributes: ["first_name", "last_name"] },
           { model: VillageName, as: "village", attributes: ["village_name"] },
-          { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+          {
+            model: NeighborhoodNumber,
+            as: "neighborhood",
+            attributes: ["name"],
+          },
           { model: BlockName, as: "block", attributes: ["block_name"] },
         ],
       });
@@ -214,7 +157,8 @@ const createContract = async (requestId) => {
       ],
     });
 
-    if (!property) throw new AppError("Property not found or not approved", 404);
+    if (!property)
+      throw new AppError("Property not found or not approved", 404);
 
     // Fetch default terms and validate them
     const defaultTerms = await ContractTerm.findAll({ attributes: ["term"] });
@@ -268,8 +212,6 @@ const createContract = async (requestId) => {
     });
   }
 };
-
-
 
 const previewContractService = async (userId, contractId) => {
   try {
@@ -422,7 +364,6 @@ const previewContractService = async (userId, contractId) => {
     });
   }
 };
-
 
 const signContractService = async (userId, contractId, body) => {
   try {
@@ -654,7 +595,6 @@ const getContractTermsService = async (ownerId, contractId) => {
 
 const updateContractTerm = async (ownerId, contractId, termId, term) => {
   try {
-
     if (!term || term.trim() === "") {
       throw new AppError("Term content cannot be empty", 400);
     }
@@ -669,7 +609,7 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
       },
     });
 
-    if (contract.status != "partialy signed") {
+    if (contract.status == "signed") {
       throw new AppError("Signed contract cant be changed", 404);
     }
     if (!contract) {
@@ -718,7 +658,9 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
 const deleteContractService = async (contractId, userId) => {
   try {
     // Fetch the contract
-    const contract = await Contract.findOne({ where: { contract_id: contractId } });
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId },
+    });
 
     if (!contract) {
       throw new AppError("Contract not found", 404);
@@ -736,7 +678,7 @@ const deleteContractService = async (contractId, userId) => {
         { tenant_id: null, mark_as_rented: 0 },
         { where: { property_id: contract.property_id } }
       );
-      }
+    }
 
     // Delete the contract
     await Contract.destroy({ where: { contract_id: contractId } });
@@ -752,6 +694,47 @@ const deleteContractService = async (contractId, userId) => {
   }
 };
 
+const deleteTermById = async (contractId, ownerId, termId) => {
+  try {
+    if (!termId) {
+      throw new AppError("Term ID cannot be null or undefined", 400);
+    }
+
+    // Fetch the contract
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId, owner_id: ownerId },
+    });
+
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    if (contract.status === "signed") {
+      throw new AppError("Signed contract cannot be changed", 403);
+    }
+
+    // Check if the term exists
+    const existingTerm = await ContractAdditionalTerms.findOne({
+      where: { id: termId, contract_id: contractId },
+    });
+
+    if (!existingTerm) {
+      throw new AppError("Term not found with the specified ID", 404);
+    }
+
+    // Delete the term
+    await ContractAdditionalTerms.destroy({ where: { id: termId, contract_id: contractId } });
+
+    return {
+      message: `The term with ID ${termId} in contract ${contractId} was deleted successfully.`,
+    };
+  } catch (error) {
+    throw new AppError("Failed to delete term", 500, {
+      details: error.message,
+    });
+  }
+};
+
 
 module.exports = {
   createContract,
@@ -759,5 +742,6 @@ module.exports = {
   signContractService,
   getContractTermsService,
   updateContractTerm,
-  deleteContractService
+  deleteContractService,
+  deleteTermById
 };
