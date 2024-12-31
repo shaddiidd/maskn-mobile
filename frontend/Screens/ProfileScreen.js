@@ -55,9 +55,9 @@ export default function ProfileScreen({ route }) {
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             {profile?.profile_picture ? (
-              <Image style={styles.profile_picture} source={{ uri: profile?.profile_picture }} />
+              <Image style={styles.profilePicture} source={{ uri: profile?.profile_picture }} />
             ) : (
-              <View style={styles.profile_picture}>
+              <View style={styles.profilePicture}>
                 <Ionicons name="person" color="#666" size={32} />
               </View>
             )}
@@ -74,7 +74,7 @@ export default function ProfileScreen({ route }) {
               <Icon name="phone" size={20} color="#fff" />
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={() => navigation.navigate("EditProfile")}>
               <Icon name="edit" size={20} color="#fff" />
             </TouchableOpacity>
           )}
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: "#D9D9D9",
   },
-  profile_picture: {
+  profilePicture: {
     width: 70,
     height: 70,
     borderRadius: 40,
