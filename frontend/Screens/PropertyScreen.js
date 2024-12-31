@@ -4,12 +4,12 @@ import PaginatedCarousel from "../Components/PaginatedCarousel";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
 import PropertyInfoBox from "../Components/PropertyInfoBox";
-import { get } from "../fetch";
+import { get, post } from "../fetch";
 import Context from "../Context";
 import { capitalizeFirstLetter, formatPrice } from "../helpers/textFunctions";
 
 export default function PropertyScreen({ route }) {
-  const [property, setProperty] = useState(null);
+  const [property, setProperty] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const { property_id } = route.params;
   const { user, setLoading } = useContext(Context);
@@ -17,8 +17,8 @@ export default function PropertyScreen({ route }) {
   const getProperty = async () => {
     try {
       const response = await get(`property/get-property/${property_id}`);
+      // console.log(response.data);
       setProperty(response.data);
-      console.log(response.data);
     } catch (error) {
       console.log(error.response.data);
     } finally {
@@ -63,8 +63,8 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>
-          <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>
+          {property?.price && <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>}
+          {property?.rental_period && <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>}
         </View>
         {(!property.is_requested && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />

@@ -27,12 +27,21 @@
     .info-section {
       margin-bottom: 20px;
     }
-    .info-section p {
-      margin: 10px 0;
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
     }
-    .info-section span {
+    .info-field {
+      width: 48%;
+    }
+    .info-field strong {
       display: inline-block;
-      width: 60%;
+      width: 40%;
+    }
+    .info-field span {
+      display: inline-block;
+      width: 58%;
       border-bottom: 1px solid #000;
     }
     .terms-section {
@@ -76,29 +85,46 @@
 
     <!-- Info Section -->
     <div class="info-section">
-      <p><strong>المؤجر:</strong> <span>{{landlordName}}</span></p>
-      <p><strong>المستأجر:</strong> <span>{{tenantName}}</span></p>
-      <p><strong>رقم الحوض:</strong> <span>{{blockNumber}}</span></p>
-      <p><strong>رقم البناء:</strong> <span>{{buildingNumber}}</span></p>
-      <p><strong>رقم الشقة:</strong> <span>{{apartmentNumber}}</span></p>
-      <p><strong>مدة الإيجار:</strong> <span>{{rentalDuration}}</span></p>
-      <p><strong>تاريخ بداية الإيجار:</strong> <span>{{startDate}}</span></p>
-      <p><strong>تاريخ نهاية الإيجار:</strong> <span>{{endDate}}</span></p>
+      <div class="info-row">
+        <div class="info-field"><strong>المؤجر:</strong> <span>{{landlordName}}</span></div>
+        <div class="info-field"><strong>المستأجر:</strong> <span>{{tenantName}}</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-field"><strong>اسم القرية:</strong> <span>{{villageName}}</span></div>
+        <div class="info-field"><strong>رقم الحوض:</strong> <span>{{blockNumber}}</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-field"><strong>رقم الحي:</strong> <span>{{NeighborhoodNumber}}</span></div>
+        <div class="info-field"><strong>رقم البناء:</strong> <span>{{buildingNumber}}</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-field"><strong>رقم الشقة:</strong> <span>{{apartmentNumber}}</span></div>
+        <div class="info-field"><strong>مدة الإيجار:</strong> <span>{{rentalDuration}}</span></div>
+      </div>
+      <div class="info-row">
+        <div class="info-field"><strong>تاريخ بداية الإيجار:</strong> <span>{{startDate}}</span></div>
+        <div class="info-field"><strong>تاريخ نهاية الإيجار:</strong> <span>{{endDate}}</span></div>
+      </div>
     </div>
 
     <!-- Terms Section -->
-    <div>
-        <pre>{{terms}}</pre>
-      </div>
+    <div class="terms-section">
+      <h2>الشروط</h2>
+      <ol>
+        {{terms}}
+      </ol>
+    </div>
       
     <!-- Signature Section -->
     <div class="signature-section">
       <div class="signature-block">
         <p>توقيع المؤجر</p>
+        <img src="{{OwnerSignature}}" alt="Signature" style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
       </div>
       <div class="signature-block">
         <p>توقيع المستأجر</p>
+        <img src=""  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
       </div>
     </div>
