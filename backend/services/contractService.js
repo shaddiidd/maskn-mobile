@@ -88,7 +88,7 @@ const createContractPDF = async (htmlContent, outputPath) => {
   }
 };
 
-// Main function to create a contract
+
 const createContract = async (requestId) => {
   try {
     // Fetch and validate the tour request
@@ -102,19 +102,48 @@ const createContract = async (requestId) => {
     if (request.status !== "approved")
       throw new AppError("Tour request not approved", 403);
 
-    const propertyExists = await Contract.findAll({
-      where: { property_id: request.property_id },
+    // Check if a contract already exists for the property
+    const existingContract = await Contract.findOne({
+      where: {
+        property_id: request.property_id,
+        status: { [Op.ne]: "expired" }, // Not expired contracts
+      },
     });
-    const contractExists = propertyExists.find(
-      (property) => property.status !== "expired"
-    );
-    console.log(contractExists);
 
-    if (contractExists)
-      throw new AppError(
-        "cant make another contract for property if one already exists",
-        403
-      );
+    if (existingContract) {
+      // Fetch contract terms for the existing contract
+      const existingContractTerms = await ContractAdditionalTerms.findAll({
+        where: { contract_id: existingContract.contract_id },
+        attributes: ["term"],
+      });
+
+      // Fetch property details
+      const property = await Property.findByPk(request.property_id, {
+        include: [
+          { model: User, as: "user", attributes: ["first_name", "last_name"] },
+          { model: VillageName, as: "village", attributes: ["village_name"] },
+          { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+          { model: BlockName, as: "block", attributes: ["block_name"] },
+        ],
+      });
+
+      if (!property) throw new AppError("Property details not found", 404);
+
+      return {
+        success: true,
+        message: "Contract already exists",
+        data: {
+          contractInfo: existingContract,
+          property,
+          tenant: {
+            first_name: request.tenant.first_name,
+            last_name: request.tenant.last_name,
+          },
+          terms: existingContractTerms.slice(13),
+        },
+      };
+    }
+
     // Fetch and validate the property details
     const property = await Property.findByPk(request.property_id, {
       include: [
@@ -125,8 +154,7 @@ const createContract = async (requestId) => {
       ],
     });
 
-    if (!property)
-      throw new AppError("Property not found or not approved", 404);
+    if (!property) throw new AppError("Property not found or not approved", 404);
 
     const ownerName = `${property.user.first_name} ${property.user.last_name}`;
     const tenantName = `${request.tenant.first_name} ${request.tenant.last_name}`;
@@ -155,47 +183,35 @@ const createContract = async (requestId) => {
       return term.dataValues.term;
     });
 
-    const templatePath = path.join(
-      __dirname,
-      "../resources/templates/contractTemplate.html"
-    );
-    let contractTemplate = await fs.readFile(templatePath, "utf8");
-    contractTemplate = contractTemplate
-      .replace("{{landlordName}}", ownerName)
-      .replace("{{tenantName}}", tenantName)
-      .replace("{{blockNumber}}", propertyDetails.block)
-      .replace("{{buildingNumber}}", propertyDetails.building)
-      .replace("{{apartmentNumber}}", propertyDetails.apartment)
-      .replace("{{rentalDuration}}", `${startDate} الى ${endDate}`)
-      .replace("{{startDate}}", startDate)
-      .replace("{{endDate}}", endDate)
-      .replace("{{NeighborhoodNumber}}", propertyDetails.neighborhood)
-      .replace("{{villageName}}", propertyDetails.village)
-      .replace(
-        "{{terms}}",
-        defaultTermsArray.map((term) => `<li>${term}</li>`).join("")
-      );
-
-    // Upload HTML to Cloudinary
-
     // Save contract details to the database
     const newContract = await Contract.create({
       owner_id: property.owner_id,
       tenant_id: request.tenant_id,
       property_id: property.property_id,
-      // start_date: startDate,
-      // end_date: endDate,
       status: "partialy signed",
-      // contract_pdf: uploadResult.secure_url, // URL to the uploaded HTML file
     });
 
+    // Save additional terms
     await saveContractTerms(newContract.contract_id, defaultTermsArray);
 
+    // Fetch contract terms for the newly created contract
+    const newContractTerms = await ContractAdditionalTerms.findAll({
+      where: { contract_id: newContract.contract_id },
+      attributes: ["term"],
+    });
+
     return {
-      cloudinaryUrl: uploadResult.secure_url,
-      contractInfo: newContract,
-      property: property,
-      tenant: request.tenant,
+      success: true,
+      message: "Contract generated successfully",
+      data: {
+        contractInfo: newContract,
+        property,
+        tenant: {
+          first_name: request.tenant.first_name,
+          last_name: request.tenant.last_name,
+        },
+        terms: newContractTerms,
+      },
     };
   } catch (error) {
     console.error("Error generating contract:", error.message);
@@ -205,6 +221,8 @@ const createContract = async (requestId) => {
     });
   }
 };
+
+
 
 const previewContractService = async (userId, contractId) => {
   try {

@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     width: "47%",
   },
   outline: {
-    backgroundColor: "white",
+    backgroundColor: "transparent",
   },
   compressed: {
     height: 45,
