@@ -4,6 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import ContractTerm from "../Components/ContractTerm";
 import Button from "../Components/Button";
+import { post } from "../fetch";
 
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
@@ -20,9 +21,10 @@ export default function ContractScreen({ route }) {
 
     const fetchContract = async () => {
         try {
-
+            const response = await post(`contract/intiate-contract/${request_id}`);
+            console.log(response.data);
         } catch (error) {
-
+            console.log(error.response.data);
         } finally {
             setLoading(false);
         }

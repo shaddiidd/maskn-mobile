@@ -46,7 +46,7 @@ export default function SigninScreen({ navigation }) {
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <StatusBar barStyle="dark-content" />
       <SafeAreaView style={styles.safeArea}>
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Home")} style={styles.close}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.pop()} style={styles.close}>
           <Ionicons name="close" size={25} />
         </TouchableOpacity>
         <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
