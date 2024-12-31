@@ -1,27 +1,43 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, FlatList, Text, View } from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { StyleSheet, SafeAreaView, FlatList, Text, View, Alert } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import TourRequestsCard from '../Components/TourRequestsCard';
 import { useNavigation } from '@react-navigation/native';
-
+import Context from '../Context';
+import { get } from '../fetch';
 export default function TourRequestsScreen() {
   const navigation = useNavigation();
   const [hasReceivedRequests, setHasReceivedRequests] = useState(true);
+  const { setLoading } = useContext(Context);
 
   const sentRequests = [
     { id: '1', name: "Hazem Odeh", property: "750 SQM Villa", image: require("../assets/hazodeh.png") },
     { id: '2', name: "Anas Bajawi", property: "750 SQM Villa", image: require("../assets/anas.png") },
   ];
 
-  const receivedRequests = [
-    { id: '3', name: "Mona Salman", property: "500 SQM Apartment", image: require("../assets/anas.png") },
-    { id: '4', name: "Khaled Youssef", property: "1000 SQM Villa", image: require("../assets/anas.png") },
-  ];
+  const [receivedRequests, setReceivedRequests] = useState([]);
 
   useEffect(() => {
     navigation.setOptions({
       headerShadowVisible: false,
     });
+  }, []);
+  
+  const fetchRequests = async () => {
+    try {
+      const response = await get("property/get-tour-requests");
+      setReceivedRequests(response.data);
+      console.log(response.data[0]);
+    } catch (error) {
+      Alert.alert("Error", "Failed to get requests");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    setLoading(true);
+    fetchRequests();
   }, []);
 
   const SentRequests = () => (

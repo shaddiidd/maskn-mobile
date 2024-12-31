@@ -16,10 +16,11 @@ export default function PropertyScreen({ route }) {
 
   const getProperty = async () => {
     try {
-      const response = await get(`property/get-property-with-id/${property_id}`);
+      const response = await get(`property/get-property/${property_id}`);
       setProperty(response.data);
+      console.log(response.data);
     } catch (error) {
-      console.log(error.response.data.details);
+      console.log(error.response.data);
     } finally {
       setLoading(false);
       setRefreshing(false);

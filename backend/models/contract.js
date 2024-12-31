@@ -15,7 +15,7 @@ const Contract = sequelize.define(
       type: DataTypes.STRING,
       references: {
         model: User,
-        key: "user_id", // Reference to user_id in User model
+        key: "user_id",
       },
       allowNull: false,
     },
@@ -23,7 +23,7 @@ const Contract = sequelize.define(
       type: DataTypes.STRING,
       references: {
         model: User,
-        key: "user_id", // Reference to user_id in User model
+        key: "user_id",
       },
       allowNull: false,
     },
@@ -36,23 +36,46 @@ const Contract = sequelize.define(
       allowNull: false,
     },
     status: {
-      type: DataTypes.ENUM("partialy signed", "signed", "expired"),
+      type: DataTypes.ENUM("not signed","partialy signed", "signed", "expired"),
       allowNull: false,
-      defaultValue: "partialy sigend",
+      defaultValue: "not signed",
     },
     start_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
     end_date: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
-    contract_pdf:{
-        type:DataTypes.STRING,
-        allowNull : true
+    contract_pdf: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-
+    owner_signature: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    owner_witness_signature: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    tenant_signature: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    tenant_witness_signature: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    owner_witness_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    tenant_witness_name: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
@@ -63,7 +86,6 @@ const Contract = sequelize.define(
     tableName: "Contract",
   }
 );
-
 Contract.belongsTo(User, { foreignKey: "owner_id", as: "owner" });
 Contract.belongsTo(User, { foreignKey: "tenant_id", as: "tenant" });
 Contract.belongsTo(Property, { foreignKey: "property_id", as: "property" });

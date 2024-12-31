@@ -119,12 +119,12 @@
     <div class="signature-section">
       <div class="signature-block">
         <p>توقيع المؤجر</p>
-        <img src="{{OwnerSignature}}" alt="Signature" style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{OwnerSignature}}" style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
       </div>
       <div class="signature-block">
         <p>توقيع المستأجر</p>
-        <img src=""  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{TenantSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
       </div>
     </div>
@@ -132,11 +132,15 @@
     <div class="signature-section">
       <div class="signature-block">
         <p>شاهد</p>
+        <img src="{{OwnerWitnessSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
+        <div class="info-field"><strong>اسم الشاهد:</strong> <span>{{OwnerWitnessName}}</span></div>
       </div>
       <div class="signature-block">
         <p>شاهد</p>
+        <img src="{{TenantWitnessSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
         <div class="signature-line"></div>
+        <div class="info-field"><strong>اسم الشاهد:</strong> <span>{{TenantWitnessName}}</span></div>
       </div>
     </div>
 
