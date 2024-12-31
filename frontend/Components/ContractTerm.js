@@ -1,15 +1,16 @@
 import React, { useState } from "react";
-import { Modal, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View, KeyboardAvoidingView, Platform } from "react-native";
+import { Modal, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import TextField from "./TextField";
 import Button from "./Button";
+import { put } from "../fetch";
 
-export default function ContractTerm({ term }) {
+export default function ContractTerm({ term, contractId }) {
     const [isModalVisible, setModalVisible] = useState(false);
-    const [inputValue, setInputValue] = useState(term || "");
+    const [inputValue, setInputValue] = useState(term?.term || "");
 
     const openModal = () => {
-        setInputValue(term || "");
+        setInputValue(term?.term || "");
         setModalVisible(true);
     };
 
@@ -17,37 +18,35 @@ export default function ContractTerm({ term }) {
         setModalVisible(false);
     };
 
-    const saveTerm = () => {
-        console.log("Saved Term:", inputValue);
-        closeModal();
-    };
+    const saveTerm = async () => {
+        let endpoint = `update-contract/${contractId}`;
+        // if (term) endpoint += `termId=${term.id}`;
+        console.log(term)
+        console.log(endpoint);
+        try {
+            // await put(`update-contract/${contractId}?termId=${term.id}`, { term: inputValue })
+        } catch {
+
+        } finally {
+
+        }
+    }
 
     return (
         <>
             <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={openModal}>
                 <Text style={styles.termTxt}>
-                    {term || "إضافة شرط"}
+                    {term?.term || "إضافة شرط"}
                 </Text>
                 {!term && <Ionicons name="add-circle" size={25} />}
             </TouchableOpacity>
 
-            <Modal
-                visible={isModalVisible}
-                transparent
-                animationType="fade"
-                onRequestClose={closeModal}
-            >
+            <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={closeModal}>
                 <TouchableWithoutFeedback onPress={closeModal}>
                     <View style={styles.modalOverlay}>
-                        <View style={styles.modalContent} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={100}>
+                        <View style={styles.modalContent}>
                             <Text style={styles.modalTitle}>{term ? "Edit" : "Add"} Term</Text>
-                            <TextField
-                                style={styles.textInput}
-                                value={inputValue}
-                                setValue={setInputValue}
-                                placeholder="Enter term (in arabic)"
-                                textarea
-                            />
+                            <TextField style={styles.textInput} value={inputValue} setValue={setInputValue} placeholder="Enter term (in arabic)" textarea />
                             <View style={styles.modalActions}>
                                 <Button small compressed outline text="cancel" onPress={closeModal} />
                                 <Button small compressed text="save" onPress={saveTerm} />

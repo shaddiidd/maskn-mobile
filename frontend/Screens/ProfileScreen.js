@@ -54,8 +54,8 @@ export default function ProfileScreen({ route }) {
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {profile?.profile_picture ? (
-              <Image style={styles.profilePicture} source={{ uri: profile?.profile_picture }} />
+            {profile?.profile_photo ? (
+              <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
             ) : (
               <View style={styles.profilePicture}>
                 <Ionicons name="person" color="#666" size={32} />
@@ -87,7 +87,7 @@ export default function ProfileScreen({ route }) {
           </View>
           <View style={styles.infoItem}>
             <Icon name="phone" size={24} color="#333" />
-            <Text style={styles.infoTxt}>{profile?.phoneNumber || "No phone number"}</Text>
+            <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
           </View>
         </View>
 
