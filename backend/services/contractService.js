@@ -199,7 +199,7 @@ const createContract = async (requestId) => {
             first_name: request.tenant.first_name,
             last_name: request.tenant.last_name,
           },
-          terms: existingContractTerms.slice(13),
+          terms: existingContractTerms,
         },
       };
     }
@@ -248,7 +248,6 @@ const createContract = async (requestId) => {
       owner_id: property.owner_id,
       tenant_id: request.tenant_id,
       property_id: property.property_id,
-      status: "partialy signed",
     });
 
     // Save additional terms
