@@ -382,63 +382,68 @@ const acceptTourRequestService = async (ownerId, requestId) => {
   }
 };
 
+
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {
-    // Fetch the property
+    // Fetch the property with necessary details
     const property = await Property.findOne({
       where: {
         property_id: propertyId,
         post_status_id: 2,
         mark_as_rented: 0,
       },
+      include: [
+        { model: VillageName, as: "village", attributes: ["village_name"] },
+        { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+        { model: BlockName, as: "block", attributes: ["block_name"] },
+      ],
     });
 
     if (!property) {
       throw new AppError("Property not found or not approved by admin", 404);
     }
 
-    // If tenantId is not provided, return property alone
-    if (!tenantId) {
-      return property;
-    }
+    // Default values
+    let additionalContactInfo = null;
+    let additionalContactInfoName = null;
+    let requestStatus = null;
 
-    // Fetch the tour request for the tenant
-    const Request = await TourRequest.findOne({
-      where: {
-        property_id: propertyId,
-        tenant_id: tenantId,
-      },
-    });
+    // Check tenant's request status
+    if (tenantId) {
+      const request = await TourRequest.findOne({
+        where: { property_id: propertyId, tenant_id: tenantId },
+      });
 
-    // Handle cases based on the request status
-    if (Request) {
-      if (Request.status === "approved") {
-        // Include contact information if the request is approved
-        const propertyWithContact = await Property.findOne({
-          where: { property_id: propertyId },
-          include: [
-            {
-              model: User,
-              as: "user", // Assuming a relationship alias
-              attributes: ["phone_number"],
-            },
-          ],
-        });
+      if (request) {
+        requestStatus = request.status;
 
-        return propertyWithContact;
-      } else if (Request.status === "pending") {
-        return { property, status: Request.status };
+        // Include contact info only if the request is approved
+        if (request.status === "approved") {
+          additionalContactInfo = property.additional_contact_info;
+          additionalContactInfoName = property.additional_contact_info_name;
+        }
       }
     }
 
-    // If no request exists or no specific logic applies, return the property alone
-    return property;
+    // Return formatted response
+    return {
+      success: true,
+      message: "Property details fetched successfully",
+      data: {
+        ...property.toJSON(),
+        additional_contact_info: additionalContactInfo,
+        additional_contact_info_name: additionalContactInfoName,
+        request_status: requestStatus, // Include request status
+      },
+    };
   } catch (error) {
     throw new AppError("Failed to fetch property details", 500, {
       details: error.message,
     });
   }
 };
+
+
 
 const getPropertyByIdForAdminService = async (propertyId) => {
   try {

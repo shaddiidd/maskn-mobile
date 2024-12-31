@@ -34,6 +34,9 @@ import Payment from "./Screens/Payment";
 import UtilitiesScreen from "./Screens/UtilitiesScreen";
 import NotificationsScreen from "./Screens/NotificationsScreen";
 import PostProperty from "./Screens/PostProperty";
+import ContractScreen from "./Screens/ContractScreen";
+import SignContract from "./Screens/SignContract";
+import EditProfileScreen from "./Screens/EditProfileScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -237,23 +240,8 @@ export default function Navigation() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerBackTitleVisible: false,
-          headerStyle: {
-            backgroundColor: "#508D4E",
-          },
-          headerTintColor: "#fff",
-        }}
-      >
-        <Stack.Screen
-          name="Drawer"
-          component={DrawerNavigation}
-          options={{
-            title: "Home",
-            headerShown: false,
-          }}
-        />
+      <Stack.Navigator screenOptions={{ headerBackTitleVisible: false, headerStyle: { backgroundColor: "#508D4E" }, headerTintColor: "#fff" }}>
+        <Stack.Screen name="Drawer" component={DrawerNavigation} options={{ title: "Home", headerShown: false }} />
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}
@@ -261,57 +249,21 @@ export default function Navigation() {
             drawerIcon: ({ color }) => (
               <Ionicons name="person-outline" size={24} color={color} />
             ),
-            title: "My Profile",
+            title: "Profile",
           }}
         />
-        <Stack.Screen
-          name="Notifications"
-          component={NotificationsScreen}
-        />
-        <Stack.Screen
-          name="PropertyDetails"
-          component={PropertyScreen}
-          options={{
-            title: "Property Details",
-          }}
-        />
-        <Stack.Screen
-          name="TourRequests"
-          component={TourRequestsScreen}
-          options={{
-            title: "Tour Requests",
-          }}
-        />
-        <Stack.Screen
-          name="RentHistory"
-          component={RentHistory}
-          options={{
-            title: "Rent History",
-          }}
-        />
-        <Stack.Screen
-          name="MyProperties"
-          component={MyProperties}
-          options={{
-            title: "My Properties",
-          }}
-        />
-        <Stack.Screen
-          name="PostProperty"
-          component={PostProperty}
-          options={{
-            title: "New Properties",
-          }}
-        />
-        <Stack.Screen
-          name="BecomeRenter"
-          component={BecomeRenter}
-          options={{
-            title: "Become a Renter",
-          }}
-        />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="PropertyDetails" component={PropertyScreen} options={{ title: "Property Details" }} />
+        <Stack.Screen name="TourRequests" component={TourRequestsScreen} options={{ title: "Tour Requests" }} />
+        <Stack.Screen name="RentHistory" component={RentHistory} options={{ title: "Rent History" }} />
+        <Stack.Screen name="MyProperties" component={MyProperties} options={{ title: "My Properties" }} />
+        <Stack.Screen name="PostProperty" component={PostProperty} options={{ title: "New Properties" }} />
+        <Stack.Screen name="BecomeRenter" component={BecomeRenter} options={{ title: "Become a Renter" }} />
         <Stack.Screen name="Payment" component={Payment} />
         <Stack.Screen name="Utilities" component={UtilitiesScreen} />
+        <Stack.Screen name="Contract" component={ContractScreen} />
+        <Stack.Screen name="SignContract" component={SignContract} />
         {!isAuthenticated && (
           <>
             <Stack.Screen

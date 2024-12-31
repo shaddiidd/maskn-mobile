@@ -1,87 +1,105 @@
 import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 
-const TourRequestsCard = ({ item }) => (
-    <View style={styles.card}>
+const TourRequestsCard = ({ type, item, handleAccept }) => {
+  const navigation = useNavigation();
+
+  const handlePress = () => {
+    if (type === "sent") {
+      navigation.navigate("PropertyDetails", { property_id: item.property_id });
+    } else {
+      navigation.navigate("Profile", { userId: item.tenant_id });
+    }
+  }
+
+  const handleButtonPress = () => {
+    if (item?.status === "pending") handleAccept(item.request_id);
+    else navigation.navigate("Contract", { request_id: item.request_id });
+  }
+
+  return (
+    <TouchableOpacity style={styles.card} activeOpacity={0.7} onPress={handlePress}>
       <View style={styles.cardContent}>
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image style={styles.profile_picture} source={item.image} />
-          <View>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.property}>{item.property}</Text>
+        <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+          {((type === "received" && item?.tenant?.profile_photo?.length) || (type === "sent" && item?.status === "approved" && item?.owner?.profile_photo?.length)) ? (
+            <Image style={styles.profilePicture} source={{ uri: type === "received" ? item?.tenant?.profile_photo[0] : item?.owner?.profile_photo[0] }} />
+          ) : (
+            <View style={styles.profilePicture}>
+              <Ionicons name="person" color="#666" size={25} />
+            </View>
+          )}
+          <View style={{ flex: 1 }}>
+            {type === "sent" && item?.status === "pending" && <Text style={styles.name}>Private Owner</Text>}
+            {type === "sent" && item?.status === "approved" && <Text style={styles.name}>{item?.owner?.first_name} {item?.owner?.last_name}</Text>}
+            {type === "received" && <Text style={styles.name}>{item?.tenant?.first_name} {item?.tenant?.last_name}</Text>}
+            <Text numberOfLines={1} style={styles.propertyTitle}>{item?.property?.title}</Text>
           </View>
         </View>
-        <View style={styles.actions}>
-          <TouchableOpacity activeOpacity={0.7} style={[styles.action, { backgroundColor: "#C6131B" }]}>
-            <Icon name="clear" size={20} color="#fff" />
+        {type === "received" && (
+          <TouchableOpacity activeOpacity={0.7} style={styles.acceptBtn} onPress={handleButtonPress}>
+            <Text style={{ color: "#fff", fontSize: 15, fontWeight: "500" }}>{item?.status === "pending" ? "Accept" : "Contract"}</Text>
           </TouchableOpacity>
-          <TouchableOpacity activeOpacity={0.7} style={[styles.action, { backgroundColor: "#41B53E" }]}>
-            <Icon name="check" size={20} color="#fff" />
-          </TouchableOpacity>
-        </View>
+        )}
+        {type === "sent" && item?.status === "approved" && (
+          <View style={{ rowGap: 2, alignItems: "flex-end", justifyContent: "space-between" }}>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={{ color: "#508D4E", fontWeight: "500" }}>Contact Details</Text>
+            </TouchableOpacity>
+            <TouchableOpacity activeOpacity={0.7}>
+              <Text style={{ color: "#508D4E", fontWeight: "500" }}>View Contract</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        {type === "sent" && item?.status === "pending" && <Text style={{ color: "#508D4E", fontSize: 15, fontWeight: "500" }}>Pending</Text>}
       </View>
-      <View style={styles.separator} />
-      <TouchableOpacity activeOpacity={0.7}>
-        <Text style={styles.viewProfile}>View Profile</Text>
-      </TouchableOpacity>
-    </View>
-);
-
-export default TourRequestsCard;
+    </TouchableOpacity>
+  );
+}
 
 const styles = StyleSheet.create({
   card: {
-    borderWidth: 1,
     width: "100%",
     padding: 10,
-    marginTop: 20,
-    borderRadius: 10,
-    borderColor: "#D9D9D9",
     alignItems: "center",
     elevation: 0,
-    backgroundColor: '#fff',
   },
   cardContent: {
-    width: "100%",
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
   },
-  profile_picture: {
-    width: 60,
-    height: 60,
+  profilePicture: {
+    width: 50,
+    height: 50,
     borderRadius: 40,
     marginRight: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#eee",
+    borderColor: "#508D4E",
+    borderWidth: 1
   },
   name: {
     fontSize: 18,
     fontWeight: "500",
   },
-  property: {
+  propertyTitle: {
     fontSize: 15,
     fontWeight: "500",
     color: "grey",
-    marginTop: 2
+    marginTop: 2,
+    width: "100%",
+    textAlign: "left"
   },
-  actions: {
-    flexDirection: "row"
-  },
-  action: {
+  acceptBtn: {
     backgroundColor: "#508D4E",
-    borderRadius: 50,
-    padding: 5,
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 15,
     marginLeft: 7
   },
-  separator: {
-    height: 1,
-    width: "100%",
-    backgroundColor: "#D9D9D9",
-    marginTop: 15,
-    marginBottom: 10,
-  },
-  viewProfile: {
-    fontSize: 15,
-    fontWeight: "500",
-    color: "#508D4E",
-  }
 });
+
+export default TourRequestsCard;
