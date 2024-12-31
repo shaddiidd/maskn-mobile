@@ -59,6 +59,7 @@ const createUser = async (userData, files) => {
       national_number : newUser.national_number,
       email : newUser.email,
       rating : newUser.rating,
+      phone_number : newUser.phone_number
     };
 
     // Generate the token
@@ -134,6 +135,7 @@ const loginUser = async (credentials) => {
     national_number : user.national_number,
     email : user.email,
     rating : user.rating,
+    phone_number : user.phone_number
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -234,7 +236,13 @@ const refreshToken = async (userId) => {
     role: user.role_id,
     firstName: user.first_name,
     lastName: user.last_name,
-  };
+    profile_photo: user.profile_photo,
+    date_of_birth :user.date_of_birth,
+    national_number : user.national_number,
+    email : user.email,
+    rating : user.rating,
+    phone_number : user.phone_number
+  }
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
 
