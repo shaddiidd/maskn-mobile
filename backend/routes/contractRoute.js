@@ -7,7 +7,8 @@ const {
   previewContract,
   signContract,
   getContractTerms,
-  updateContract
+  updateContract,
+  deleteContract
 } = require("../controllers/contract");
 
 contractRouter.post(
@@ -27,4 +28,5 @@ contractRouter.get(
   getContractTerms
 );
 contractRouter.put("/update-contract/:contractId", authentication, updateContract)
+contractRouter.delete("/delete-contract/:contractId", authentication, deleteContract)
 module.exports = contractRouter;

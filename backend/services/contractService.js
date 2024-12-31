@@ -418,96 +418,6 @@ const previewContractService = async (userId, contractId) => {
   }
 };
 
-// const signContractService = async (userId, contractId, body) => {
-//   try {
-//     const {
-//       witness_name,
-//       user_signature,
-//       witness_signature,
-//       start_date,
-//       end_date,
-//     } = body;
-
-//     const contract = await Contract.findOne({
-//       where: {
-//         [Op.or]: [{ owner_id: userId }, { tenant_id: userId }],
-//         contract_id: contractId,
-//       },
-//     });
-
-//     if (!contract) {
-//       throw new AppError("Contract not found", 404);
-//     }
-
-//     // Determine if the user is the owner or tenant
-//     const isOwner = contract.owner_id === userId;
-//     const isTenant = contract.tenant_id === userId;
-
-//     if (!isOwner && contract.status == "not signed") {
-//       throw new AppError(
-//         "Tenant is not authorized to view this contract while it's not signed by owner",
-//         403
-//       );
-//     }
-
-//     if (!isOwner && !isTenant) {
-//       throw new AppError("User is not authorized to sign this contract", 403);
-//     }
-
-//     // Validate and assign dates for owner
-//     if (isOwner) {
-//       if (!start_date || !end_date) {
-//         throw new AppError(
-//           "Start date and End date are required for owners.",
-//           400
-//         );
-//       }
-
-//       if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
-//         throw new AppError("Invalid start date or end date provided.", 400);
-//       }
-
-//       contract.owner_signature = user_signature;
-//       contract.owner_witness_name = witness_name;
-//       contract.owner_witness_signature = witness_signature;
-//       contract.start_date = start_date;
-//       contract.end_date = end_date;
-//       contract.status = "partialy signed";
-//     } else if (isTenant) {
-//       contract.tenant_signature = user_signature;
-//       contract.tenant_witness_name = witness_name;
-//       contract.tenant_witness_signature = witness_signature;
-//       contract.status = "signed";
-//     }
-
-//     // Save the updated contract
-//     await contract.save();
-
-//     // Prepare response
-//     return {
-//       message: "Contract signed successfully",
-//       updatedFields: isOwner
-//         ? {
-//             owner_signature: contract.owner_signature,
-//             owner_witness_name: contract.owner_witness_name,
-//             owner_witness_signature: contract.owner_witness_signature,
-//             start_date: contract.start_date,
-//             end_date: contract.end_date,
-//             status: contract.status,
-//           }
-//         : {
-//             tenant_signature: contract.tenant_signature,
-//             tenant_witness_name: contract.tenant_witness_name,
-//             tenant_witness_signature: contract.tenant_witness_signature,
-//             contract_status: contract.status,
-//           },
-//     };
-//   } catch (error) {
-//     throw new AppError("Failed to sign contract", 500, {
-//       details: error.message,
-//     });
-//   }
-// };
 
 const signContractService = async (userId, contractId, body) => {
   try {
@@ -791,10 +701,49 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
   }
 };
 
+const deleteContractService = async (contractId, userId) => {
+  try {
+    // Fetch the contract
+    const contract = await Contract.findOne({ where: { contract_id: contractId } });
+
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    // Verify that the user is the owner of the contract
+    if (contract.owner_id !== userId) {
+      throw new AppError("Only the owner can delete the contract", 403);
+    }
+
+    // Check if the contract is signed
+    if (contract.status === "signed") {
+      // Reset tenant_id and mark_as_rented in the Property table
+      await Property.update(
+        { tenant_id: null, mark_as_rented: 0 },
+        { where: { property_id: contract.property_id } }
+      );
+      }
+
+    // Delete the contract
+    await Contract.destroy({ where: { contract_id: contractId } });
+
+    return {
+      success: true,
+      message: "Contract deleted successfully, and property updated",
+    };
+  } catch (error) {
+    throw new AppError("Failed to delete contract", 500, {
+      details: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createContract,
   previewContractService,
   signContractService,
   getContractTermsService,
   updateContractTerm,
+  deleteContractService
 };
