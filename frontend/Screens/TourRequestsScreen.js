@@ -1,20 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, FlatList, Text, View, Alert } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, Text, View, Alert } from 'react-native';
 import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import TourRequestsCard from '../Components/TourRequestsCard';
 import { useNavigation } from '@react-navigation/native';
 import Context from '../Context';
-import { get } from '../fetch';
+import { get, post } from '../fetch';
+import { Ionicons } from "@expo/vector-icons";
+
 export default function TourRequestsScreen() {
   const navigation = useNavigation();
-  const [hasReceivedRequests, setHasReceivedRequests] = useState(true);
-  const { setLoading } = useContext(Context);
+  const { setLoading, user } = useContext(Context);
 
-  const sentRequests = [
-    { id: '1', name: "Hazem Odeh", property: "750 SQM Villa", image: require("../assets/hazodeh.png") },
-    { id: '2', name: "Anas Bajawi", property: "750 SQM Villa", image: require("../assets/anas.png") },
-  ];
-
+  const [sentRequests, setSentRequests] = useState(null);
   const [receivedRequests, setReceivedRequests] = useState([]);
 
   useEffect(() => {
@@ -22,54 +19,100 @@ export default function TourRequestsScreen() {
       headerShadowVisible: false,
     });
   }, []);
-  
+
   const fetchRequests = async () => {
     try {
       const response = await get("property/get-tour-requests");
-      setReceivedRequests(response.data);
-      console.log(response.data[0]);
+      const sorted = response.data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      const sent = sorted.filter(request => request.tenant_id === user.userId);
+      const received = sorted.filter(request => request.owner_id === user.userId);
+      setSentRequests(sent);
+      setReceivedRequests(received);
     } catch (error) {
       Alert.alert("Error", "Failed to get requests");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     setLoading(true);
     fetchRequests();
   }, []);
 
-  const SentRequests = () => (
-    <FlatList
-      data={sentRequests}
-      renderItem={TourRequestsCard}
-      keyExtractor={item => item.id}
-      style={{ width: "100%" }}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ alignItems: "center", paddingBottom: 20, paddingHorizontal: 20, width: "100%" }}
-    />
-  );
+  const handleAccept = async (request_id) => {
+    try {
+      await post(`property/accept-tour-request/${request_id}`);
+      fetchRequests();
+      Alert.alert("Request Accepted", "The request has been accepted successfully", [{ text: "OK" }]);
+    } catch (error) {
+      Alert.alert("Error", "Failed to accept request");
+      console.log(error.response.data);
+      Alert.alert("Error", "Failed to accept request");
+    }
+  }
 
-  const ReceivedRequests = () => (
-    <FlatList
-      data={receivedRequests}
-      renderItem={TourRequestsCard}
-      keyExtractor={item => item.id}
-      style={{ width: "100%" }}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ alignItems: "center", paddingBottom: 20, paddingHorizontal: 20, width: "100%" }}
-    />
-  );
+  const SentRequests = () => {
+    if (sentRequests.length === 0) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <Ionicons name="home-outline" size={50} color="#666" />
+          <Text style={styles.emptyText}>No sent requests</Text>
+        </View>
+      );
+    }
+    return (
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={{ alignItems: "center", padding: 10, width: "100%" }}
+        showsVerticalScrollIndicator={false}
+      >
+        {sentRequests.map((item) => (
+          <TourRequestsCard key={item.request_id} type="sent" item={item} />
+        ))}
+      </ScrollView>
+    );
+  };
+
+  const ReceivedRequests = () => {
+    if (receivedRequests.length === 0) {
+      return (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center", height: "100%" }}>
+          <Ionicons name="home-outline" size={50} color="#666" />
+          <Text style={styles.emptyText}>No received requests</Text>
+        </View>
+      );
+    }
+    return (
+      <ScrollView
+        style={{ width: "100%" }}
+        contentContainerStyle={{ alignItems: "center", padding: 10, width: "100%" }}
+        showsVerticalScrollIndicator={false}
+      >
+        {receivedRequests.map((item) => (
+          <TourRequestsCard handleAccept={handleAccept} key={item.request_id} type="received" item={item} />
+        ))}
+      </ScrollView>
+    );
+  };
+
+  if (sentRequests === null) return null;
+  if (user.role !== 2) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <SentRequests />
+      </SafeAreaView>
+    );
+  }
 
   const initialRoutes = [
-    { key: 'sent', title: 'Sent Requests' },
-    ...(hasReceivedRequests ? [{ key: 'received', title: 'Received Requests' }] : []),
+    { key: 'sent', title: 'Sent' },
+    { key: 'received', title: 'Received' },
   ];
 
   const renderScene = SceneMap({
     sent: SentRequests,
-    received: hasReceivedRequests ? ReceivedRequests : () => <View />,
+    received: ReceivedRequests,
   });
 
   return (
@@ -77,8 +120,8 @@ export default function TourRequestsScreen() {
       <TabView
         navigationState={{ index: 0, routes: initialRoutes }}
         renderScene={renderScene}
-        onIndexChange={index => { }}
-        renderTabBar={props => (
+        onIndexChange={(index) => { }}
+        renderTabBar={(props) => (
           <TabBar
             {...props}
             indicatorStyle={{ backgroundColor: 'white' }}
@@ -96,4 +139,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  emptyText: {
+    color: "#666",
+    fontSize: 17,
+    marginTop: 5,
+  }
 });
