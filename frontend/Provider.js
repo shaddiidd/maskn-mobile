@@ -35,6 +35,7 @@ const Provider = ({ children }) => {
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();
+      console.log(decodedToken)
       setUser(decodedToken);
     }
   }, [token]);
@@ -92,18 +93,7 @@ const Provider = ({ children }) => {
   };
 
   return (
-    <Context.Provider
-      value={{
-        user,
-        token,
-        auth,
-        signUp,
-        logout,
-        loading,
-        setLoading,
-        isAuthenticated,
-      }}
-    >
+    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated }}>
       {children}
     </Context.Provider>
   );

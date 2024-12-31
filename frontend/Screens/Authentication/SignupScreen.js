@@ -80,7 +80,7 @@ export default function SignupScreen({ navigation }) {
     >
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" />
-        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Home")} style={styles.close}>
+        <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.pop(2)} style={styles.close}>
           <Ionicons name="close" size={25} />
         </TouchableOpacity>
 
@@ -135,7 +135,7 @@ export default function SignupScreen({ navigation }) {
 
         <View style={styles.signupPrompt}>
           <Text style={styles.signupQuestion}>Already have an account? </Text>
-          <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.navigate("Signin")}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.pop()}>
             <Text style={styles.signupText}>Sign in</Text>
           </TouchableOpacity>
         </View>
