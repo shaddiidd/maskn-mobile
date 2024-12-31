@@ -54,8 +54,8 @@ export default function ProfileScreen({ route }) {
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {profile?.profile_picture ? (
-              <Image style={styles.profilePicture} source={{ uri: profile?.profile_picture }} />
+            {profile?.profile_photo ? (
+              <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
             ) : (
               <View style={styles.profilePicture}>
                 <Ionicons name="person" color="#666" size={32} />
@@ -83,15 +83,11 @@ export default function ProfileScreen({ route }) {
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <Icon name="email" size={24} color="#333" />
-            <Text>{profile?.email}</Text>
+            <Text style={styles.infoTxt}>{profile?.email}</Text>
           </View>
           <View style={styles.infoItem}>
             <Icon name="phone" size={24} color="#333" />
-            <Text>{profile?.phoneNumber}</Text>
-          </View>
-          <View style={styles.infoItem}>
-            <Icon name="phone" size={24} color="#333" />
-            <Text>{profile?.phoneNumber}</Text>
+            <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
           </View>
         </View>
 
@@ -170,11 +166,13 @@ const styles = StyleSheet.create({
   infoContainer: {
     marginTop: 10,
     width: "100%",
+    rowGap: 5,
   },
   infoItem: {
     flexDirection: "row",
+    alignItems: "center",
+    columnGap: 5,
     width: "100%",
-    marginVertical: 5,
     paddingHorizontal: 10,
   },
   rightAlignedItem: {
@@ -182,25 +180,7 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
   },
   infoTxt: {
-    color: "#747474",
-    fontSize: 18,
-    marginLeft: 8,
-  },
-  historyBtn: {
-    backgroundColor: "#508D4E",
-    borderWidth: 1.5,
-    borderColor: "#508D4E",
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 55,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  historyBtnTxt: {
+    color: "#333",
     fontSize: 15,
-    fontWeight: "bold",
-    color: "white",
   },
 });

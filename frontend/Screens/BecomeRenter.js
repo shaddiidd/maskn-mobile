@@ -6,18 +6,8 @@ import PackageCard from "../Components/PackageCard";
 export default function BecomeRenter() {
   const [packs, setPacks] = useState([
     { packageId: 1, name: "Basic", price: 5, description: "List 1 property" },
-    {
-      packageId: 2,
-      name: "Standard",
-      price: 10,
-      description: "List up to 5 properties",
-    },
-    {
-      packageId: 3,
-      name: "Premium",
-      price: 20,
-      description: "List unlimited properties",
-    },
+    { packageId: 2, name: "Standard", price: 10, description: "List up to 5 properties", },
+    { packageId: 3, name: "Premium", price: 20, description: "List unlimited properties", },
   ]);
 
   //   useEffect(() => {
