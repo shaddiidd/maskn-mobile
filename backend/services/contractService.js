@@ -21,64 +21,6 @@ const saveContractTerms = async (contractId, terms) => {
   await ContractAdditionalTerms.bulkCreate(termsData);
 };
 
-// Function to upload HTML to Cloudinary
-// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.v2.uploader.upload_stream(
-//       {
-//         resource_type: "raw",
-//         folder: "contracts",
-//         public_id: `contract-${requestId}`,
-//         format: "pdf", // Save as PDF file
-//       },
-//       (error, result) => {
-//         if (error) {
-//           console.error("Cloudinary upload failed:", error.message);
-//           return reject(
-//             new Error(`Cloudinary upload failed: ${error.message}`)
-//           );
-//         }
-//         const downloadableUrl = `${result.secure_url
-//           .split("/upload/")
-//           .join("/upload/fl_attachment/")}`;
-//         resolve({ ...result, downloadableUrl });
-//       }
-//     );
-
-//     const bufferStream = new PassThrough();
-//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
-//     bufferStream.pipe(stream);
-//   });
-// };
-
-// const uploadHtmlToCloudinary = (htmlContent, requestId) => {
-//   return new Promise((resolve, reject) => {
-//     const stream = cloudinary.v2.uploader.upload_stream(
-//       {
-//         resource_type: "raw",
-//         folder: "contracts",
-//         public_id: `contract-${requestId}`,
-//         format: "pdf", // Save as PDF file
-//         use_filename: true, // Use the original filename for better control
-//         unique_filename: false, // Prevents adding random strings to the filename
-//       },
-//       (error, result) => {
-//         if (error) {
-//           console.error("Cloudinary upload failed:", error.message);
-//           return reject(
-//             new Error(`Cloudinary upload failed: ${error.message}`)
-//           );
-//         }
-//         resolve(result);
-//       }
-//     );
-
-//     const bufferStream = new PassThrough();
-//     bufferStream.end(Buffer.from(htmlContent, "utf8"));
-//     bufferStream.pipe(stream);
-//   });
-// };
-
 const uploadHtmlToCloudinary = (htmlContent, requestId) => {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.v2.uploader.upload_stream(
@@ -104,8 +46,6 @@ const uploadHtmlToCloudinary = (htmlContent, requestId) => {
     bufferStream.pipe(stream);
   });
 };
-
-
 
 const createContractPDF = async (htmlContent, outputPath) => {
   console.log("Starting Puppeteer...");
@@ -418,7 +358,6 @@ const previewContractService = async (userId, contractId) => {
   }
 };
 
-
 const signContractService = async (userId, contractId, body) => {
   try {
     const {
@@ -467,6 +406,10 @@ const signContractService = async (userId, contractId, body) => {
 
       if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
         throw new AppError("Invalid start date or end date provided.", 400);
+      }
+
+      if (dayjs(end_date).isBefore(dayjs(start_date))) {
+        throw new AppError("End date must be after start date", 400);
       }
 
       contract.owner_signature = user_signature;
@@ -704,7 +647,9 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
 const deleteContractService = async (contractId, userId) => {
   try {
     // Fetch the contract
-    const contract = await Contract.findOne({ where: { contract_id: contractId } });
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId },
+    });
 
     if (!contract) {
       throw new AppError("Contract not found", 404);
@@ -722,7 +667,7 @@ const deleteContractService = async (contractId, userId) => {
         { tenant_id: null, mark_as_rented: 0 },
         { where: { property_id: contract.property_id } }
       );
-      }
+    }
 
     // Delete the contract
     await Contract.destroy({ where: { contract_id: contractId } });
@@ -738,6 +683,105 @@ const deleteContractService = async (contractId, userId) => {
   }
 };
 
+const renewContractService = async (userId, contractId, renewalData) => {
+  try {
+    const { start_date, end_date } = renewalData;
+
+    // Fetch the contract
+    const contract = await Contract.findOne({
+      where: { contract_id: contractId },
+    });
+    if (!contract) {
+      throw new AppError("Contract not found", 404);
+    }
+
+    // Authorization check (Only owner can renew)
+    if (userId !== contract.owner_id) {
+      throw new AppError("Only the owner can renew the contract", 403);
+    }
+
+    // Validate contract status
+    if (contract.status === "signed") {
+      throw new AppError(
+        "Contract is already signed and cannot be renewed",
+        400
+      );
+    }
+    if (contract.status === "partialy signed") {
+      throw new AppError(
+        "Contract is partially signed and not eligible for renewal",
+        400
+      );
+    }
+    if (dayjs(contract.end_date).isAfter(dayjs())) {
+      throw new AppError("Contract has not expired yet", 400);
+    }
+
+    // Check property constraints
+    const activePropertyContract = await Contract.findOne({
+      where: {
+        property_id: contract.property_id,
+        status: "signed",
+      },
+    });
+
+    if (activePropertyContract) {
+      throw new AppError(
+        "Cannot renew contract. Property is already rented under another contract.",
+        400
+      );
+    }
+
+    const property = await Property.findOne({
+      where: { property_id: contract.property_id },
+    });
+    if (!property) {
+      throw new AppError("Property associated with contract not found", 404);
+    }
+    if (property.mark_as_rented) {
+      throw new AppError(
+        "Property is marked as rented and cannot be renewed",
+        400
+      );
+    }
+
+    // Validate input data
+    if (!start_date || !end_date) {
+      throw new AppError(
+        "Start date and End date are required for renewal",
+        400
+      );
+    }
+    if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
+      throw new AppError("Invalid start date or end date", 400);
+    }
+    if (dayjs(end_date).isBefore(dayjs(start_date))) {
+      throw new AppError("End date must be after start date", 400);
+    }
+
+    // Update contract for renewal
+    contract.start_date = start_date;
+    contract.end_date = end_date;
+    contract.status = "pending renewal approval"; // New status for renewal
+
+    await contract.save();
+
+    return {
+      success: true,
+      message: "Contract renewed successfully. Pending renewal approval.",
+      data: {
+        contract_id: contract.contract_id,
+        start_date: contract.start_date,
+        end_date: contract.end_date,
+        status: contract.status,
+      },
+    };
+  } catch (error) {
+    throw new AppError("Failed to renew contract", 500, {
+      details: error.message,
+    });
+  }
+};
 
 module.exports = {
   createContract,
@@ -745,5 +789,6 @@ module.exports = {
   signContractService,
   getContractTermsService,
   updateContractTerm,
-  deleteContractService
+  deleteContractService,
+  renewContractService,
 };
