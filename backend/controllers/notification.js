@@ -64,7 +64,7 @@ const markNotificationAsRead = async (req, res, next) => {
 const saveToken = async (req, res, next) => {
     try {
       const { userId, notification_token } = req.body;
-      const data = await tokenService.saveToken(userId, notification_token);
+      const data = await notificationService.saveToken(userId, notification_token);
       res.success(
         data, // Data
         "Token saved successfully", // Message
@@ -84,7 +84,7 @@ const saveToken = async (req, res, next) => {
   const getUserToken = async (req, res, next) => {
     try {
       const { userId } = req.params;
-      const data = await tokenService.getUserToken(userId);
+      const data = await notificationService.getUserToken(userId);
       res.success(
         data, // Data
         "Token fetched successfully", // Message

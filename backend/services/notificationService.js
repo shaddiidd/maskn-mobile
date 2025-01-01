@@ -1,4 +1,5 @@
 const Notification = require("../models/notification");
+const Token = require("../models/notificationToken");
 
 // Fetch all notifications for a user
 const getUserNotifications = async (userId) => {
@@ -30,8 +31,29 @@ const markNotificationAsRead = async (notificationId) => {
   return notification;
 };
 
+const saveToken = async (userId, notification_token) => {
+    let token = await Token.findOne({ where: { user_id: userId } });
+  
+    if (token) {
+      token.notification_token = notification_token;
+      await token.save();
+    } else {
+      token = await Token.create({ user_id: userId, notification_token });
+    }
+  
+    return token;
+  };
+  
+  // Fetch a user's token
+  const getUserToken = async (userId) => {
+    return await Token.findOne({ where: { user_id: userId } });
+  };
+  
+
 module.exports = {
   getUserNotifications,
   pushNotification,
   markNotificationAsRead,
+  saveToken,
+  getUserToken
 };
