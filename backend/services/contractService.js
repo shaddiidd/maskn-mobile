@@ -756,7 +756,7 @@ const renewContractService = async (userId, contractId, renewalData) => {
     if (!property) {
       throw new AppError("Property associated with contract not found", 404);
     }
-    if (property.mark_as_rented) {
+    if (property.mark_as_rented == 1) {
       throw new AppError(
         "Property is marked as rented and cannot be renewed",
         400

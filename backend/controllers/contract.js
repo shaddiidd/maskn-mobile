@@ -224,4 +224,5 @@ module.exports = {
   getContractTerms,
   updateContract,
   deleteContract,
+  renewContract
 };

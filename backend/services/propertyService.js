@@ -8,6 +8,7 @@ const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
 const { filterFields } = require("../utils/propertyUtils");
+const sequelize = require("../models/db");
 
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
@@ -382,7 +383,6 @@ const acceptTourRequestService = async (ownerId, requestId) => {
   }
 };
 
-
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {
     // Fetch the property with necessary details
@@ -443,8 +443,6 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   }
 };
 
-
-
 const getPropertyByIdForAdminService = async (propertyId) => {
   try {
     const property = await Property.findByPk(propertyId, {
@@ -498,7 +496,6 @@ const getAllVillagesService = async () => {
   }
 };
 
-
 const getBlockAndNieghbourhoodByIdService = async (villageId) => {
   try {
     const blocks = await BlockName.findAll({
@@ -524,6 +521,58 @@ const getBlockAndNieghbourhoodByIdService = async (villageId) => {
   }
 };
 
+const filterProperty = async (body) => {
+  try {
+    const { location, price_range, bathroom_num, bedroom_num, is_furnished } = body;
+
+    // Base conditions: not rented and approved
+    const filters = {
+      mark_as_rented: 0,         // Property is not rented
+      post_status_id: 2,         // Property is approved
+    };
+
+    // Optional filters based on request body
+    if (location) {
+      filters.location = location; // Filter by location
+    }
+
+    if (price_range) {
+      const range = price_range.split("-").map(Number); // Split "500-1500" into [500, 1500]
+      if (range.length !== 2 || isNaN(range[0]) || isNaN(range[1])) {
+        throw new AppError("Invalid price range format. Use 'min-max'.", 400);
+      }
+      filters.price = { [Sequelize.Op.between]: range }; // Filter by price range
+    }
+
+    if (bathroom_num) {
+      filters.bathroom_num = bathroom_num; // Filter by bathroom count
+    }
+
+    if (bedroom_num) {
+      filters.bedroom_num = bedroom_num; // Filter by bedroom count
+    }
+
+    if (typeof is_furnished !== "undefined") {
+      if (typeof is_furnished !== "boolean") {
+        throw new AppError("Invalid value for is_furnished. Expected true or false.", 400);
+      }
+      filters.is_furnished = is_furnished; // Filter by furnished status
+    }
+
+    // Query database with all filters
+    const properties = await Property.findAll({ where: filters });
+
+    // Return the filtered properties
+    return { properties };
+
+  } catch (error) {
+    throw new AppError("Failed to fetch properties", 500, {
+      details: error.message,
+    });
+  }
+};
+
+
 module.exports = {
   createProperty,
   getAllProperties,
@@ -536,5 +585,6 @@ module.exports = {
   getPropertyByPropertyIdService,
   getPropertyByIdForAdminService,
   getAllVillagesService,
-  getBlockAndNieghbourhoodByIdService
+  getBlockAndNieghbourhoodByIdService,
+  filterProperty,
 };
