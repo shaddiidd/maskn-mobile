@@ -3,9 +3,9 @@ import { Modal, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, Vi
 import { Ionicons } from "@expo/vector-icons";
 import TextField from "./TextField";
 import Button from "./Button";
-import { put } from "../fetch";
+import { put, remove } from "../fetch";
 
-export default function ContractTerm({ term, contractId }) {
+export default function ContractTerm({ term, contractId, updateTerms, removeTerm }) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [inputValue, setInputValue] = useState(term?.term || "");
 
@@ -19,19 +19,37 @@ export default function ContractTerm({ term, contractId }) {
     };
 
     const saveTerm = async () => {
-        let endpoint = `update-contract/${contractId}`;
-        // if (term) endpoint += `termId=${term.id}`;
-        console.log(term)
+        const endpointBase = `contract/update-contract/${contractId}`;
+        let endpoint = endpointBase;
+        const oldTerm = term ? { ...term } : null;
+        if (oldTerm) {
+            endpoint += `?termId=${oldTerm.id}`;
+            closeModal();
+        }
         console.log(endpoint);
         try {
-            // await put(`update-contract/${contractId}?termId=${term.id}`, { term: inputValue })
-        } catch {
-
+            const response = await put(endpoint, { term: inputValue });
+            if (oldTerm) updateTerms({ ...oldTerm, term: inputValue });
+            else updateTerms(response.newTerm);
+        } catch (error) {
+            console.error("Error saving term:", error.response?.data || error.message);
+            if (oldTerm) updateTerms(oldTerm);
         } finally {
-
+            closeModal();
         }
-    }
-
+    };
+    
+    const deleteTerm = async () => {
+        try {
+            await remove(`contract/delete-term/${contractId}/${term.id}`);
+            removeTerm(term.id);
+        } catch (error) {
+            console.error("Error deleting term:", error.response?.data || error.message);
+        } finally {
+            closeModal();
+        }
+    };
+    
     return (
         <>
             <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={openModal}>
@@ -51,6 +69,7 @@ export default function ContractTerm({ term, contractId }) {
                                 <Button small compressed outline text="cancel" onPress={closeModal} />
                                 <Button small compressed text="save" onPress={saveTerm} />
                             </View>
+                            {term && <Button compressed outline text="delete term" onPress={deleteTerm} additionalStyles={{ borderColor: "red" }} additionalTextStyles={{ color: "red" }} />}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>

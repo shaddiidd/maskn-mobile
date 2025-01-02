@@ -35,30 +35,31 @@ const Provider = ({ children }) => {
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();
-      console.log(decodedToken)
       setUser(decodedToken);
     }
   }, [token]);
 
+
+  const generateToken = async () => {
+    const storedToken = await AsyncStorage.getItem("token");
+    if (!storedToken) {
+      setIsAuthenticated(false);
+      return
+    } 
+    setAuthorizationToken(storedToken);
+    try {
+      const response = await post("users/generate-new-token");
+      setToken(response.data.token);
+      setAuthorizationToken(response.data.token);
+      AsyncStorage.setItem("token", response.data.token);
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const fetchToken = async () => {
-      const storedToken = await AsyncStorage.getItem("token");
-      if (!storedToken) {
-        setIsAuthenticated(false);
-        return
-      } 
-      setAuthorizationToken(storedToken);
-      try {
-        const response = await post("users/generate-new-token");
-        setToken(response.data.token);
-        setAuthorizationToken(response.data.token);
-        AsyncStorage.setItem("token", response.data.token);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchToken();
+    generateToken();
   }, []);
 
   const auth = async (body) => {
@@ -93,7 +94,7 @@ const Provider = ({ children }) => {
   };
 
   return (
-    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated }}>
+    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated, generateToken }}>
       {children}
     </Context.Provider>
   );

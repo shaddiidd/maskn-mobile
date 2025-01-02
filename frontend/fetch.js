@@ -1,11 +1,12 @@
 import axios from "axios";
 import { Alert } from "react-native";
+import { Buffer } from "buffer";
 
 const baseURL = "http://localhost:5002/";
 
 const axiosInstance = axios.create({
   baseURL,
-  headers: {},
+  // headers: { Accept: "application/json" },
 });
 
 export const setAuthorizationToken = (token) => {
@@ -22,6 +23,21 @@ export const get = async (url) => {
     } else {
       throw error;
     }
+  }
+};
+
+export const getPdf = async (url) => {
+  try {
+    const response = await axiosInstance.get(url, {
+      responseType: "arraybuffer", // Fetch raw binary data
+    });
+
+    const base64 = Buffer.from(response.data, "binary").toString("base64");
+
+    return base64;
+  } catch (error) {
+    console.error("Error fetching PDF:", error.response);
+    throw error;
   }
 };
 

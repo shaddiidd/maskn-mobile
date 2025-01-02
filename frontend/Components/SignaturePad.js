@@ -27,7 +27,17 @@ const SignaturePad = forwardRef(({ canvasStyle }, ref) => {
         setPaths([]);
     };
 
+    const isSignatureValid = () => {
+        // Check if there are paths and the total length of paths is significant
+        if (!paths || paths.length === 0) return false;
+        const totalPathLength = paths.reduce((acc, path) => acc + path.length, 0);
+        return totalPathLength > 10; // Adjust threshold as needed
+    };
+
     const handleExport = async () => {
+        if (!isSignatureValid()) {
+            return null;
+        }
         if (!canvasRef.current) return null;
         try {
             const uri = await captureRef(canvasRef, {
@@ -37,9 +47,9 @@ const SignaturePad = forwardRef(({ canvasStyle }, ref) => {
             const resizedImage = await manipulateAsync(
                 uri,
                 [{ resize: { width: 100, height: 100 } }],
-                { compress: 1, format: SaveFormat.PNG, base64: true }
+                { compress: 1, format: SaveFormat.JPEG, base64: true }
             );
-            return resizedImage.base64;
+            return `data:image/jpeg;base64,${resizedImage.base64}`;
         } catch (error) {
             console.error("Failed to export signature:", error);
             return null;

@@ -8,6 +8,7 @@ export default function Button({
   compressed = false,
   disabled = false,
   additionalStyles = {},
+  additionalTextStyles = {}
 }) {
   return (
     <TouchableOpacity
@@ -22,7 +23,7 @@ export default function Button({
       ]}
       onPress={!disabled ? onPress : null}
     >
-      <Text style={[styles.buttonText, outline && styles.outlineButtonText]}>
+      <Text style={[styles.buttonText, outline && styles.outlineButtonText, additionalTextStyles]}>
         {text?.toUpperCase()}
       </Text>
     </TouchableOpacity>
