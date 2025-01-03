@@ -5,7 +5,6 @@ import { formatPrice } from "../helpers/textFunctions";
 
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
-  // navigation.navigate("Utilities", { id: property.id });
 
   return (
     <TouchableOpacity

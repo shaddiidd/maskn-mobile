@@ -1,4 +1,4 @@
-import { StyleSheet, View, RefreshControl, ScrollView, Text, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
+import { StyleSheet, View, RefreshControl, ScrollView, Text, Keyboard, Alert } from "react-native";
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
@@ -32,24 +32,22 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <SearchModal />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ScrollView
-          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
-          contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center", }]}
-          style={styles.scrollView}
-        >
-          {properties?.length ? (
-            properties?.map((property) => (
-              <PropertyCard key={property.property_id} property={property} />
-            ))
-          ) : (
-            <>
-              <Ionicons name="home-outline" size={50} color="#666" />
-              <Text style={styles.emptyText}>No properties yet</Text>
-            </>
-          )}
-        </ScrollView>
-      </TouchableWithoutFeedback>
+      <ScrollView
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
+        contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center", }]}
+        style={styles.scrollView}
+      >
+        {properties?.length ? (
+          properties?.map((property) => (
+            <PropertyCard key={property.property_id} property={property} />
+          ))
+        ) : (
+          <>
+            <Ionicons name="home-outline" size={50} color="#666" />
+            <Text style={styles.emptyText}>No properties yet</Text>
+          </>
+        )}
+      </ScrollView>
     </View>
   );
 }

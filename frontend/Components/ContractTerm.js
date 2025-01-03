@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import TextField from "./TextField";
 import Button from "./Button";
-import { put } from "../fetch";
+import { put, remove } from "../fetch";
 
-export default function ContractTerm({ term, contractId }) {
+export default function ContractTerm({ term, contractId, updateTerms, removeTerm, canEdit }) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [inputValue, setInputValue] = useState(term?.term || "");
 
@@ -19,26 +20,49 @@ export default function ContractTerm({ term, contractId }) {
     };
 
     const saveTerm = async () => {
-        let endpoint = `update-contract/${contractId}`;
-        // if (term) endpoint += `termId=${term.id}`;
-        console.log(term)
+        const endpointBase = `contract/update-contract/${contractId}`;
+        let endpoint = endpointBase;
+        const oldTerm = term ? { ...term } : null;
+        if (oldTerm) {
+            endpoint += `?termId=${oldTerm.id}`;
+            closeModal();
+        }
         console.log(endpoint);
         try {
-            // await put(`update-contract/${contractId}?termId=${term.id}`, { term: inputValue })
-        } catch {
-
+            const response = await put(endpoint, { term: inputValue });
+            if (oldTerm) updateTerms({ ...oldTerm, term: inputValue });
+            else updateTerms(response.newTerm);
+        } catch (error) {
+            console.error("Error saving term:", error.response?.data || error.message);
+            if (oldTerm) updateTerms(oldTerm);
         } finally {
-
+            closeModal();
         }
-    }
-
+    };
+    
+    const deleteTerm = async () => {
+        try {
+            await remove(`contract/delete-term/${contractId}/${term.id}`);
+            removeTerm(term.id);
+        } catch (error) {
+            console.error("Error deleting term:", error.response?.data || error.message);
+        } finally {
+            closeModal();
+        }
+    };
+    
     return (
         <>
-            <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={openModal}>
+            <TouchableOpacity style={styles.container} activeOpacity={canEdit ? 0.7 : 1} onPress={canEdit && openModal}>
                 <Text style={styles.termTxt}>
                     {term?.term || "إضافة شرط"}
                 </Text>
                 {!term && <Ionicons name="add-circle" size={25} />}
+                {canEdit && (
+                    <View style={styles.editIcon}>
+                        <Icon name="edit" size={12} color="#fff" />
+                    </View>
+                )}
             </TouchableOpacity>
 
             <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={closeModal}>
@@ -51,6 +75,7 @@ export default function ContractTerm({ term, contractId }) {
                                 <Button small compressed outline text="cancel" onPress={closeModal} />
                                 <Button small compressed text="save" onPress={saveTerm} />
                             </View>
+                            {term && <Button compressed outline text="delete term" onPress={deleteTerm} additionalStyles={{ borderColor: "red" }} additionalTextStyles={{ color: "red" }} />}
                         </View>
                     </View>
                 </TouchableWithoutFeedback>
@@ -79,6 +104,17 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         flex: 1,
         textAlign: "right",
+    },
+    editIcon: {
+        position: "absolute",
+        left: -7,
+        top: -7,
+        backgroundColor: "#508D4E",
+        width: 20,
+        height: 20,
+        borderRadius: 25,
+        justifyContent: "center",
+        alignItems: "center",
     },
     modalOverlay: {
         flex: 1,

@@ -4,19 +4,22 @@ import { useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import ContractTerm from "../Components/ContractTerm";
 import Button from "../Components/Button";
-import { post } from "../fetch";
+import { post, getPdf } from "../fetch";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
     const { request_id } = route.params;
-    const { token, setLoading } = useContext(Context);
+    const { user, setLoading } = useContext(Context);
     const [contract, setContract] = useState(null);
 
     const fetchContract = async () => {
         try {
             const response = await post(`contract/intiate-contract/${request_id}`);
-            setContract(response.data.data);
-            console.log(response.data.data);
+            const contractFromResponse = response.data.data;
+            const terms = contractFromResponse.terms.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            setContract({ ...contractFromResponse, terms });
         } catch (error) {
             console.log(error.response.data);
         } finally {
@@ -24,13 +27,41 @@ export default function ContractScreen({ route }) {
         }
     }
 
-    const handleSign = () => {
-        navigation.navigate("SignContract");
-    }
-
-    const handleView = () => {
-        console.log("Viewing contract");
-    }
+    const downloadContract = async () => {
+        try {
+            setLoading(true);
+            const response = await getPdf(`contract/preview-contract/${contract?.contractInfo?.contract_id}`);
+            const fileUri = `${FileSystem.cacheDirectory}contract_${contract?.contractInfo?.contract_id}.pdf`;
+            await FileSystem.writeAsStringAsync(fileUri, response, { encoding: FileSystem.EncodingType.Base64 });
+            if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(fileUri);
+            else console.error("Sharing is not available on this device.");
+        } catch (error) {
+            console.error("Error downloading contract:", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const updateTerms = (term) => {
+        if (!contract?.terms || !Array.isArray(contract.terms)) {
+            console.error("Contract terms are not properly initialized.");
+            return;
+        }
+        const termExists = contract.terms.some(t => String(t.id) === String(term.id));
+        const updatedTerms = termExists
+            ? contract.terms.map(t => (String(t.id) === String(term.id) ? term : t))
+            : [...contract.terms, term];
+        setContract(prevContract => ({ ...prevContract, terms: updatedTerms }));
+    };
+    
+    const removeTerm = (termId) => {
+        if (!contract?.terms || !Array.isArray(contract.terms)) {
+            console.error("Contract terms are not properly initialized.");
+            return;
+        }
+        const updatedTerms = contract.terms.filter(t => String(t.id) !== String(termId));
+        setContract(prevContract => ({ ...prevContract, terms: updatedTerms }));
+    };
 
     useEffect(() => {
         setLoading(true);
@@ -42,10 +73,10 @@ export default function ContractScreen({ route }) {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.title}>Contract Entities</Text>
             <View style={styles.cardContainer}>
+                <Text style={styles.userRole}>Owner</Text>
                 <Text style={styles.userName}>{contract?.property?.user?.first_name} {contract?.property?.user?.last_name}</Text>
-                <Text style={styles.userRole}>Owner{"\n"}</Text>
+                <Text style={styles.userRole}>{"\n"}Tenant</Text>
                 <Text style={styles.userName}>{contract?.tenant?.first_name} {contract?.tenant?.last_name}</Text>
-                <Text style={styles.userRole}>Tenant</Text>
             </View>
             <Text style={styles.title}>Property Details</Text>
             <View style={styles.cardContainer}>
@@ -76,12 +107,13 @@ export default function ContractScreen({ route }) {
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {contract?.terms?.map((term) => <ContractTerm key={term} term={term} contractId={contract?.contractInfo?.contract_id} />)}
-                <ContractTerm contractId={contract?.contract_id} />
+                {console.log(contract.property)}
+                {contract?.terms?.map((term) => <ContractTerm canEdit={contract?.property?.owner_id === user?.userId} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
+                {contract?.property?.owner_id === user?.userId && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} />}
             </View>
             <View style={styles.infoRowBlock}>
-                <Button small outline text="view contract" additionalStyles={{ marginTop: 20 }} onPress={handleView} />
-                <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={handleSign} />
+                <Button small outline text="save contract" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />
+                <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })} />
             </View>
         </ScrollView>
     )

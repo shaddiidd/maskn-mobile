@@ -3,7 +3,7 @@ import Navigation from "./Navigation";
 import { ActivityIndicator, StatusBar, StyleSheet, View } from "react-native";
 import Context from "./Context";
 
-export default function App() {
+export default function AppContainer() {
   const { loading } = useContext(Context);
   return (
     <>

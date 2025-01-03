@@ -37,17 +37,14 @@ const TourRequestsCard = ({ type, item, handleAccept }) => {
           </View>
         </View>
         {type === "received" && (
-          <TouchableOpacity activeOpacity={0.7} style={styles.acceptBtn} onPress={handleButtonPress}>
+          <TouchableOpacity activeOpacity={0.7} style={styles.greenBtn} onPress={handleButtonPress}>
             <Text style={{ color: "#fff", fontSize: 15, fontWeight: "500" }}>{item?.status === "pending" ? "Accept" : "Contract"}</Text>
           </TouchableOpacity>
         )}
         {type === "sent" && item?.status === "approved" && (
           <View style={{ rowGap: 2, alignItems: "flex-end", justifyContent: "space-between" }}>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={{ color: "#508D4E", fontWeight: "500" }}>Contact Details</Text>
-            </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.7}>
-              <Text style={{ color: "#508D4E", fontWeight: "500" }}>View Contract</Text>
+            <TouchableOpacity activeOpacity={0.7} style={styles.greenBtn} onPress={() => navigation.navigate("Contract", { request_id: item.request_id })}>
+              <Text style={{ color: "#fff", fontSize: 15, fontWeight: "500" }}>Contract</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -93,7 +90,7 @@ const styles = StyleSheet.create({
     width: "100%",
     textAlign: "left"
   },
-  acceptBtn: {
+  greenBtn: {
     backgroundColor: "#508D4E",
     borderRadius: 5,
     paddingVertical: 5,
