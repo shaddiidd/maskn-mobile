@@ -29,7 +29,7 @@ export const get = async (url) => {
 export const getPdf = async (url) => {
   try {
     const response = await axiosInstance.get(url, {
-      responseType: "arraybuffer", // Fetch raw binary data
+      responseType: "arraybuffer",
     });
 
     const base64 = Buffer.from(response.data, "binary").toString("base64");

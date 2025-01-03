@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableWithoutFeedback, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import TextField from "./TextField";
 import Button from "./Button";
 import { put, remove } from "../fetch";
 
-export default function ContractTerm({ term, contractId, updateTerms, removeTerm }) {
+export default function ContractTerm({ term, contractId, updateTerms, removeTerm, canEdit }) {
     const [isModalVisible, setModalVisible] = useState(false);
     const [inputValue, setInputValue] = useState(term?.term || "");
 
@@ -52,11 +53,16 @@ export default function ContractTerm({ term, contractId, updateTerms, removeTerm
     
     return (
         <>
-            <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={openModal}>
+            <TouchableOpacity style={styles.container} activeOpacity={canEdit ? 0.7 : 1} onPress={canEdit && openModal}>
                 <Text style={styles.termTxt}>
                     {term?.term || "إضافة شرط"}
                 </Text>
                 {!term && <Ionicons name="add-circle" size={25} />}
+                {canEdit && (
+                    <View style={styles.editIcon}>
+                        <Icon name="edit" size={12} color="#fff" />
+                    </View>
+                )}
             </TouchableOpacity>
 
             <Modal visible={isModalVisible} transparent animationType="fade" onRequestClose={closeModal}>
@@ -98,6 +104,17 @@ const styles = StyleSheet.create({
         fontWeight: "500",
         flex: 1,
         textAlign: "right",
+    },
+    editIcon: {
+        position: "absolute",
+        left: -7,
+        top: -7,
+        backgroundColor: "#508D4E",
+        width: 20,
+        height: 20,
+        borderRadius: 25,
+        justifyContent: "center",
+        alignItems: "center",
     },
     modalOverlay: {
         flex: 1,

@@ -35,7 +35,7 @@ export default function Reviews({ reviews, seeAll = false, additionalStyles = {}
         </View>
       </View>
       )) : (
-        <Text>No reviews yet</Text>
+        <Text style={styles.noReviews}>No reviews yet</Text>
       )}
     </View>
   );
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
     alignItems: 'center',
-    marginTop: 30,
+    marginTop: 20,
   },
   header: {
     flexDirection: "row",
@@ -101,5 +101,11 @@ const styles = StyleSheet.create({
   date: {
     color: "#B3B3B3",
     marginTop: 1
+  },
+  noReviews: {
+    fontSize: 15,
+    fontWeight: "500",
+    marginTop: 10,
+    color: "#666",
   }
 });

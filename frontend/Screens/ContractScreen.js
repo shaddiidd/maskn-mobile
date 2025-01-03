@@ -11,7 +11,7 @@ import * as Sharing from "expo-sharing";
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
     const { request_id } = route.params;
-    const { setLoading } = useContext(Context);
+    const { user, setLoading } = useContext(Context);
     const [contract, setContract] = useState(null);
 
     const fetchContract = async () => {
@@ -73,10 +73,10 @@ export default function ContractScreen({ route }) {
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.title}>Contract Entities</Text>
             <View style={styles.cardContainer}>
+                <Text style={styles.userRole}>Owner</Text>
                 <Text style={styles.userName}>{contract?.property?.user?.first_name} {contract?.property?.user?.last_name}</Text>
-                <Text style={styles.userRole}>Owner{"\n"}</Text>
+                <Text style={styles.userRole}>{"\n"}Tenant</Text>
                 <Text style={styles.userName}>{contract?.tenant?.first_name} {contract?.tenant?.last_name}</Text>
-                <Text style={styles.userRole}>Tenant</Text>
             </View>
             <Text style={styles.title}>Property Details</Text>
             <View style={styles.cardContainer}>
@@ -107,8 +107,9 @@ export default function ContractScreen({ route }) {
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {contract?.terms?.map((term) => <ContractTerm updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
-                <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} />
+                {console.log(contract.property)}
+                {contract?.terms?.map((term) => <ContractTerm canEdit={contract?.property?.owner_id === user?.userId} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
+                {contract?.property?.owner_id === user?.userId && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} />}
             </View>
             <View style={styles.infoRowBlock}>
                 <Button small outline text="save contract" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />

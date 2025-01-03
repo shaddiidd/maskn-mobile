@@ -4,12 +4,13 @@ import TextField from '../Components/TextField';
 import Context from '../Context';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Button from '../Components/Button';
-import { put } from '../fetch';
 import * as ImagePicker from "expo-image-picker";
-import * as FileSystem from "expo-file-system";
+import axios from 'axios';
+import { optimizeImage } from '../utils/images';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function EditProfileScreen() {
-    const { user, generateToken, setLoading } = useContext(Context);
+    const { user, generateToken, setLoading, token } = useContext(Context);
     const [profile, setProfile] = useState(user);
     const [selectedProfilePic, setSelectedProfilePic] = useState(null);
 
@@ -17,41 +18,51 @@ export default function EditProfileScreen() {
         setLoading(true);
         try {
             const body = new FormData();
-            body.append("username", profile.userName);
-            body.append("first_name", profile.firstName);
-            body.append("last_name", profile.lastName);
+            body.append("username", profile.username);
+            body.append("first_name", profile.first_name);
+            body.append("last_name", profile.last_name);
             body.append("email", profile.email);
             body.append("phone_number", profile.phone_number);
             if (selectedProfilePic) {
-                const fileInfo = await FileSystem.getInfoAsync(selectedProfilePic.uri);
-                body.append("profile_photo", {
-                    uri: selectedProfilePic.uri,
-                    type: "image/jpeg",
-                    name: fileInfo.name || "profile_photo.jpg"
+                const { uri } = await optimizeImage(selectedProfilePic);
+                const filename = uri.split('/').pop();
+                const type = "jpg";
+                body.append("photos", {
+                    uri,
+                    name: filename || "profile_photo.jpg",
+                    type: type || "image/jpeg",
                 });
             }
-            await put(`users/update-profile`, body, { headers: { "Content-Type": "multipart/form-data" } });
-            generateToken();
+            await axios({
+                method: "PUT",
+                url: "http://localhost:5002/users/update-profile",
+                data: body,
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            await generateToken();
         } catch (error) {
-            console.log(error.response?.data || error.message);
+            console.log(error)
         } finally {
             setLoading(false);
         }
     };
-
+    
     const pickImage = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) {
             Alert.alert("Sorry!", "Permission required to access the gallery.");
             return;
         }
-        let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ['images', 'videos'],
+        let pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
-            aspect: [4, 3],
+            aspect: [1, 1],
             quality: 1,
-          });
-        if (!result.canceled) {
+        });
+        if (!pickerResult.canceled) {
             setSelectedProfilePic(pickerResult.assets[0]);
         }
     };
@@ -59,16 +70,13 @@ export default function EditProfileScreen() {
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
-                <Image
-                    source={
-                        selectedProfilePic
-                            ? { uri: selectedProfilePic.uri }
-                            : user.profile_photo?.[0]
-                                ? { uri: user.profile_photo[0] }
-                                : null
-                    }
-                    style={styles.profilePicture}
-                />
+                {/* Conditional Rendering for Profile Picture */}
+                {selectedProfilePic ? (
+                    <Image source={{ uri: selectedProfilePic.uri }} style={styles.profilePicture} />
+                ) : user.profile_photo?.[0] ? (
+                    <Image source={{ uri: user.profile_photo[0] }} style={styles.profilePicture} />
+                ) : null}
+
                 {!selectedProfilePic && !user.profile_photo?.[0] && (
                     <Text style={styles.noImageText}>Upload a profile picture</Text>
                 )}
@@ -79,9 +87,9 @@ export default function EditProfileScreen() {
             <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
                 <Text style={styles.profilePictureText}>Upload a profile picture</Text>
             </TouchableOpacity>
-            <TextField value={profile.userName} setValue={(value) => setProfile({ ...profile, userName: value })} placeholder="Username" />
-            <TextField value={profile.firstName} setValue={(value) => setProfile({ ...profile, firstName: value })} placeholder="First name" />
-            <TextField value={profile.lastName} setValue={(value) => setProfile({ ...profile, lastName: value })} placeholder="Last name" />
+            <TextField value={profile.username} setValue={(value) => setProfile({ ...profile, username: value })} placeholder="Username" />
+            <TextField value={profile.first_name} setValue={(value) => setProfile({ ...profile, first_name: value })} placeholder="First name" />
+            <TextField value={profile.last_name} setValue={(value) => setProfile({ ...profile, last_name: value })} placeholder="Last name" />
             <TextField value={profile.email} setValue={(value) => setProfile({ ...profile, email: value })} placeholder="Email" />
             <TextField value={profile.phone_number} setValue={(value) => setProfile({ ...profile, phone_number: value })} placeholder="Phone number" />
             <Button text="Save" onPress={handleSave} />
@@ -125,11 +133,11 @@ const styles = StyleSheet.create({
         right: 2,
     },
     profilePictureText: {
-      fontSize: 15,
-      fontWeight: "500",
-      marginTop: 5,
-      marginBottom: 20,
-      textAlign: "center",
-      color: "#508D4E"
+        fontSize: 15,
+        fontWeight: "500",
+        marginTop: 5,
+        marginBottom: 20,
+        textAlign: "center",
+        color: "#508D4E"
     },
 });
