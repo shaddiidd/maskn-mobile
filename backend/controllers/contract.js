@@ -182,18 +182,18 @@ const deleteContract = async (req, res, next) => {
   }
 };
 
-const renewContract = async (req, res, next) => {
+const deleteTerm = async (req, res, next) => {
   try {
     const { contractId } = req.params;
-    const userId = req.token.userId; // Assuming user ID is in `req.user`
-    const renewalData = req.body;
+    const { termId } = req.params;
+    const ownerId = req.token.userId; // Assuming `ownerId` is retrieved from the authenticated user's token
 
-    const response = await contractService.renewContractService(
-      userId,
-      contractId,
-      renewalData
-    );
-    res.status(200).json(response);
+    const result = await contractService.deleteTermById(contractId, ownerId, termId);
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
   } catch (error) {
     next(
       new AppError(
@@ -201,19 +201,7 @@ const renewContract = async (req, res, next) => {
         error.statusCode || 500,
         error.details
       )
-    );
-  }
-};
-
-const approveRenewal = async (req, res, next) => {
-  try {
-    const { contractId } = req.params;
-    const userId = req.token.userId; // Assuming user ID is in `req.user`
-
-    const response = await approveRenewalService(userId, contractId);
-    res.status(200).json(response);
-  } catch (error) {
-    next(error);
+    );; // Forward to error handling middleware
   }
 };
 
@@ -224,5 +212,5 @@ module.exports = {
   getContractTerms,
   updateContract,
   deleteContract,
-  renewContract
+  deleteTerm
 };

@@ -55,7 +55,7 @@ const createProperty = async (property, ownerId, role, files) => {
       address,
       location,
       area,
-      is_furnished: is_furnished.lengthk ? true : false,
+      is_furnished: is_furnished.length ? true : false,
       floor_num,
       bedroom_num,
       bathroom_num,

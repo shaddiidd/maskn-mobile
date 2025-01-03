@@ -4,71 +4,116 @@ import { useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import ContractTerm from "../Components/ContractTerm";
 import Button from "../Components/Button";
+import { post, getPdf } from "../fetch";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
     const { request_id } = route.params;
-    const { setLoading } = useContext(Context);
-    const [contract, setContract] = useState({
-        additionalTerms: [
-            "سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت",
-            "سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت",
-            "سوف يتم إضافة الشروط في أقرب وقت",
-            "سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت سوف يتم إضافة الشروط في أقرب وقت"
-        ],
-    });
+    const { user, setLoading } = useContext(Context);
+    const [contract, setContract] = useState(null);
 
     const fetchContract = async () => {
         try {
-
+            const response = await post(`contract/intiate-contract/${request_id}`);
+            const contractFromResponse = response.data.data;
+            const terms = contractFromResponse.terms.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            setContract({ ...contractFromResponse, terms });
         } catch (error) {
-
+            console.log(error.response.data);
         } finally {
             setLoading(false);
         }
     }
 
-    const handleSign = () => {
-        navigation.navigate("SignContract");
-    }
-
-    const handleView = () => {
-        console.log("Viewing contract");
-    }
+    const downloadContract = async () => {
+        try {
+            setLoading(true);
+            const response = await getPdf(`contract/preview-contract/${contract?.contractInfo?.contract_id}`);
+            const fileUri = `${FileSystem.cacheDirectory}contract_${contract?.contractInfo?.contract_id}.pdf`;
+            await FileSystem.writeAsStringAsync(fileUri, response, { encoding: FileSystem.EncodingType.Base64 });
+            if (await Sharing.isAvailableAsync()) await Sharing.shareAsync(fileUri);
+            else console.error("Sharing is not available on this device.");
+        } catch (error) {
+            console.error("Error downloading contract:", error.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    const updateTerms = (term) => {
+        if (!contract?.terms || !Array.isArray(contract.terms)) {
+            console.error("Contract terms are not properly initialized.");
+            return;
+        }
+        const termExists = contract.terms.some(t => String(t.id) === String(term.id));
+        const updatedTerms = termExists
+            ? contract.terms.map(t => (String(t.id) === String(term.id) ? term : t))
+            : [...contract.terms, term];
+        setContract(prevContract => ({ ...prevContract, terms: updatedTerms }));
+    };
+    
+    const removeTerm = (termId) => {
+        if (!contract?.terms || !Array.isArray(contract.terms)) {
+            console.error("Contract terms are not properly initialized.");
+            return;
+        }
+        const updatedTerms = contract.terms.filter(t => String(t.id) !== String(termId));
+        setContract(prevContract => ({ ...prevContract, terms: updatedTerms }));
+    };
 
     useEffect(() => {
         setLoading(true);
         fetchContract();
     }, [request_id]);
 
+    if (contract === null) return <></>;
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <Text style={styles.title}>Contract Entities</Text>
             <View style={styles.cardContainer}>
-                <Text style={styles.userName}>Anas Mohammad</Text>
-                <Text style={styles.userRole}>Owner{"\n"}</Text>
-                <Text style={styles.userName}>Abdullah Shadid</Text>
-                <Text style={styles.userRole}>Tenant</Text>
+                <Text style={styles.userRole}>Owner</Text>
+                <Text style={styles.userName}>{contract?.property?.user?.first_name} {contract?.property?.user?.last_name}</Text>
+                <Text style={styles.userRole}>{"\n"}Tenant</Text>
+                <Text style={styles.userName}>{contract?.tenant?.first_name} {contract?.tenant?.last_name}</Text>
             </View>
             <Text style={styles.title}>Property Details</Text>
             <View style={styles.cardContainer}>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Title</Text>
-                    <Text style={styles.infoRowValue}>Luxury appartment in Abdoun </Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.title} </Text>
                 </View>
                 <View style={styles.infoRowBlock}>
-                    <Text style={styles.infoRowTitle}>Block Number</Text>
-                    <Text style={styles.infoRowValue}>13413</Text>
+                    <Text style={styles.infoRowTitle}>Village</Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.village?.village_name}</Text>
+                </View>
+                <View style={styles.infoRowBlock}>
+                    <Text style={styles.infoRowTitle}>Block</Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.block?.block_name}</Text>
+                </View>
+                <View style={styles.infoRowBlock}>
+                    <Text style={styles.infoRowTitle}>Neighborhood</Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.neighborhood?.name}</Text>
+                </View>
+                <View style={styles.infoRowBlock}>
+                    <Text style={styles.infoRowTitle}>Building number</Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.building_number}</Text>
+                </View>
+                <View style={styles.infoRowBlock}>
+                    <Text style={styles.infoRowTitle}>Appartment number</Text>
+                    <Text style={styles.infoRowValue}>{contract?.property?.apartment_number}</Text>
                 </View>
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {contract?.additionalTerms?.map((term) => <ContractTerm key={term} term={term} />)}
-                <ContractTerm />
+                {console.log(contract.property)}
+                {contract?.terms?.map((term) => <ContractTerm canEdit={contract?.property?.owner_id === user?.userId} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
+                {contract?.property?.owner_id === user?.userId && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} />}
             </View>
             <View style={styles.infoRowBlock}>
-                <Button small outline text="view contract" additionalStyles={{ marginTop: 20 }} onPress={handleView} />
-                <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={handleSign} />
+                <Button small outline text="save contract" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />
+                <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })} />
             </View>
         </ScrollView>
     )

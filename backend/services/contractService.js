@@ -88,7 +88,6 @@ const createContractPDF = async (htmlContent, outputPath) => {
   }
 };
 
-
 const createContract = async (requestId) => {
   try {
     // Fetch and validate the tour request
@@ -114,15 +113,19 @@ const createContract = async (requestId) => {
       // Fetch contract terms for the existing contract
       const existingContractTerms = await ContractAdditionalTerms.findAll({
         where: { contract_id: existingContract.contract_id },
-        attributes: ["term"],
       });
+      console.log("existingContractTerms", existingContractTerms);
 
       // Fetch property details
       const property = await Property.findByPk(request.property_id, {
         include: [
           { model: User, as: "user", attributes: ["first_name", "last_name"] },
           { model: VillageName, as: "village", attributes: ["village_name"] },
-          { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+          {
+            model: NeighborhoodNumber,
+            as: "neighborhood",
+            attributes: ["name"],
+          },
           { model: BlockName, as: "block", attributes: ["block_name"] },
         ],
       });
@@ -139,7 +142,7 @@ const createContract = async (requestId) => {
             first_name: request.tenant.first_name,
             last_name: request.tenant.last_name,
           },
-          terms: existingContractTerms.slice(13),
+          terms: existingContractTerms,
         },
       };
     }
@@ -154,19 +157,8 @@ const createContract = async (requestId) => {
       ],
     });
 
-    if (!property) throw new AppError("Property not found or not approved", 404);
-
-    const ownerName = `${property.user.first_name} ${property.user.last_name}`;
-    const tenantName = `${request.tenant.first_name} ${request.tenant.last_name}`;
-    const propertyDetails = {
-      block: property.block.block_name || "N/A",
-      apartment: property.apartment_number || "N/A",
-      building: property.building_number || "N/A",
-      neighborhood: property.neighborhood.name || "N/A",
-      village: property.village.village_name || "N/A",
-    };
-    const startDate = "غير محدد";
-    const endDate = "غير محدد";
+    if (!property)
+      throw new AppError("Property not found or not approved", 404);
 
     // Fetch default terms and validate them
     const defaultTerms = await ContractTerm.findAll({ attributes: ["term"] });
@@ -188,7 +180,6 @@ const createContract = async (requestId) => {
       owner_id: property.owner_id,
       tenant_id: request.tenant_id,
       property_id: property.property_id,
-      status: "partialy signed",
     });
 
     // Save additional terms
@@ -221,8 +212,6 @@ const createContract = async (requestId) => {
     });
   }
 };
-
-
 
 const previewContractService = async (userId, contractId) => {
   try {
@@ -606,6 +595,10 @@ const getContractTermsService = async (ownerId, contractId) => {
 
 const updateContractTerm = async (ownerId, contractId, termId, term) => {
   try {
+    if (!term || term.trim() === "") {
+      throw new AppError("Term content cannot be empty", 400);
+    }
+
     let result;
 
     // Validate and fetch the contract
@@ -616,7 +609,7 @@ const updateContractTerm = async (ownerId, contractId, termId, term) => {
       },
     });
 
-    if (contract.status != "partialy signed") {
+    if (contract.status == "signed") {
       throw new AppError("Signed contract cant be changed", 404);
     }
     if (!contract) {
@@ -701,105 +694,47 @@ const deleteContractService = async (contractId, userId) => {
   }
 };
 
-const renewContractService = async (userId, contractId, renewalData) => {
+const deleteTermById = async (contractId, ownerId, termId) => {
   try {
-    const { start_date, end_date } = renewalData;
+    if (!termId) {
+      throw new AppError("Term ID cannot be null or undefined", 400);
+    }
 
     // Fetch the contract
     const contract = await Contract.findOne({
-      where: { contract_id: contractId },
+      where: { contract_id: contractId, owner_id: ownerId },
     });
+
     if (!contract) {
       throw new AppError("Contract not found", 404);
     }
 
-    // Authorization check (Only owner can renew)
-    if (userId !== contract.owner_id) {
-      throw new AppError("Only the owner can renew the contract", 403);
-    }
-
-    // Validate contract status
     if (contract.status === "signed") {
-      throw new AppError(
-        "Contract is already signed and cannot be renewed",
-        400
-      );
-    }
-    if (contract.status === "partialy signed") {
-      throw new AppError(
-        "Contract is partially signed and not eligible for renewal",
-        400
-      );
-    }
-    if (dayjs(contract.end_date).isAfter(dayjs())) {
-      throw new AppError("Contract has not expired yet", 400);
+      throw new AppError("Signed contract cannot be changed", 403);
     }
 
-    // Check property constraints
-    const activePropertyContract = await Contract.findOne({
-      where: {
-        property_id: contract.property_id,
-        status: "signed",
-      },
+    // Check if the term exists
+    const existingTerm = await ContractAdditionalTerms.findOne({
+      where: { id: termId, contract_id: contractId },
     });
 
-    if (activePropertyContract) {
-      throw new AppError(
-        "Cannot renew contract. Property is already rented under another contract.",
-        400
-      );
+    if (!existingTerm) {
+      throw new AppError("Term not found with the specified ID", 404);
     }
 
-    const property = await Property.findOne({
-      where: { property_id: contract.property_id },
-    });
-    if (!property) {
-      throw new AppError("Property associated with contract not found", 404);
-    }
-    if (property.mark_as_rented == 1) {
-      throw new AppError(
-        "Property is marked as rented and cannot be renewed",
-        400
-      );
-    }
-
-    // Validate input data
-    if (!start_date || !end_date) {
-      throw new AppError(
-        "Start date and End date are required for renewal",
-        400
-      );
-    }
-    if (!dayjs(start_date).isValid() || !dayjs(end_date).isValid()) {
-      throw new AppError("Invalid start date or end date", 400);
-    }
-    if (dayjs(end_date).isBefore(dayjs(start_date))) {
-      throw new AppError("End date must be after start date", 400);
-    }
-
-    // Update contract for renewal
-    contract.start_date = start_date;
-    contract.end_date = end_date;
-    contract.status = "pending renewal approval"; // New status for renewal
-
-    await contract.save();
+    // Delete the term
+    await ContractAdditionalTerms.destroy({ where: { id: termId, contract_id: contractId } });
 
     return {
-      success: true,
-      message: "Contract renewed successfully. Pending renewal approval.",
-      data: {
-        contract_id: contract.contract_id,
-        start_date: contract.start_date,
-        end_date: contract.end_date,
-        status: contract.status,
-      },
+      message: `The term with ID ${termId} in contract ${contractId} was deleted successfully.`,
     };
   } catch (error) {
-    throw new AppError("Failed to renew contract", 500, {
+    throw new AppError("Failed to delete term", 500, {
       details: error.message,
     });
   }
 };
+
 
 module.exports = {
   createContract,
@@ -808,5 +743,5 @@ module.exports = {
   getContractTermsService,
   updateContractTerm,
   deleteContractService,
-  renewContractService,
+  deleteTermById
 };
