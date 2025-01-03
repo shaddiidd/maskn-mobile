@@ -46,13 +46,13 @@ const previewContract = async (req, res, next) => {
     const userId = req.token.userId;
     const contractId = req.params.contractId;
 
-    console.log('userId:', userId, 'contractId:', contractId);
-    
+    console.log("userId:", userId, "contractId:", contractId);
+
     const pdfBuffer = await contractService.previewContractService(
       userId,
       contractId
     );
-    console.log('pdfBuffer : ', pdfBuffer )
+    console.log("pdfBuffer : ", pdfBuffer);
 
     // Set the response headers for serving the PDF file
     res.setHeader("Content-Type", "application/pdf");
@@ -107,16 +107,15 @@ const getContractTerms = async (req, res, next) => {
     const ownerId = req.token.userId;
     const contractId = req.params.contractId;
     console.log(contractId);
-    
 
     const result = await contractService.getContractTermsService(
       ownerId,
-      contractId,
+      contractId
       // { termNumber, newTerm }
     );
 
     console.log(result);
-    
+
     res.success(result, "contract terms updated successfully", 200);
   } catch (error) {
     next(
@@ -129,21 +128,25 @@ const getContractTerms = async (req, res, next) => {
   }
 };
 
-
 const updateContract = async (req, res, next) => {
   try {
-    const ownerId = req.token.userId
+    const ownerId = req.token.userId;
     const { contractId } = req.params;
     const { termId } = req.query;
     const { term } = req.body;
 
     // Validate input
     if (!term) {
-      return res.status(400).json({ message: 'Term content is required.' });
+      return res.status(400).json({ message: "Term content is required." });
     }
 
     // Call the service
-    const result = await contractService.updateContractTerm(ownerId ,contractId, termId, term);
+    const result = await contractService.updateContractTerm(
+      ownerId,
+      contractId,
+      termId,
+      term
+    );
 
     res.status(200).json(result);
   } catch (error) {
@@ -162,7 +165,10 @@ const deleteContract = async (req, res, next) => {
     const contractId = req.params.contractId; // Extract contract ID from the route
     const userId = req.token.userId; // Extract user ID from the authenticated user
 
-    const response = await contractService.deleteContractService(contractId, userId);
+    const response = await contractService.deleteContractService(
+      contractId,
+      userId
+    );
 
     res.status(200).json(response);
   } catch (error) {
@@ -199,9 +205,12 @@ const deleteTerm = async (req, res, next) => {
   }
 };
 
-
-
-
-module.exports = { generateContract, previewContract, signContract, getContractTerms, updateContract, deleteContract, deleteTerm};
-
-
+module.exports = {
+  generateContract,
+  previewContract,
+  signContract,
+  getContractTerms,
+  updateContract,
+  deleteContract,
+  deleteTerm
+};

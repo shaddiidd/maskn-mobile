@@ -8,8 +8,8 @@ const {
   signContract,
   getContractTerms,
   updateContract,
-  deleteContract, 
-  deleteTerm
+  deleteContract,
+  deleteTerm,
 } = require("../controllers/contract");
 
 contractRouter.post(
@@ -28,7 +28,29 @@ contractRouter.get(
   authentication,
   getContractTerms
 );
-contractRouter.put("/update-contract/:contractId", authentication, updateContract)
-contractRouter.delete("/delete-contract/:contractId", authentication, deleteContract)
-contractRouter.delete("/delete-term/:contractId/:termId", authentication, deleteTerm)
+contractRouter.put(
+  "/update-contract/:contractId",
+  authentication,
+  updateContract
+);
+contractRouter.delete(
+  "/delete-contract/:contractId",
+  authentication,
+  deleteContract
+);
+contractRouter.put(
+  "/update-contract/:contractId",
+  authentication,
+  updateContract
+);
+contractRouter.delete(
+  "/delete-contract/:contractId",
+  authentication,
+  deleteContract
+);
+contractRouter.delete(
+  "/delete-term/:contractId/:termId",
+  authentication,
+  deleteTerm
+);
 module.exports = contractRouter;

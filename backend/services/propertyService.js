@@ -8,6 +8,7 @@ const Sequelize = require("sequelize");
 const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
 const { filterFields } = require("../utils/propertyUtils");
+const sequelize = require("../models/db");
 
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
@@ -54,7 +55,7 @@ const createProperty = async (property, ownerId, role, files) => {
       address,
       location,
       area,
-      is_furnished,
+      is_furnished: is_furnished.length ? true : false,
       floor_num,
       bedroom_num,
       bathroom_num,
@@ -137,7 +138,7 @@ const getAllProperties = async (userRole = null) => {
             attributes: ["block_name"],
           },
         ],
-        where: { post_status_id: 2, mark_as_rented: 0 },
+        where: { post_status_id: 1, mark_as_rented: 0 },
       });
     }
 
@@ -271,7 +272,7 @@ const requestTourByTenant = async (tenantId, propertyId) => {
     const property = await Property.findOne({
       where: {
         property_id: propertyId, // Assuming `id` is the primary key field
-        post_status_id: 2,
+        post_status_id: 1,
         mark_as_rented: 0,
       },
     });
@@ -382,15 +383,74 @@ const acceptTourRequestService = async (ownerId, requestId) => {
   }
 };
 
+// const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
+//   try {
+//     // Fetch the property with necessary details
+//     const property = await Property.findOne({
+//       where: {
+//         property_id: propertyId,
+//         post_status_id: 2,
+//         mark_as_rented: 0,
+//       },
+//       include: [
+//         { model: VillageName, as: "village", attributes: ["village_name"] },
+//         { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+//         { model: BlockName, as: "block", attributes: ["block_name"] },
+//       ],
+//     });
+
+//     if (!property) {
+//       throw new AppError("Property not found or not approved by admin", 404);
+//     }
+
+//     // Default values
+//     let additionalContactInfo = null;
+//     let additionalContactInfoName = null;
+//     let requestStatus = null;
+
+//     // Check tenant's request status
+//     if (tenantId) {
+//       const request = await TourRequest.findOne({
+//         where: { property_id: propertyId, tenant_id: tenantId },
+//       });
+
+//       if (request) {
+//         requestStatus = request.status;
+
+//         // Include contact info only if the request is approved
+//         if (request.status === "approved") {
+//           additionalContactInfo = property.additional_contact_info;
+//           additionalContactInfoName = property.additional_contact_info_name;
+//         }
+//       }
+//     }
+
+//     // Return formatted response
+//     return {
+//       success: true,
+//       message: "Property details fetched successfully",
+//       data: {
+//         ...property.toJSON(),
+//         additional_contact_info: additionalContactInfo,
+//         additional_contact_info_name: additionalContactInfoName,
+//         request_status: requestStatus, // Include request status
+//       },
+//     };
+//   } catch (error) {
+//     throw new AppError("Failed to fetch property details", 500, {
+//       details: error.message,
+//     });
+//   }
+// };
 
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {
-    // Fetch the property with necessary details
+    // Fetch the property without including the owner initially
     const property = await Property.findOne({
       where: {
         property_id: propertyId,
-        post_status_id: 2,
-        mark_as_rented: 0,
+        post_status_id: 1, // Approved by admin
+        mark_as_rented: 0, // Not rented
       },
       include: [
         { model: VillageName, as: "village", attributes: ["village_name"] },
@@ -403,10 +463,10 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
       throw new AppError("Property not found or not approved by admin", 404);
     }
 
-    // Default values
     let additionalContactInfo = null;
     let additionalContactInfoName = null;
     let requestStatus = null;
+    let ownerDetails = null;
 
     // Check tenant's request status
     if (tenantId) {
@@ -417,8 +477,29 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
       if (request) {
         requestStatus = request.status;
 
-        // Include contact info only if the request is approved
+        // Fetch owner details only if the request is approved
         if (request.status === "approved") {
+          const owner = await User.findOne({
+            where: { user_id: property.owner_id },
+            attributes: [
+              "first_name",
+              "last_name",
+              "profile_photo",
+              "phone_number",
+              "username",
+            ],
+          });
+
+          ownerDetails = owner
+            ? {
+                first_name: owner.first_name,
+                last_name: owner.last_name,
+                profile_photo: owner.profile_photo,
+                phone_number: owner.phone_number,
+                username: owner.username,
+              }
+            : null;
+
           additionalContactInfo = property.additional_contact_info;
           additionalContactInfoName = property.additional_contact_info_name;
         }
@@ -434,6 +515,7 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
         additional_contact_info: additionalContactInfo,
         additional_contact_info_name: additionalContactInfoName,
         request_status: requestStatus, // Include request status
+        owner_details: ownerDetails, // Include owner details if approved
       },
     };
   } catch (error) {
@@ -442,8 +524,6 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
     });
   }
 };
-
-
 
 const getPropertyByIdForAdminService = async (propertyId) => {
   try {
@@ -498,7 +578,6 @@ const getAllVillagesService = async () => {
   }
 };
 
-
 const getBlockAndNieghbourhoodByIdService = async (villageId) => {
   try {
     const blocks = await BlockName.findAll({
@@ -524,6 +603,59 @@ const getBlockAndNieghbourhoodByIdService = async (villageId) => {
   }
 };
 
+const filterProperty = async (body) => {
+  try {
+    const { location, price_range, bathroom_num, bedroom_num, is_furnished } =
+      body;
+
+    // Base conditions: not rented and approved
+    const filters = {
+      mark_as_rented: 0, // Property is not rented
+      post_status_id: 1, // Property is approved
+    };
+
+    // Optional filters based on request body
+    if (location) {
+      filters.location = location; // Filter by location
+    }
+
+    if (price_range) {
+      const range = price_range.split("-").map(Number); // Split "500-1500" into [500, 1500]
+      if (range.length !== 2 || isNaN(range[0]) || isNaN(range[1])) {
+        throw new AppError("Invalid price range format. Use 'min-max'.", 400);
+      }
+      filters.price = { [Sequelize.Op.between]: range }; // Filter by price range
+    }
+
+    if (bathroom_num) {
+      filters.bathroom_num = bathroom_num; // Filter by bathroom count
+    }
+
+    if (bedroom_num) {
+      filters.bedroom_num = bedroom_num; // Filter by bedroom count
+    }
+
+    if (typeof is_furnished !== "undefined") {
+      if (typeof is_furnished !== "boolean") {
+        throw new AppError(
+          "Invalid value for is_furnished. Expected true or false.",
+          400
+        );
+      }
+      filters.is_furnished = is_furnished; // Filter by furnished status
+    }
+
+    // Query database with all filters
+    const properties = await Property.findAll({ where: filters });
+
+    // Return the filtered properties
+    return { properties };
+  } catch (error) {
+    throw new AppError("Failed to fetch properties", 500, {
+      details: error.message,
+    });
+  }
+};
 
 module.exports = {
   createProperty,
@@ -537,5 +669,6 @@ module.exports = {
   getPropertyByPropertyIdService,
   getPropertyByIdForAdminService,
   getAllVillagesService,
-  getBlockAndNieghbourhoodByIdService
+  getBlockAndNieghbourhoodByIdService,
+  filterProperty,
 };
