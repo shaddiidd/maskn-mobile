@@ -9,7 +9,7 @@ import Context from "../Context";
 export default function MyProperties() {
   const navigation = useNavigation();
   const { setLoading } = useContext(Context);
-  const [properties, setProperties] = useState([]);
+  const [properties, setProperties] = useState(null);
 
   const fetchProperties = async () => {
     try {
@@ -28,6 +28,7 @@ export default function MyProperties() {
     fetchProperties();
   }, []);
 
+  if (properties === null) return <></>;
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]} style={{ flex: 1, width: "100%" }}>

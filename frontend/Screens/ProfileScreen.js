@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image } from "react-native";
+import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, Linking } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
-import { useNavigation } from "@react-navigation/native";
+import { Link, useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import { Ionicons } from "@expo/vector-icons";
 import { get } from "../fetch";
@@ -17,8 +17,7 @@ export default function ProfileScreen({ route }) {
   const fetchProfile = async () => {
     try {
       const response = await get(`users/${userId}`);
-      console.log(response.data);
-      // setProfile(response.data);
+      setProfile(response.data.user);
     } catch (error) {
       console.log(error.response.data);
     } finally {
@@ -27,12 +26,12 @@ export default function ProfileScreen({ route }) {
   }
 
   useEffect(() => {
-    // if (userId) {
-    //   setLoading(true);
-    //   fetchProfile(userId);
-    // } else {
+    if (userId) {
+      setLoading(true);
+      fetchProfile(userId);
+    } else {
       setProfile(user);
-    // }
+    }
   }, [userId]);
 
   // const infoItems = [
@@ -41,20 +40,21 @@ export default function ProfileScreen({ route }) {
   //   { icon: "location-on", text: "Jordanian" },
   // ];
   const reviews = [
-    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
-    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
   ];
+
+  const handleCall = () => {
+    Linking.openURL(`tel:+962${profile?.phone_number.slice(1)}`);
+  }
 
   if (profile === null) return null;
   return (
-    <ScrollView
-      bounces={false}
-      style={{ paddingHorizontal: 20, backgroundColor: "white" }}
-    >
+    <ScrollView style={{ paddingHorizontal: 20, backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {profile?.profile_photo ? (
+            {profile?.profile_photo && profile?.profile_photo.length ? (
               <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
             ) : (
               <View style={styles.profilePicture}>
@@ -62,7 +62,7 @@ export default function ProfileScreen({ route }) {
               </View>
             )}
             <View>
-              <Text style={styles.name}>{profile?.firstName} {profile?.lastName}</Text>
+              <Text style={styles.name}>{profile?.first_name} {profile?.last_name}</Text>
               <View style={styles.ratingContainer}>
                 <Ionicons name="star" size={22} color="gold" />
                 <Text style={styles.rating}> {profile?.rating || 5}</Text>
@@ -70,7 +70,7 @@ export default function ProfileScreen({ route }) {
             </View>
           </View>
           {userId ? (
-            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={handleCall}>
               <Icon name="phone" size={20} color="#fff" />
             </TouchableOpacity>
           ) : (
@@ -81,6 +81,10 @@ export default function ProfileScreen({ route }) {
         </View>
 
         <View style={styles.infoContainer}>
+          <View style={styles.infoItem}>
+            <Icon name="person" size={24} color="#333" />
+            <Text style={styles.infoTxt}>{profile?.username}</Text>
+          </View>
           <View style={styles.infoItem}>
             <Icon name="email" size={24} color="#333" />
             <Text style={styles.infoTxt}>{profile?.email}</Text>
@@ -166,7 +170,7 @@ const styles = StyleSheet.create({
   infoContainer: {
     marginTop: 10,
     width: "100%",
-    rowGap: 5,
+    rowGap: 8,
   },
   infoItem: {
     flexDirection: "row",
