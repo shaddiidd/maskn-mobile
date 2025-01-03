@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import { View, StyleSheet, Text } from "react-native";
+import { View, StyleSheet, Text, KeyboardAvoidingView, Platform } from "react-native";
 import MultiSlider from "@ptomasroos/react-native-multi-slider";
 import TextField from "./TextField";
 
-export default function RangeSlider({ min = 0, max = 100, initialMin = 20, initialMax = 80, onValuesChange }) {
+export default function RangeSlider({ label = "Selected range", min = 0, max = 5000, initialMin = 0, initialMax = 5000, onValuesChange }) {
   const [values, setValues] = useState([initialMin, initialMax]);
 
   const handleValuesChange = (newValues) => {
@@ -14,9 +14,9 @@ export default function RangeSlider({ min = 0, max = 100, initialMin = 20, initi
   };
 
   return (
-    <View style={styles.container}>
+    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={100}>
       <Text style={styles.label}>
-        Selected Range: {values[0]} - {values[1]}
+        {label}: {values[0]} - {values[1]}
       </Text>
       <MultiSlider
         values={values}
@@ -24,18 +24,18 @@ export default function RangeSlider({ min = 0, max = 100, initialMin = 20, initi
         onValuesChange={handleValuesChange}
         min={min}
         max={max}
-        step={1}
+        step={5}
         allowOverlap={false}
         snapped
         selectedStyle={{ backgroundColor: "#508D4E" }}
         unselectedStyle={{ backgroundColor: "#ccc" }}
-        markerStyle={{ width: 25, height: 25, shadowOffset: { width: 1, height: 1 }, shadowColor: "#000", shadowOpacity: 0.2, shadowRadius: 1, elevation: 2 }}
+        markerStyle={styles.sliderMarker}
       />
-      <View style={styles.textFieldCOntainer}>
+      {/* <View style={styles.textFieldCOntainer}>
         <TextField small placeholder="Min" value={values[0]} setValue={(value) => handleValuesChange([value, values[1]])} />
         <TextField small placeholder="Max" value={values[1]} setValue={(value) => handleValuesChange([values[0], value])} />
-      </View>
-    </View>
+      </View> */}
+    </KeyboardAvoidingView>
   );
 }
 
@@ -47,6 +47,15 @@ const styles = StyleSheet.create({
   },
   label: {
     color: "#666",
+  },
+  sliderMarker: {
+    width: 25,
+    height: 25,
+    shadowOffset: { width: 1, height: 1 },
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 1,
+    elevation: 2
   },
   textFieldCOntainer: {
     flexDirection: "row",

@@ -1,15 +1,18 @@
+import { useContext } from 'react';
 import { StyleSheet, View, TouchableOpacity, Text, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
+import Context from '../Context';
 
 const TourRequestsCard = ({ type, item, handleAccept }) => {
   const navigation = useNavigation();
+  const { user } = useContext(Context);
 
   const handlePress = () => {
-    if (type === "sent") {
+    if (type === "sent" && item?.status !== "approved") {
       navigation.navigate("PropertyDetails", { property_id: item.property_id });
     } else {
-      navigation.navigate("Profile", { userId: item.tenant_id });
+      navigation.navigate("Profile", { userId: item[user.role === 1 ? "owner_id" : "tenant_id"] });
     }
   }
 

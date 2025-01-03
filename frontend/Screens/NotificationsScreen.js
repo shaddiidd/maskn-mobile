@@ -10,7 +10,7 @@ export default function NotificationsScreen() {
   useEffect(() => {
     // get("notifications")
     //   .then((response) => {
-    //     setNotifications(response.result);
+    //     setNotifications(response.data);
     //   })
     //   .catch((error) => {
     //     console.log(error);

@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import Slider from "@react-native-community/slider";
 import Button from './Button';
 import TextField from './TextField';
 import RangeSlider from './RangeSlider';
+import { useNavigation } from '@react-navigation/native';
+import RadioButtons from './RadioButtons';
 
 export default function SearchModal({ handleSearch }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
-  const [price, setPrice] = useState(100000);
-  const [propertyType, setPropertyType] = useState('');
-  const [location, setLocation] = useState('');
+  const [bathrooms, setBathrooms] = useState('');
+  const [bedrooms, setBedrooms] = useState('');
+  const [priceRange, setPriceRange] = useState([]);
+  const [firnished, setFirnished] = useState(false);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    setSearchText('');
+    setBathrooms('');
+    setBedrooms('');
+    setPriceRange([]);
+    setFirnished(false);
+  }, [isOpen]);
 
   const handleApplyFilters = () => {
-    console.log('Filters Applied:', { price, propertyType, location });
+    navigation.navigate("PropertySearch", { searchText, bedrooms, bathrooms, priceRange, firnished });
     setIsOpen(false);
   };
 
@@ -32,21 +43,23 @@ export default function SearchModal({ handleSearch }) {
           <Ionicons name="filter" size={20} color="#508D4E" />
         </View>
       </TouchableOpacity>
-
       <Modal visible={isOpen} transparent animationType="fade">
-        <View style={styles.modalBackground}>
-          <View style={styles.modalContainer}>
-            <Text style={styles.modalTitle}>Filter Properties</Text>
-
-            <TextField placeholder="Search" value={searchText} onChangeText={setSearchText} />
-            <RangeSlider />
-            <TextField placeholder="Property Type" value={propertyType} onChangeText={setPropertyType} />
-            <TextField placeholder="Location" value={location} onChangeText={setLocation} />
-
-            <Button text="Apply Filters" compressed onPress={handleApplyFilters} />
-            <Button text="Close" compressed outline onPress={() => setIsOpen(false)} />
-          </View>
-        </View>
+        <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
+          <KeyboardAvoidingView style={styles.modalBackground} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={20}>
+            <View style={styles.modalContainer}>
+              <Text style={styles.modalTitle}>Filter Properties</Text>
+              <TextField placeholder="Search" value={searchText} setValue={setSearchText} />
+              <RangeSlider min={0} max={5000} initialMin={priceRange[0]} initialMax={priceRange[1]} onValuesChange={setPriceRange} />
+              <View style={styles.textFieldRow}>
+                <TextField keyboardType="numeric" small placeholder="Bedrooms" value={bedrooms} setValue={setBedrooms} />
+                <TextField keyboardType="numeric" small placeholder="Bathrooms" value={bathrooms} setValue={setBathrooms} />
+              </View>
+              <RadioButtons selectedValue={firnished} setSelectedValue={setFirnished} />
+              <Button text="Apply Filters" compressed onPress={handleApplyFilters} />
+              <Button text="Close" compressed outline onPress={() => setIsOpen(false)} />
+            </View>
+          </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
       </Modal>
     </>
   );
@@ -106,13 +119,10 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     width: "100%",
   },
-  filterLabel: {
-    fontSize: 14,
-    marginBottom: 8,
-    color: '#666',
-  },
-  slider: {
-    width: '100%',
-    height: 40,
-  },
+  textFieldRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    columnGap: 10
+  }
 });
