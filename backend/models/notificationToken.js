@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const sequelize = require("./db");
+const sequelize = require("../models/db");
 const User = require("./users"); // Import the User model
 
 const Token = sequelize.define(
