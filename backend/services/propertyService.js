@@ -10,6 +10,8 @@ const AppError = require("../utils/AppError");
 const { filterFields } = require("../utils/propertyUtils");
 const sequelize = require("../models/db");
 const { pushNotification } = require("./notificationService");
+const OwnerReview = require("../models/ownerReviews");
+const TenantReview = require("../models/tenantReviews");
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
   if (role !== 2) {
@@ -625,6 +627,23 @@ const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
         { model: VillageName, as: "village", attributes: ["village_name"] },
         { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
         { model: BlockName, as: "block", attributes: ["block_name"] },
+        {
+          model: TenantReview,
+          as: "reviews",
+          attributes: ["review_text"],
+          include: [
+            {
+              model: User,
+              as: "tenant",
+              attributes: [
+                "username",
+                "first_name",
+                "last_name",
+                "profile_photo",
+              ],
+            },
+          ],
+        },
       ],
     });
 
