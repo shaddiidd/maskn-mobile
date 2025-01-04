@@ -42,7 +42,7 @@ propertyRouter.post("/accept-tour-request/:requestId", auth, acceptTourRequest)
 propertyRouter.get("/get-property/:propertyId", optionalAuth, getPropertyById)
 propertyRouter.get("/get-property-by-admin/:propertyId", auth, authorization("Manage Properties"),getPropertyByIdByAdmin)
 propertyRouter.get("/get-villages", getAllVillages)
-propertyRouter.get("/get-/blocks/:villageId", getBlockAndNieghbourhoodById)
+propertyRouter.get("/get-blocks/:villageId", getBlockAndNieghbourhoodById)
 propertyRouter.get("/get-by-filter", filterProperty)
 
 
