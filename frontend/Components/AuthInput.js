@@ -35,5 +35,6 @@ const styles = StyleSheet.create({
   errorText: {
     color: "#C6131B",
     marginBottom: 10,
+    width: "100%"
   },
 });

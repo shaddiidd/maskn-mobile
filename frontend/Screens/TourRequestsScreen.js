@@ -97,41 +97,39 @@ export default function TourRequestsScreen() {
   };
 
   if (sentRequests === null) return null;
-  if (user.role !== 2) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <SentRequests />
-      </SafeAreaView>
-    );
-  }
-
-  const initialRoutes = [
-    { key: 'sent', title: 'Sent' },
-    { key: 'received', title: 'Received' },
-  ];
-
-  const renderScene = SceneMap({
-    sent: SentRequests,
-    received: ReceivedRequests,
-  });
-
   return (
     <SafeAreaView style={styles.container}>
-      <TabView
-        navigationState={{ index: 0, routes: initialRoutes }}
-        renderScene={renderScene}
-        onIndexChange={(index) => { }}
-        renderTabBar={(props) => (
-          <TabBar
-            {...props}
-            indicatorStyle={{ backgroundColor: 'white' }}
-            style={{ backgroundColor: '#508D4E' }}
-            labelStyle={{ fontWeight: 'bold' }}
-          />
-        )}
-      />
+      {user.role === 1 ? <SentRequests /> : <ReceivedRequests />}
     </SafeAreaView>
   );
+
+//   const initialRoutes = [
+//     { key: 'sent', title: 'Sent' },
+//     { key: 'received', title: 'Received' },
+//   ];
+
+//   const renderScene = SceneMap({
+//     sent: SentRequests,
+//     received: ReceivedRequests,
+//   });
+
+//   return (
+//     <SafeAreaView style={styles.container}>
+//       <TabView
+//         navigationState={{ index: 0, routes: initialRoutes }}
+//         renderScene={renderScene}
+//         onIndexChange={(index) => { }}
+//         renderTabBar={(props) => (
+//           <TabBar
+//             {...props}
+//             indicatorStyle={{ backgroundColor: 'white' }}
+//             style={{ backgroundColor: '#508D4E' }}
+//             labelStyle={{ fontWeight: 'bold' }}
+//           />
+//         )}
+//       />
+//     </SafeAreaView>
+//   );
 }
 
 const styles = StyleSheet.create({
