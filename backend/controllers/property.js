@@ -343,12 +343,19 @@ const getPropertyByIdByAdmin = async (req, res, next) => {
 const getAllVillages = async (req, res, next) => {
   try {
     const data = await propertyService.getAllVillagesService();
-    res.status(200).json({
-      message: "Villages fetched successfully",
-      data,
-    });
+    res.success(
+      data, // Data
+      "Villages fetched successfully", // Message
+      200 // Status code
+    );
   } catch (error) {
-    next(error);
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
@@ -362,16 +369,44 @@ const getBlockAndNieghbourhoodById = async (req, res, next) => {
       });
     }
 
-    const data = await propertyService.getBlockAndNieghbourhoodByIdService(villageId);
-    res.status(200).json({
-      message: "Blocks and neighborhoods fetched successfully",
-      data,
-    });
+    const data = await propertyService.getBlockAndNieghbourhoodByIdService(
+      villageId
+    );
+
+    res.success(
+      data, // Data
+      "Blocks and neighborhoods fetched successfully", // Message
+      200 // Status code
+    );
   } catch (error) {
-    next(error);
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
+const filterProperty = async (req, res, next) => {
+  try {
+    const result = await propertyService.filterProperty(req.body);
+    res.success(
+      result, 
+      "properties filtered successfully",
+      200
+    )
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
+  }
+};
 
 module.exports = {
   addProperty,
@@ -385,7 +420,8 @@ module.exports = {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
-  getPropertyByIdByAdmin, 
+  getPropertyByIdByAdmin,
   getAllVillages,
-  getBlockAndNieghbourhoodById
+  getBlockAndNieghbourhoodById,
+  filterProperty
 };

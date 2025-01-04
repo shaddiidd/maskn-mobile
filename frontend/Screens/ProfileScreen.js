@@ -1,60 +1,101 @@
-import {
-  StyleSheet,
-  SafeAreaView,
-  View,
-  TouchableOpacity,
-  Text,
-  ScrollView,
-  Image,
-} from "react-native";
+import { useContext, useEffect, useState } from "react";
+import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, Linking } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
-import { useNavigation } from "@react-navigation/native";
-import { useContext } from "react";
+import { Link, useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import { Ionicons } from "@expo/vector-icons";
+import { get } from "../fetch";
 
-export default function ProfileScreen() {
+export default function ProfileScreen({ route }) {
   const navigation = useNavigation();
-  const { user } = useContext(Context);
+  const [profile, setProfile] = useState(null);
+  const { user, setLoading } = useContext(Context);
+  const userId = route?.params?.userId;
 
-  const infoItems = [
-    { icon: "work-outline", text: "Student" },
-    { icon: "people-outline", text: "Single" },
-    { icon: "location-on", text: "Jordanian" },
-  ];
+  const fetchProfile = async () => {
+    try {
+      const response = await get(`users/${userId}`);
+      setProfile(response.data.user);
+    } catch (error) {
+      console.log(error.response.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (userId) {
+      setLoading(true);
+      fetchProfile(userId);
+    } else {
+      setProfile(user);
+    }
+  }, [userId]);
+
+  // const infoItems = [
+  //   { icon: "work-outline", text: "Student" },
+  //   { icon: "people-outline", text: "Single" },
+  //   { icon: "location-on", text: "Jordanian" },
+  // ];
   const reviews = [
-    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
-    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
+    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
   ];
 
+  const handleCall = () => {
+    Linking.openURL(`tel:+962${profile?.phone_number.slice(1)}`);
+  }
+
+  if (profile === null) return null;
   return (
-    <ScrollView
-      bounces={false}
-      style={{ paddingHorizontal: 20, backgroundColor: "white" }}
-    >
+    <ScrollView style={{ paddingHorizontal: 20, backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {/* <Image style={styles.profile_picture} source={require("../assets/hazodeh.png")} /> */}
-            <View style={styles.profile_picture}>
-              <Ionicons name="person" color="#666" size={25} />
-            </View>
+            {profile?.profile_photo && profile?.profile_photo.length ? (
+              <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
+            ) : (
+              <View style={styles.profilePicture}>
+                <Ionicons name="person" color="#666" size={32} />
+              </View>
+            )}
             <View>
-              <Text style={styles.name}>{user.firstName} {user.lastName}</Text>
+              <Text style={styles.name}>{profile?.first_name} {profile?.last_name}</Text>
               <View style={styles.ratingContainer}>
-                <Image source={require("../assets/star.png")} />
-                <Text style={styles.rating}> {user?.rating || 5}</Text>
+                <Ionicons name="star" size={22} color="gold" />
+                <Text style={styles.rating}> {profile?.rating || 5}</Text>
               </View>
             </View>
           </View>
-          <TouchableOpacity activeOpacity={0.7} style={styles.editBtn}>
-            <Icon name="edit" size={20} color="#fff" />
-          </TouchableOpacity>
+          {userId ? (
+            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={handleCall}>
+              <Icon name="phone" size={20} color="#fff" />
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={() => navigation.navigate("EditProfile")}>
+              <Icon name="edit" size={20} color="#fff" />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={styles.infoContainer}>
+          <View style={styles.infoItem}>
+            <Icon name="person" size={24} color="#333" />
+            <Text style={styles.infoTxt}>{profile?.username}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Icon name="email" size={24} color="#333" />
+            <Text style={styles.infoTxt}>{profile?.email}</Text>
+          </View>
+          <View style={styles.infoItem}>
+            <Icon name="phone" size={24} color="#333" />
+            <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
+          </View>
+        </View>
+
+        {/* <View style={styles.infoContainer}>
           {infoItems.map((item, index) => (
             <View
               key={index}
@@ -67,7 +108,7 @@ export default function ProfileScreen() {
               <Text style={styles.infoTxt}>{item.text}</Text>
             </View>
           ))}
-        </View>
+        </View> */}
         {/* <TouchableOpacity activeOpacity={0.7} style={styles.historyBtn}>
           <Icon name="history" size={25} color="#fff" />
           <Text style={styles.historyBtnTxt}>  RENT HISTORY</Text>
@@ -97,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderColor: "#D9D9D9",
   },
-  profile_picture: {
+  profilePicture: {
     width: 70,
     height: 70,
     borderRadius: 40,
@@ -121,48 +162,29 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: "#1E1E1E",
   },
-  editBtn: {
+  circleBtn: {
     backgroundColor: "#508D4E",
     borderRadius: 50,
     padding: 5,
   },
   infoContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    width: "95%",
-    justifyContent: "space-between",
     marginTop: 10,
+    width: "100%",
+    rowGap: 8,
   },
   infoItem: {
     flexDirection: "row",
     alignItems: "center",
-    width: "48%",
-    marginVertical: 5,
+    columnGap: 5,
+    width: "100%",
+    paddingHorizontal: 10,
   },
   rightAlignedItem: {
     justifyContent: "flex-end",
     alignItems: "flex-end",
   },
   infoTxt: {
-    color: "#747474",
-    fontSize: 18,
-    marginLeft: 8,
-  },
-  historyBtn: {
-    backgroundColor: "#508D4E",
-    borderWidth: 1.5,
-    borderColor: "#508D4E",
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 55,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  historyBtnTxt: {
+    color: "#333",
     fontSize: 15,
-    fontWeight: "bold",
-    color: "white",
   },
 });

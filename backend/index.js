@@ -6,6 +6,7 @@ const userRouter = require("./routes/usersRouter");
 const propertyRouter = require("./routes/propertyRoute");
 const authRouter = require("./routes/authRoutes");
 const contractRouter = require("./routes/contractRoute");
+const feedbackRouter = require("./routes/feedbackRoutes")
 
 // require('./models/db')
 require("./models/index");
@@ -17,13 +18,15 @@ const PORT = process.env.PORT;
 
 app.use(cors());
 app.use(express.json());
-app.use(responseHandler);
+app.use(responseHandler); // Should be above all routers
+
 
 // Routeres
 app.use("/users", userRouter);
 app.use("/property", propertyRouter);
 app.use("/auth", authRouter);
 app.use("/contract", contractRouter);
+app.use("/feedback", feedbackRouter)
 app.use(errorHandler);
 // Handles any other endpoints [unassigned - endpoints]
 app.use("*", (req, res) => res.status(404).json("NO content at this path"));

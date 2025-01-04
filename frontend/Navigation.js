@@ -1,20 +1,11 @@
 import {
   createDrawerNavigator,
-  DrawerContentScrollView,
   DrawerItem,
 } from "@react-navigation/drawer";
 import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
-import {
-  Image,
-  TouchableOpacity,
-  View,
-  Text,
-  StyleSheet,
-  SafeAreaView,
-  Alert,
-} from "react-native";
+import { Image, TouchableOpacity, View, Text, StyleSheet, SafeAreaView, Alert } from "react-native";
 import { useContext } from "react";
 import Context from "./Context";
 import "./gesture-handler";
@@ -34,6 +25,9 @@ import Payment from "./Screens/Payment";
 import UtilitiesScreen from "./Screens/UtilitiesScreen";
 import NotificationsScreen from "./Screens/NotificationsScreen";
 import PostProperty from "./Screens/PostProperty";
+import ContractScreen from "./Screens/ContractScreen";
+import SignContract from "./Screens/SignContract";
+import EditProfileScreen from "./Screens/EditProfileScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -49,21 +43,22 @@ function CustomDrawerContent({ navigation }) {
     <SafeAreaView style={{ flex: 1, justifyContent: "space-between" }}>
       <View>
         <View style={styles.userInfoSection}>
-          <View
-            // source={require("./assets/hazodeh.png")}
-            style={styles.profileImage}
-          >
-            <Ionicons name="person" color="#666" size={50} />
-          </View>
+          {user?.profile_photo?.length ? (
+            <Image source={{ uri: user?.profile_photo[0] }} style={styles.profileImage} />
+          ) : (
+            <View style={styles.profileImage}>
+              <Ionicons name="person" color="#666" size={50} />
+            </View>
+          )}
           <Text style={styles.name}>
-            {user?.firstName} {user?.lastName}
+            {user?.first_name} {user?.last_name}
           </Text>
-          <Text style={styles.userName}>{user?.userName}</Text>
+          <Text style={styles.userName}>{user?.username}</Text>
         </View>
 
         <View style={styles.drawerContent}>
           <DrawerItem
-            label="My Profile"
+            label="Profile"
             style={styles.drawerItem}
             labelStyle={styles.drawerItemLabel}
             icon={() => (
@@ -237,23 +232,8 @@ export default function Navigation() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator
-        screenOptions={{
-          headerBackTitleVisible: false,
-          headerStyle: {
-            backgroundColor: "#508D4E",
-          },
-          headerTintColor: "#fff",
-        }}
-      >
-        <Stack.Screen
-          name="Drawer"
-          component={DrawerNavigation}
-          options={{
-            title: "Home",
-            headerShown: false,
-          }}
-        />
+      <Stack.Navigator screenOptions={{ headerBackTitleVisible: false, headerStyle: { backgroundColor: "#508D4E" }, headerTintColor: "#fff" }}>
+        <Stack.Screen name="Drawer" component={DrawerNavigation} options={{ title: "Home", headerShown: false }} />
         <Stack.Screen
           name="Profile"
           component={ProfileScreen}
@@ -261,57 +241,21 @@ export default function Navigation() {
             drawerIcon: ({ color }) => (
               <Ionicons name="person-outline" size={24} color={color} />
             ),
-            title: "My Profile",
+            title: "Profile",
           }}
         />
-        <Stack.Screen
-          name="Notifications"
-          component={NotificationsScreen}
-        />
-        <Stack.Screen
-          name="PropertyDetails"
-          component={PropertyScreen}
-          options={{
-            title: "Property Details",
-          }}
-        />
-        <Stack.Screen
-          name="TourRequests"
-          component={TourRequestsScreen}
-          options={{
-            title: "Tour Requests",
-          }}
-        />
-        <Stack.Screen
-          name="RentHistory"
-          component={RentHistory}
-          options={{
-            title: "Rent History",
-          }}
-        />
-        <Stack.Screen
-          name="MyProperties"
-          component={MyProperties}
-          options={{
-            title: "My Properties",
-          }}
-        />
-        <Stack.Screen
-          name="PostProperty"
-          component={PostProperty}
-          options={{
-            title: "New Properties",
-          }}
-        />
-        <Stack.Screen
-          name="BecomeRenter"
-          component={BecomeRenter}
-          options={{
-            title: "Become a Renter",
-          }}
-        />
+        <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
+        <Stack.Screen name="Notifications" component={NotificationsScreen} />
+        <Stack.Screen name="PropertyDetails" component={PropertyScreen} options={{ title: "Property Details" }} />
+        <Stack.Screen name="TourRequests" component={TourRequestsScreen} options={{ title: "Tour Requests" }} />
+        <Stack.Screen name="RentHistory" component={RentHistory} options={{ title: "Rent History" }} />
+        <Stack.Screen name="MyProperties" component={MyProperties} options={{ title: "My Properties" }} />
+        <Stack.Screen name="PostProperty" component={PostProperty} options={{ title: "Post Property" }} />
+        <Stack.Screen name="BecomeRenter" component={BecomeRenter} options={{ title: "Become a Renter" }} />
         <Stack.Screen name="Payment" component={Payment} />
         <Stack.Screen name="Utilities" component={UtilitiesScreen} />
+        <Stack.Screen name="Contract" component={ContractScreen} />
+        <Stack.Screen name="SignContract" component={SignContract} options={{ title: "Sign Contract" }} />
         {!isAuthenticated && (
           <>
             <Stack.Screen
@@ -382,6 +326,5 @@ const styles = StyleSheet.create({
     height: 1,
   },
   logoutSection: {
-    // padding: 20,
   },
 });

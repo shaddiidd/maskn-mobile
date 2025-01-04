@@ -4,12 +4,13 @@ import PaginatedCarousel from "../Components/PaginatedCarousel";
 import Reviews from "../Components/Reviews";
 import Button from "../Components/Button";
 import PropertyInfoBox from "../Components/PropertyInfoBox";
-import { get } from "../fetch";
+import { get, post } from "../fetch";
 import Context from "../Context";
 import { capitalizeFirstLetter, formatPrice } from "../helpers/textFunctions";
+import PropertyOwnerCard from "../Components/PropertyOwnerCard";
 
 export default function PropertyScreen({ route }) {
-  const [property, setProperty] = useState(null);
+  const [property, setProperty] = useState({});
   const [refreshing, setRefreshing] = useState(false);
   const { property_id } = route.params;
   const { user, setLoading } = useContext(Context);
@@ -17,8 +18,7 @@ export default function PropertyScreen({ route }) {
   const getProperty = async () => {
     try {
       const response = await get(`property/get-property/${property_id}`);
-      setProperty(response.data);
-      console.log(response.data);
+      setProperty(response.data.data);
     } catch (error) {
       console.log(error.response.data);
     } finally {
@@ -31,15 +31,19 @@ export default function PropertyScreen({ route }) {
     getProperty();
   }, []);
 
-  const handleRequestTour = () => {
-    post(`property/request-tour/${property_id}`)
-      .then(() => Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }]))
-      .catch(() => Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }]));
+  const handleRequestTour = async () => {
+    try {
+      await post(`property/request-tour/${property_id}`)
+      setProperty({ ...property, request_status: "pending" })
+      Alert.alert("Request Sent", "Your request has been sent successfully", [{ text: "OK" }])
+    } catch {
+      Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }])
+    }
   }
   
   const reviews = [
-    { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
-    { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
+    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
+    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
   ];
 
   if (!property) return null;
@@ -63,11 +67,14 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
-          <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>
-          <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>
+          {property?.price && <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>}
+          {property?.rental_period && <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>}
         </View>
-        {(!property.is_requested && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
+        {(!property.request_status && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
+        {property.request_status === "approved" && (
+          <PropertyOwnerCard id={property?.owner_id} name="Anas Bajawi" imageUrl={require("../assets/anas.png")} phoneNumber="0796199221" />
+        )}
         <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
       </SafeAreaView>
     </ScrollView>
@@ -136,4 +143,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#828282",
   },
+  ownerProfileContainer: {
+    flexDirection: "row",
+  }
 });
