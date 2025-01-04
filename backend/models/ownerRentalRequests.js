@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../models/db");
+const User = require("../models/users")
 
 const OwnersRentalRequest = sequelize.define(
   "OwnersRentalRequest",
@@ -40,5 +41,7 @@ const OwnersRentalRequest = sequelize.define(
     timestamps: false, // Disable updatedAt if only createdAt is needed
   }
 );
+
+OwnersRentalRequest.belongsTo(User, { foreignKey: 'user_id', as: 'user' });
 
 module.exports = OwnersRentalRequest;
