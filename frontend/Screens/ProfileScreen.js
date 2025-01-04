@@ -83,7 +83,7 @@ export default function ProfileScreen({ route }) {
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <Icon name="person" size={24} color="#333" />
-            <Text style={styles.infoTxt}>{profile?.username}</Text>
+            <Text style={styles.infoTxt}>@{profile?.username}</Text>
           </View>
           <View style={styles.infoItem}>
             <Icon name="email" size={24} color="#333" />

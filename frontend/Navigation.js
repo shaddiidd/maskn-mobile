@@ -54,7 +54,7 @@ function CustomDrawerContent({ navigation }) {
           <Text style={styles.name}>
             {user?.first_name} {user?.last_name}
           </Text>
-          <Text style={styles.userName}>{user?.username}</Text>
+          <Text style={styles.userName}>@{user?.username}</Text>
         </View>
 
         <View style={styles.drawerContent}>
