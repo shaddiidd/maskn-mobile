@@ -41,6 +41,27 @@ const AppError = require("../utils/AppError");
 //   }
 // };
 
+// controllers/feedbackController.js
+
+const getFeedbackByRole = async (req, res, next) => {
+  try {
+    const { role } = req.token; // Assuming `role` comes from the request params
+    if (!role) {
+      throw new AppError("Role is required", 403);
+    }
+
+    const feedback = await feedbackService.getFeedbackByRole(role);
+    res.success(feedback, "survey questions retrived", 200);
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to save survey or update rating",
+        error.statusCode || 500
+      )
+    ); // Pass the error to the global error handler
+  }
+};
+
 const saveSurvey = async (req, res, next) => {
   try {
     const { role, userId } = req.token; // Extract role and user ID from token
@@ -92,4 +113,4 @@ const checkSurveySubmission = async (req, res, next) => {
   }
 };
 
-module.exports = { saveSurvey, checkSurveySubmission };
+module.exports = { saveSurvey, checkSurveySubmission, getFeedbackByRole };

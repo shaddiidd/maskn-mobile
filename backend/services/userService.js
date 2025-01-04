@@ -314,7 +314,6 @@ const updateUser = async (userId, updateData, files) => {
       username: username || user.username,
       first_name: first_name || user.first_name,
       last_name: last_name || user.last_name,
-      national_number: national_number || user.national_number,
       date_of_birth: date_of_birth || user.date_of_birth,
       password: hashedPassword || user.password,
       nationality: nationality || user.nationality,
@@ -329,7 +328,11 @@ const updateUser = async (userId, updateData, files) => {
       user,
     };
   } catch (error) {
-    throw error; // Let the controller handle errors
+    throw new AppError(
+      error.message || "Failed to delete user",
+      error.statusCode || 500,
+      error.details
+    )
   }
 };
 

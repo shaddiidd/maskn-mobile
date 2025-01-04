@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
 const { filterFields } = require("../utils/propertyUtils");
 const sequelize = require("../models/db");
-
+const { pushNotification } = require("./notificationService");
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
   if (role !== 2) {
@@ -172,19 +172,163 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   }
 };
 
-const updateProperty = async (updatedProperty, propertyId, userId, role) => {
+// const updateProperty = async (updatedProperty, propertyId, userId, role) => {
+//   try {
+//     const property = await Property.findByPk(propertyId);
+
+//     if (!property) {
+//       throw new AppError("Property not found", 404);
+//     }
+
+//     if (role !== 3 && property.owner_id !== userId) {
+//       throw new AppError("Unauthorized: You do not own this property", 403);
+//     }
+
+//     // Allowed fields for regular users
+//     const allowedFieldsForOwners = [
+//       "description",
+//       "title",
+//       "address",
+//       "location",
+//       "area",
+//       "is_furnished",
+//       "floor_num",
+//       "bedroom_num",
+//       "bathroom_num",
+//       "property_age",
+//       "water_meter_subscription_number",
+//       "electricity_meter_reference_number",
+//       "price",
+//       "rental_period",
+//       "village_id",
+//       "block_id",
+//       "neighborhood_id",
+//       "parcel_number",
+//       "building_number",
+//       "apartment_number",
+//       "photos"
+//     ];
+
+//     // Filter fields based on user role
+//     const filteredUpdates =
+//       role === 3
+//         ? updatedProperty // Admins can update any field
+//         : filterFields(updatedProperty, allowedFieldsForOwners);
+
+//     if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
+//       if (property.mark_as_rented === 1) {
+//         throw new AppError(
+//           "Cannot change post_status_id when the property is marked as rented",
+//           400
+//         );
+//       }
+//     }
+
+//     if (Object.keys(filteredUpdates).length === 0) {
+//       throw new AppError("No valid fields to update", 400);
+//     }
+
+//     // Update and save property
+//     Object.assign(property, filteredUpdates);
+//     const updatedData = await property.save();
+
+//     return updatedData;
+//   } catch (error) {
+//     throw new AppError("Failed to update the property", 500, {
+//       details: error.message,
+//     });
+//   }
+// };
+
+// const updateProperty = async (updatedProperty, propertyId, userId, role) => {
+//   try {
+//     const property = await Property.findByPk(propertyId);
+
+//     if (!property) {
+//       throw new AppError("Property not found", 404);
+//     }
+
+//     if (role !== 3 && property.owner_id !== userId) {
+//       throw new AppError("Unauthorized: You do not own this property", 403);
+//     }
+
+//     // Allowed fields for regular users
+//     const allowedFieldsForOwners = [
+//       "description",
+//       "title",
+//       "address",
+//       "location",
+//       "area",
+//       "is_furnished",
+//       "floor_num",
+//       "bedroom_num",
+//       "bathroom_num",
+//       "property_age",
+//       "water_meter_subscription_number",
+//       "electricity_meter_reference_number",
+//       "price",
+//       "rental_period",
+//       "village_id",
+//       "block_id",
+//       "neighborhood_id",
+//       "parcel_number",
+//       "building_number",
+//       "apartment_number",
+//       "photos", // Include photos
+//     ];
+
+//     // Filter fields based on user role
+//     const filteredUpdates =
+//       role === 3
+//         ? updatedProperty // Admins can update any field
+//         : filterFields(updatedProperty, allowedFieldsForOwners);
+
+//     if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
+//       if (property.mark_as_rented === 1) {
+//         throw new AppError(
+//           "Cannot change post_status_id when the property is marked as rented",
+//           400
+//         );
+//       }
+//     }
+
+//     if (Object.keys(filteredUpdates).length === 0) {
+//       throw new AppError("No valid fields to update", 400);
+//     }
+
+//     // Update and save property
+//     Object.assign(property, filteredUpdates);
+//     const updatedData = await property.save();
+
+//     return updatedData;
+//   } catch (error) {
+//     throw new AppError("Failed to update the property", 500, {
+//       details: error.message,
+//     });
+//   }
+// };
+
+const updateProperty = async (
+  updatedProperty,
+  propertyId,
+  userId,
+  role,
+  uploadedPhotos
+) => {
   try {
+    // Fetch the property
     const property = await Property.findByPk(propertyId);
 
     if (!property) {
       throw new AppError("Property not found", 404);
     }
 
+    // Authorization: Check if the user is allowed to update the property
     if (role !== 3 && property.owner_id !== userId) {
       throw new AppError("Unauthorized: You do not own this property", 403);
     }
 
-    // Allowed fields for regular users
+    // Allowed fields for non-admins
     const allowedFieldsForOwners = [
       "description",
       "title",
@@ -208,12 +352,25 @@ const updateProperty = async (updatedProperty, propertyId, userId, role) => {
       "apartment_number",
     ];
 
-    // Filter fields based on user role
+    // Validate fields for the role
     const filteredUpdates =
       role === 3
         ? updatedProperty // Admins can update any field
         : filterFields(updatedProperty, allowedFieldsForOwners);
 
+    // Handle photos logic
+    if (uploadedPhotos.length) {
+      if (updatedProperty.replacePhotos) {
+        // Replace existing photos with new ones
+        filteredUpdates.photos = uploadedPhotos;
+      } else {
+        // Merge new photos with existing ones
+        const existingPhotos = property.photos || [];
+        filteredUpdates.photos = [...existingPhotos, ...uploadedPhotos];
+      }
+    }
+
+    // Prevent updating `post_status_id` if the property is rented
     if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
       if (property.mark_as_rented === 1) {
         throw new AppError(
@@ -223,6 +380,7 @@ const updateProperty = async (updatedProperty, propertyId, userId, role) => {
       }
     }
 
+    // Ensure there are fields to update
     if (Object.keys(filteredUpdates).length === 0) {
       throw new AppError("No valid fields to update", 400);
     }
@@ -233,7 +391,7 @@ const updateProperty = async (updatedProperty, propertyId, userId, role) => {
 
     return updatedData;
   } catch (error) {
-    throw new AppError("Failed to update the property", 500, {
+    throw new AppError("Failed to update property", 500, {
       details: error.message,
     });
   }
@@ -316,7 +474,18 @@ const requestTourByTenant = async (tenantId, propertyId) => {
       owner_id: ownerId,
     });
 
-    return newTourRequest; // Return created request data
+    try {
+      await pushNotification({
+        user_id: property.owner_id,
+        title: "Tour Request",
+        body: `Your property ${property.title} has new request `,
+      });
+    } catch (notificationError) {
+      console.error("Failed to send notification:", notificationError.message);
+      // Log the error but do not stop the service
+    }
+
+    return { newTourRequest }; // Return created request data
   } catch (error) {
     throw new AppError(error.message || "Failed to process tour request", 500);
   }

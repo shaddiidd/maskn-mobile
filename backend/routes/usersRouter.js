@@ -16,6 +16,6 @@ userRouter.get("/get-all-owner-requests",authentication, authorization("Manage U
 userRouter.post("/generate-new-token", authentication, generateNewToken)
 userRouter.get("/:userId", authentication, getUserByUserId)
 userRouter.delete("/delete-user/:userId", authentication, authorization("Manage Users"), terminateUser)
-userRouter.put("/update-profile",authentication, updateUser )
+userRouter.put("/update-profile",authentication,upload.array("profile_photo", 1), updateUser )
 
 module.exports = userRouter
