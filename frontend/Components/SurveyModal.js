@@ -31,20 +31,19 @@ export default function SurveyModal({ questions, contractId, entityId, reloadSur
     };
 
     const handleSubmit = async () => {
-        // setLoading(true);
-        console.log(`feedback/survey-submission/${entityId}/${contractId}`)
-        // try {
-        //     // const body = { answers, review };
-        //     // await post(`feedback/survey-submission/${entityId}/${contractId}`, body);
-        //     // setAnswers([]);
-        //     // setReview("");
-        //     // setVisible(false);
-        //     // reloadSurvey();
-        // } catch {
-        //     Alert.alert("Error", "Failed to submit the survey.");
-        // } finally {
-        //     setLoading(false);
-        // }
+        setLoading(true);
+        try {
+            // const body = { answers, review };
+            // await post(`feedback/survey-submission/${entityId}/${contractId}`, body);
+            // setAnswers([]);
+            // setReview("");
+            // setVisible(false);
+            // reloadSurvey();
+        } catch {
+            Alert.alert("Error", "Failed to submit the survey.");
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleNext = () => {
