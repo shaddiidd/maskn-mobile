@@ -65,8 +65,8 @@ const Provider = ({ children }) => {
       setAuthorizationToken(response.data.token);
       AsyncStorage.setItem("token", response.data.token);
       setIsAuthenticated(true);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      logout();
     }
   };
 

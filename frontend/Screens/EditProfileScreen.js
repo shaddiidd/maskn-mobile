@@ -1,18 +1,19 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, Image, Text, TouchableOpacity, View, Alert } from 'react-native';
 import TextField from '../Components/TextField';
 import Context from '../Context';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Button from '../Components/Button';
 import * as ImagePicker from "expo-image-picker";
-import axios from 'axios';
+import { put } from '../fetch';
 import { optimizeImage } from '../utils/images';
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from '@react-navigation/native';
 
 export default function EditProfileScreen() {
     const { user, generateToken, setLoading, token } = useContext(Context);
     const [profile, setProfile] = useState(user);
     const [selectedProfilePic, setSelectedProfilePic] = useState(null);
+    const navigation = useNavigation();
 
     const handleSave = async () => {
         setLoading(true);
@@ -23,33 +24,34 @@ export default function EditProfileScreen() {
             body.append("last_name", profile.last_name);
             body.append("email", profile.email);
             body.append("phone_number", profile.phone_number);
+    
             if (selectedProfilePic) {
-                const { uri } = await optimizeImage(selectedProfilePic);
-                const filename = uri.split('/').pop();
-                const type = "jpg";
-                body.append("photos", {
-                    uri,
-                    name: filename || "profile_photo.jpg",
-                    type: type || "image/jpeg",
-                });
+                const optimizedImage = await optimizeImage(selectedProfilePic);
+                const fileName = selectedProfilePic.uri.split("/").pop();
+                const fileType = "image/jpeg";
+                body.append("profile_photo", {
+                    uri: optimizedImage.uri,
+                    name: fileName,
+                    type: fileType,
+                });    
             }
-            await axios({
-                method: "PUT",
-                url: "http://localhost:5002/users/update-profile",
-                data: body,
-                headers: {
-                    "Authorization": `Bearer ${token}`,
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            await generateToken();
+            await put("users/update-profile", body);
+            Alert.alert("Success", "Profile updated successfully!");
+            generateToken();
+            navigation.pop();
         } catch (error) {
-            console.log(error)
+            if (error.response) {
+                console.log("Error Response:", error.response.data);
+                Alert.alert("Error", error.response.data.message || "Failed to update profile.");
+            } else {
+                console.log("Error:", error.message);
+                Alert.alert("Error", "Something went wrong. Please try again later.");
+            }
         } finally {
             setLoading(false);
         }
     };
-    
+                    
     const pickImage = async () => {
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
         if (!permission.granted) {
@@ -70,7 +72,6 @@ export default function EditProfileScreen() {
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
             <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
-                {/* Conditional Rendering for Profile Picture */}
                 {selectedProfilePic ? (
                     <Image source={{ uri: selectedProfilePic.uri }} style={styles.profilePicture} />
                 ) : user.profile_photo?.[0] ? (
