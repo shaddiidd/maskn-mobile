@@ -723,7 +723,9 @@ const deleteTermById = async (contractId, ownerId, termId) => {
     }
 
     // Delete the term
-    await ContractAdditionalTerms.destroy({ where: { id: termId, contract_id: contractId } });
+    await ContractAdditionalTerms.destroy({
+      where: { id: termId, contract_id: contractId },
+    });
 
     return {
       message: `The term with ID ${termId} in contract ${contractId} was deleted successfully.`,
@@ -735,6 +737,23 @@ const deleteTermById = async (contractId, ownerId, termId) => {
   }
 };
 
+const getAllContracts = async () => {
+  try {
+    const result = await Contract.findAll({
+      include: [
+        { model: User, as: "owner", attributes: ["first_name", "last_name"] },
+        { model: User, as: "tenant", attributes: ["first_name", "last_name"] },
+        { model: Property, as: "property", attributes: ["title"] },
+      ],
+    });
+
+    return result;
+  } catch (error) {
+    throw new AppError("Failed to retrive contracts", 500, {
+      details: error.message,
+    });
+  }
+};
 
 module.exports = {
   createContract,
@@ -743,5 +762,6 @@ module.exports = {
   getContractTermsService,
   updateContractTerm,
   deleteContractService,
-  deleteTermById
+  deleteTermById,
+  getAllContracts
 };

@@ -30,6 +30,14 @@ export default function SearchModal() {
     setIsOpen(false);
   };
 
+  const handleTouchOutside = () => {
+    if (Keyboard.isVisible()) {
+      Keyboard.dismiss();
+    } else {
+      setIsOpen(false);
+    }
+  }
+
   return (
     <>
       <TouchableOpacity style={styles.container} activeOpacity={0.7} onPress={() => setIsOpen(true)}>
@@ -45,8 +53,7 @@ export default function SearchModal() {
         </View>
       </TouchableOpacity>
       <Modal visible={isOpen} transparent animationType="fade">
-        <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+        <TouchableWithoutFeedback onPress={handleTouchOutside}>
           <KeyboardAvoidingView style={styles.modalBackground} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={20}>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>Filter Properties</Text>
@@ -61,7 +68,6 @@ export default function SearchModal() {
               <Button text="Close" compressed outline onPress={() => setIsOpen(false)} />
             </View>
           </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
         </TouchableWithoutFeedback>
       </Modal>
     </>

@@ -115,28 +115,70 @@ const getPropertiesByUserId = async (req, res, next) => {
   }
 };
 
+// const updateProperty = async (req, res, next) => {
+//   const userId = req.token.userId; // Extract user ID from token
+//   const role = req.token.role; // Extract user role from token
+//   const propertyId = req.params.id; // Extract property ID from URL parameters
+
+//   try {
+//     // Call the service to update the property
+//     const updatedProperty = await propertyService.updateProperty(
+//       req.body,
+//       propertyId,
+//       userId,
+//       role
+//     );
+
+//     // Send success response
+//     res.success(
+//       updatedProperty, // Data
+//       `Property ${updatedProperty.property_id} updated successfully`, // Message
+//       200 // Status Code
+//     );
+//   } catch (error) {
+//     // Forward errors to the centralized error handler
+//     next(
+//       new AppError(
+//         error.message || "Failed to update property",
+//         error.statusCode || 500,
+//         error.details
+//       )
+//     );
+//   }
+// };
+
 const updateProperty = async (req, res, next) => {
   const userId = req.token.userId; // Extract user ID from token
   const role = req.token.role; // Extract user role from token
   const propertyId = req.params.id; // Extract property ID from URL parameters
 
   try {
+    // Extract uploaded photos
+    const uploadedPhotos = req.files ? req.files.map((file) => file.path) : [];
+
+    console.log("Updating Property API hit");
+    console.log("Request Params:", req.params);
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
+    console.log("Token Data:", req.token);
+
     // Call the service to update the property
     const updatedProperty = await propertyService.updateProperty(
       req.body,
       propertyId,
       userId,
-      role
+      role,
+      uploadedPhotos
     );
 
     // Send success response
-    res.success(
-      updatedProperty, // Data
-      `Property ${updatedProperty.property_id} updated successfully`, // Message
-      200 // Status Code
-    );
+    res.status(200).json({
+      success: true,
+      message: `Property ${updatedProperty.property_id} updated successfully`,
+      data: updatedProperty,
+    });
   } catch (error) {
-    // Forward errors to the centralized error handler
+    console.error("Error updating property:", error.message);
     next(
       new AppError(
         error.message || "Failed to update property",
@@ -146,6 +188,7 @@ const updateProperty = async (req, res, next) => {
     );
   }
 };
+
 
 const deleteProperty = async (req, res, next) => {
   const userId = req.token.userId; // Extract user ID from token
@@ -343,12 +386,19 @@ const getPropertyByIdByAdmin = async (req, res, next) => {
 const getAllVillages = async (req, res, next) => {
   try {
     const data = await propertyService.getAllVillagesService();
-    res.status(200).json({
-      message: "Villages fetched successfully",
-      data,
-    });
+    res.success(
+      data, // Data
+      "Villages fetched successfully", // Message
+      200 // Status code
+    );
   } catch (error) {
-    next(error);
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
@@ -362,16 +412,44 @@ const getBlockAndNieghbourhoodById = async (req, res, next) => {
       });
     }
 
-    const data = await propertyService.getBlockAndNieghbourhoodByIdService(villageId);
-    res.status(200).json({
-      message: "Blocks and neighborhoods fetched successfully",
-      data,
-    });
+    const data = await propertyService.getBlockAndNieghbourhoodByIdService(
+      villageId
+    );
+
+    res.success(
+      data, // Data
+      "Blocks and neighborhoods fetched successfully", // Message
+      200 // Status code
+    );
   } catch (error) {
-    next(error);
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
   }
 };
 
+const filterProperty = async (req, res, next) => {
+  try {
+    const result = await propertyService.filterProperty(req.body);
+    res.success(
+      result, 
+      "properties filtered successfully",
+      200
+    )
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "Failed to fetch property details",
+        error.statusCode || 500,
+        error.details
+      )
+    );
+  }
+};
 
 module.exports = {
   addProperty,
@@ -385,7 +463,8 @@ module.exports = {
   getTourRequests,
   acceptTourRequest,
   getPropertyById,
-  getPropertyByIdByAdmin, 
+  getPropertyByIdByAdmin,
   getAllVillages,
-  getBlockAndNieghbourhoodById
+  getBlockAndNieghbourhoodById,
+  filterProperty
 };

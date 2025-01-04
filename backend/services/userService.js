@@ -55,11 +55,11 @@ const createUser = async (userData, files) => {
       firstName: newUser.first_name,
       lastName: newUser.last_name,
       profile_photo: newUser.profile_photo,
-      date_of_birth :newUser.date_of_birth,
-      national_number : newUser.national_number,
-      email : newUser.email,
-      rating : newUser.rating,
-      phone_number : newUser.phone_number
+      date_of_birth: newUser.date_of_birth,
+      national_number: newUser.national_number,
+      email: newUser.email,
+      rating: newUser.rating,
+      phone_number: newUser.phone_number,
     };
 
     // Generate the token
@@ -131,11 +131,11 @@ const loginUser = async (credentials) => {
     firstName: user.first_name,
     lastName: user.last_name,
     profile_photo: user.profile_photo,
-    date_of_birth :user.date_of_birth,
-    national_number : user.national_number,
-    email : user.email,
-    rating : user.rating,
-    phone_number : user.phone_number
+    date_of_birth: user.date_of_birth,
+    national_number: user.national_number,
+    email: user.email,
+    rating: user.rating,
+    phone_number: user.phone_number,
   };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
@@ -205,7 +205,11 @@ const RequestToBecomeRenterService = async (userId) => {
 const getAllOwnersRequestsService = async () => {
   try {
     // Fetch all owner rental requests
-    const requests = await OwnersRentalRequest.findAll();
+    const requests = await OwnersRentalRequest.findAll({
+      include: [
+        { model: User, as: "user", attributes: ["first_name", "last_name" , "date_of_birth", "national_number", "profile_photo"] },
+      ],
+    });
 
     // Check if no requests are found
     if (!requests || requests.length === 0) {
@@ -237,12 +241,12 @@ const refreshToken = async (userId) => {
     firstName: user.first_name,
     lastName: user.last_name,
     profile_photo: user.profile_photo,
-    date_of_birth :user.date_of_birth,
-    national_number : user.national_number,
-    email : user.email,
-    rating : user.rating,
-    phone_number : user.phone_number
-  }
+    date_of_birth: user.date_of_birth,
+    national_number: user.national_number,
+    email: user.email,
+    rating: user.rating,
+    phone_number: user.phone_number,
+  };
   const options = { expiresIn: "1d" };
   const secret = process.env.SECRET;
 
@@ -253,23 +257,22 @@ const refreshToken = async (userId) => {
 
 const terminateUserService = async (userId) => {
   try {
-    const deletedCount = await User.destroy({where : {user_id : userId}});
+    const deletedCount = await User.destroy({ where: { user_id: userId } });
 
     if (deletedCount === 0) {
       throw new AppError("user not found or unauthorized access", 404);
     }
-    
+
     return {
-      success : true,
-      message : "user is deleted successfully"
-    }
+      success: true,
+      message: "user is deleted successfully",
+    };
   } catch (error) {
-    
-      throw new AppError(
-        error.message || "Failed to delete user",
-        error.statusCode || 500,
-        error.details
-      )
+    throw new AppError(
+      error.message || "Failed to delete user",
+      error.statusCode || 500,
+      error.details
+    );
   }
 };
 
@@ -314,7 +317,6 @@ const updateUser = async (userId, updateData, files) => {
       username: username || user.username,
       first_name: first_name || user.first_name,
       last_name: last_name || user.last_name,
-      national_number: national_number || user.national_number,
       date_of_birth: date_of_birth || user.date_of_birth,
       password: hashedPassword || user.password,
       nationality: nationality || user.nationality,
@@ -329,10 +331,13 @@ const updateUser = async (userId, updateData, files) => {
       user,
     };
   } catch (error) {
-    throw error; // Let the controller handle errors
+    throw new AppError(
+      error.message || "Failed to delete user",
+      error.statusCode || 500,
+      error.details
+    );
   }
 };
-
 
 module.exports = {
   createUser,
@@ -344,5 +349,5 @@ module.exports = {
   refreshToken,
   findUserByUserId,
   terminateUserService,
-  updateUser
+  updateUser,
 };

@@ -229,9 +229,10 @@ const updateUser = async (req, res, next) => {
 
     // Pass unexpected errors to the centralized error handler
     next(
-      new AppError("An unexpected error occurred", 500, {
-        details: err.message,
-      })
+      new AppError(
+        err.message || "Failed to generate token",
+        err.statusCode || 500
+      )
     );
   }
 };

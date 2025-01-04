@@ -1,6 +1,7 @@
 const express = require("express");
 const contractRouter = express.Router();
 const authentication = require("../middleware/authentication");
+const authorization = require("../middleware/authorization")
 const upload = require("../middleware/upload");
 const {
   generateContract,
@@ -8,8 +9,9 @@ const {
   signContract,
   getContractTerms,
   updateContract,
-  deleteContract, 
-  deleteTerm
+  deleteContract,
+  deleteTerm,
+  getAllContracts
 } = require("../controllers/contract");
 
 contractRouter.post(
@@ -28,7 +30,30 @@ contractRouter.get(
   authentication,
   getContractTerms
 );
-contractRouter.put("/update-contract/:contractId", authentication, updateContract)
-contractRouter.delete("/delete-contract/:contractId", authentication, deleteContract)
-contractRouter.delete("/delete-term/:contractId/:termId", authentication, deleteTerm)
+contractRouter.put(
+  "/update-contract/:contractId",
+  authentication,
+  updateContract
+);
+contractRouter.delete(
+  "/delete-contract/:contractId",
+  authentication,
+  deleteContract
+);
+contractRouter.put(
+  "/update-contract/:contractId",
+  authentication,
+  updateContract
+);
+contractRouter.delete(
+  "/delete-contract/:contractId",
+  authentication,
+  deleteContract
+);
+contractRouter.delete(
+  "/delete-term/:contractId/:termId",
+  authentication,
+  deleteTerm
+);
+contractRouter.get("/get-all-contracts",authentication, authorization("Manage Users"), getAllContracts )
 module.exports = contractRouter;

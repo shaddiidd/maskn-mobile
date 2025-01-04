@@ -76,6 +76,16 @@ const Contract = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    owner_survey_filled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    tenant_survey_filled: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
   },
   {
     timestamps: true,
