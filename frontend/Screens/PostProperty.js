@@ -108,9 +108,9 @@ export default function PostProperty() {
       form.append("is_furnished", propertyInfo.is_furnished ? true : false);
       for (const [_, image] of images.entries()) {
         const optimizedImage = await optimizeImage(image);
-        const blob = await fetch(optimizedImage.uri).then((r) => r.blob())
+        const blob = await fetch(optimizedImage.uri).then((r) => r.blob());
         form.append("photos", blob);
-      }      
+      }
       await axios.post("http://localhost:5002/property/add-property", form, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}` } });
       Alert.alert("Success", "Property posted successfully!");
       navigation.pop();

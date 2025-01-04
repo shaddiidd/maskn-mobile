@@ -2,7 +2,7 @@ import { StyleSheet, View, RefreshControl, ScrollView, Text, Alert } from "react
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
-import { get } from "../fetch";
+import { post } from "../fetch";
 import Context from "../Context";
 import FiltersContainer from "../Components/FiltersContainer";
 
@@ -19,14 +19,16 @@ export default function PropertySearch({ route }) {
       if (bedrooms.length) body.bedroom_num = parseInt(bedrooms);
       if (bathrooms.length) body.bathroom_num = parseInt(bathrooms);
       if (priceRange.length) body.price_range = `${priceRange[0]}-${priceRange[1]}`;
-      if (firnished) body.is_furnished = firnished;
-      const response = await get("property", body);
-      let filteredProperties = response.data;
+      body.is_furnished = Boolean(firnished);
+      const response = await post("property/get-by-filter", body);
+      let filteredProperties = response.data.properties;
+      console.log(filteredProperties);
       if (searchText) {
         filteredProperties = filteredProperties.filter(property => property?.title?.toLowerCase().includes(searchText?.toLowerCase()));
       }
       setProperties(filteredProperties);
-    } catch {
+    } catch (error) {
+      console.log(error);
       Alert.alert("Error", "Failed to get properties");
     } finally {
       setRefreshing(false);

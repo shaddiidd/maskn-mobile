@@ -5,7 +5,7 @@ import SurveyModal from "./SurveyModal";
 import { get } from "../fetch";
 import Context from "../Context";
 
-export default function InitiateSurveysModal({ surveyData, reoloadSurvey }) {
+export default function InitiateSurveysModal({ surveyData, reloadSurvey }) {
     const [questions, setQuestions] = useState([]);
     const { setLoading, user } = useContext(Context);
 
@@ -33,25 +33,42 @@ export default function InitiateSurveysModal({ surveyData, reoloadSurvey }) {
                     <Text style={styles.headerTitle}>Survey</Text>
                 </SafeAreaView>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
+                    <Ionicons name="checkmark-circle-outline" size={150} color="#508D4E" />
                     <Text style={styles.introText}>
                         Thank you for using Maskn. To help us ensure a safe and seamless rental experience for everyone, please take a moment to share your thoughts about your recent rental experience.
                     </Text>
                     {surveyData.map((item, index) => (
                         <View style={styles.card} key={index}>
-                            {item?.tenant?.profile_photo?.length ? (
-                                <Image style={styles.profilePicture} source={{ uri: item.tenant.profile_photo[0] }} />
+                            {(user.role === 1) ? (
+                                <>
+                                    {item?.property?.photos?.length ? (
+                                        <Image style={styles.propertyPhoto} source={{ uri: item?.property?.photos[0] }} />
+                                    ) : (
+                                        <View style={styles.propertyPhoto}>
+                                            <Ionicons name="person" color="#666" size={25} />
+                                        </View>
+                                    )}
+                                </>
                             ) : (
-                                <View style={styles.profilePicture}>
-                                    <Ionicons name="person" color="#666" size={25} />
-                                </View>
+                                <>
+                                    {item?.tenant?.profile_photo?.length ? (
+                                        <Image style={styles.profilePicture} source={{ uri: item?.tenant?.profile_photo[0] }} />
+                                    ) : (
+                                        <View style={styles.profilePicture}>
+                                            <Ionicons name="person" color="#666" size={25} />
+                                        </View>
+                                    )}
+                                </>
                             )}
                             <View style={styles.tenantInfo}>
-                                <Text style={styles.name}>
-                                    {item.tenant.first_name} {item.tenant.last_name}
-                                </Text>
-                                <Text style={styles.username}>@{item.tenant.username}</Text>
+                                {user.role === 1 ? (
+                                    <Text style={styles.name}>{item?.property?.title}</Text>
+                                ) : (
+                                    <Text style={styles.name}>{item?.tenant?.first_name} {item?.tenant?.last_name}</Text>
+                                )}
+                                {user.role === 2 ? <Text style={styles.username}>@{item.tenant.username}</Text> : null}
                             </View>
-                            <SurveyModal contractId={item.contract_id} entityId={item.tenant.tenant_id} reoloadSurvey={reoloadSurvey} questions={questions} />
+                            <SurveyModal contractId={item.contract_id} entityId={user.role === 1 ? item.property.property_id : item?.tenant?.tenant_id} reloadSurvey={reloadSurvey} questions={questions} />
                         </View>
                     ))}
                 </ScrollView>
@@ -88,11 +105,13 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 30,
         rowGap: 15,
+        alignItems: "center",
     },
     introText: {
         fontSize: 15,
         color: "#666",
         lineHeight: 20,
+        marginBottom: 10,
     },
     card: {
         flexDirection: "row",
@@ -102,8 +121,19 @@ const styles = StyleSheet.create({
     profilePicture: {
         width: 50,
         height: 50,
-        borderRadius: 40,
-        marginRight: 15,
+        borderRadius: 25,
+        marginRight: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#eee",
+        borderColor: "#508D4E",
+        borderWidth: 1,
+    },
+    propertyPhoto: {
+        width: 50,
+        height: 50,
+        borderRadius: 5,
+        marginRight: 10,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "#eee",

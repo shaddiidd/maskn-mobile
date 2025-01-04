@@ -32,7 +32,7 @@ export default function ProfileScreen({ route }) {
     } else {
       setProfile(user);
     }
-  }, [userId]);
+  }, [userId, user]);
 
   // const infoItems = [
   //   { icon: "work-outline", text: "Student" },
