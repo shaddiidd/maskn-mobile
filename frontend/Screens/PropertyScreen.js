@@ -19,8 +19,9 @@ export default function PropertyScreen({ route }) {
     try {
       const response = await get(`property/get-property/${property_id}`);
       setProperty(response.data.data);
+      console.log(response.data.data.reviews);
     } catch (error) {
-      console.log(error.response.data);
+      Alert.alert("Error", "Failed to get property");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -40,11 +41,6 @@ export default function PropertyScreen({ route }) {
       Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }])
     }
   }
-  
-  const reviews = [
-    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
-    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
-  ];
 
   if (property === null) return null;
   return (
@@ -75,7 +71,7 @@ export default function PropertyScreen({ route }) {
         {property.request_status === "approved" && (
           <PropertyOwnerCard id={property?.owner_id} name="Anas Bajawi" imageUrl={require("../assets/anas.png")} phoneNumber="0796199221" />
         )}
-        <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
+        <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={property.reviews} />
       </SafeAreaView>
     </ScrollView>
   );

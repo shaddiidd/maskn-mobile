@@ -1,41 +1,35 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from "@expo/vector-icons";
 
 export default function Reviews({ reviews, seeAll = false, additionalStyles = {} }) {
-  const navigation = useNavigation();
   return (
     <View style={[styles.container, additionalStyles]}>
       <View style={styles.header}>
         <Text style={styles.title}>Reviews</Text>
-        <TouchableOpacity activeOpacity={0.7}>
-            {seeAll ? <Text style={styles.seeAll}>See all</Text> : <></>}
-        </TouchableOpacity>
+        {/* <TouchableOpacity activeOpacity={0.7}>
+          {seeAll ? <Text style={styles.seeAll}>See all</Text> : <></>}
+        </TouchableOpacity> */}
       </View>
-      {reviews.length > 0 ? reviews.map((review) => (
-      <View key={review.id} style={styles.card}>
-        <View style={styles.starContainer}>
-            {Array(review.star_rating).fill(0).map((_, index) => (
-                <Ionicons key={index} name="star" size={22} color="gold" />
-            ))}
-            {Array(5 - review.star_rating).fill(0).map((_, index) => (
-                <Ionicons key={index} name="star-outline" size={22} color="gold" />
-            ))}
-        </View>
-        <View style={{ marginVertical: 25 }}>
-            <Text style={styles.title}>{review.title}</Text>
-            <Text style={styles.description}>{review.description}</Text>
-        </View>
-        <View style={styles.user}>
-          <Image style={styles.profile_picture} source={review.profile_picture} />
-          <View>
-            <Text style={styles.name}>{review.name}</Text>
-            <Text style={styles.date}>{review.date}</Text>
+      {reviews.length > 0 ? reviews.map((review, index) => (
+        <View key={index} style={styles.card}>
+          <View style={styles.user}>
+            {review?.tenant?.profile_photo?.length ? (
+              <Image style={styles.profile_picture} source={{ uri: review?.tenant?.profile_photo[0] }} />
+            ) : (
+              <View style={styles.profile_picture}>
+                <Ionicons name="person" color="#666" size={22} />
+              </View>
+            )}
+            {console.log(review)}
+            <View>
+              <Text style={styles.name}>{review?.tenant?.first_name} {review?.tenant?.last_name}</Text>
+              <Text style={styles.username}>@{review?.tenant?.username}</Text>
+            </View>
           </View>
+          <Text style={styles.description}>{review.review_text}</Text>
         </View>
-      </View>
       )) : (
-        <Text style={styles.noReviews}>No reviews yet</Text>
+        <Text style={styles.noReviews}>No reviews yet...</Text>
       )}
     </View>
   );
@@ -46,6 +40,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     marginTop: 20,
+    rowGap: 15,
+    width: "100%"
   },
   header: {
     flexDirection: "row",
@@ -55,8 +51,9 @@ const styles = StyleSheet.create({
     marginBottom: 5
   },
   title: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: '600',
+    marginBottom: -10,
   },
   seeAll: {
     color: "#508D4E",
@@ -64,48 +61,54 @@ const styles = StyleSheet.create({
     fontWeight: "600"
   },
   card: {
-    borderColor: "#D9D9D9",
-    borderWidth: 1,
-    marginVertical: 10,
     borderRadius: 8,
     minWidth: "100%",
-    paddingHorizontal: 20,
-    paddingVertical: 25,
+    padding: 20,
     justifyContent: "space-between",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    borderRadius: 12,
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: "#fff",
+    rowGap: 10
   },
   starContainer: {
     flexDirection: "row",
     justifyContent: "flex-start",
-    gap: 1
   },
   description: {
-    fontSize: 18,
-    fontWeight: "300",
-    marginTop: 2
+    fontSize: 15,
+    color: "#666",
   },
   user: {
     flexDirection: "row",
-    alignItems: "center"
+    alignItems: "center",
+    // marginTop: 15
   },
   profile_picture: {
     height: 45,
     width: 45,
     borderRadius: 25,
-    marginRight: 10
+    marginRight: 10,
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#508D4E"
   },
   name: {
     fontSize: 17,
-    color: "#757575",
     fontWeight: "600"
   },
-  date: {
+  username: {
     color: "#B3B3B3",
-    marginTop: 1
   },
   noReviews: {
     fontSize: 15,
     fontWeight: "500",
-    marginTop: 10,
     color: "#666",
+    width: "100%",
   }
 });
