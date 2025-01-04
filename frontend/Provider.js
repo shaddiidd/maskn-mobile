@@ -33,6 +33,7 @@ const Provider = ({ children }) => {
     );
     return JSON.parse(jsonPayload);
   };
+
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();

@@ -13,7 +13,8 @@ export default function AppContainer() {
     setLoading(true);
     try {
       const response = await get("feedback/check-filled-survey");
-      setSurveyData(response.data);
+      if (response?.data?.length) setSurveyData(response.data);
+      else setSurveyData([]);
     } catch {
     } finally {
       setLoading(false);
@@ -27,7 +28,7 @@ export default function AppContainer() {
   return (
     <>
       <StatusBar barStyle="light-content" />
-      <InitiateSurveysModal reoloadSurvey={getSurverys} surveyData={surveyData} />
+      <InitiateSurveysModal reloadSurvey={getSurverys} surveyData={surveyData} />
       <Navigation />
       {loading && (
         <View style={styles.loadingContainer}>

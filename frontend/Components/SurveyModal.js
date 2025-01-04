@@ -4,6 +4,7 @@ import Button from "./Button";
 import SurveyQuestion from "./SurveyQuestion";
 import TextField from "./TextField";
 import Context from "../Context";
+import { post } from "../fetch";
 
 export default function SurveyModal({ questions, contractId, entityId, reloadSurvey }) {
     const [visible, setVisible] = useState(false);
@@ -33,12 +34,14 @@ export default function SurveyModal({ questions, contractId, entityId, reloadSur
     const handleSubmit = async () => {
         setLoading(true);
         try {
-            // const body = { answers, review };
-            // await post(`feedback/survey-submission/${entityId}/${contractId}`, body);
-            // setAnswers([]);
-            // setReview("");
-            // setVisible(false);
-            // reloadSurvey();
+            const updatedAnswers = answers.map((ans) => ({ questionId: ans.questionId, questionAnsValue: ans.questionAnsValue }));
+            const updatedReview = review.trim();
+            const body = { answers: updatedAnswers, review: updatedReview };
+            await post(`feedback/survey-submission/${entityId}/${contractId}`, body);
+            setAnswers([]);
+            setReview("");
+            setVisible(false);
+            Alert.alert("Thank You!", "Your feedback is appreciated and helps us improve our services!", [{ text: "OK", onPress: () => reloadSurvey()}]);
         } catch {
             Alert.alert("Error", "Failed to submit the survey.");
         } finally {
@@ -93,7 +96,7 @@ export default function SurveyModal({ questions, contractId, entityId, reloadSur
                             <View style={styles.reviewContainer}>
                                 <Text style={styles.reviewTitle}>Write a review about your experience:</Text>
                                 <TextField placeholder="Write a minimum of 150 characters" textarea value={review} setValue={setReview} />
-                                {review.length ? <Text style={[styles.reviewLength, { color: review.length < 150 ? "red" : "green" }]}>{review.length}</Text> : null}
+                                {review.length ? <Text style={[styles.reviewLength, { color: review.trim().length < 150 ? "red" : "green" }]}>{review.trim().length}</Text> : null}
                             </View>
                         )}
                         <View>
