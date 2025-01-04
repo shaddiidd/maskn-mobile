@@ -78,6 +78,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     minWidth: "100%",
+    paddingTop: 10
   },
   scrollContainer: {
     alignItems: "center",

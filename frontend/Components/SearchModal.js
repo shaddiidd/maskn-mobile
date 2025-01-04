@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, Platform, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Button from './Button';
 import TextField from './TextField';
 import RangeSlider from './RangeSlider';
 import { useNavigation } from '@react-navigation/native';
 import RadioButtons from './RadioButtons';
+import LabelTextField from './LabelTextField';
 
-export default function SearchModal({ handleSearch }) {
+export default function SearchModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchText, setSearchText] = useState('');
   const [bathrooms, setBathrooms] = useState('');
@@ -45,20 +46,22 @@ export default function SearchModal({ handleSearch }) {
       </TouchableOpacity>
       <Modal visible={isOpen} transparent animationType="fade">
         <TouchableWithoutFeedback onPress={() => setIsOpen(false)}>
+        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
           <KeyboardAvoidingView style={styles.modalBackground} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={20}>
             <View style={styles.modalContainer}>
               <Text style={styles.modalTitle}>Filter Properties</Text>
-              <TextField placeholder="Search" value={searchText} setValue={setSearchText} />
+              <LabelTextField placeholder="Search" value={searchText} setValue={setSearchText} />
               <RangeSlider min={0} max={5000} initialMin={priceRange[0]} initialMax={priceRange[1]} onValuesChange={setPriceRange} />
               <View style={styles.textFieldRow}>
-                <TextField keyboardType="numeric" small placeholder="Bedrooms" value={bedrooms} setValue={setBedrooms} />
-                <TextField keyboardType="numeric" small placeholder="Bathrooms" value={bathrooms} setValue={setBathrooms} />
+                <LabelTextField keyboardType="numeric" small placeholder="Bedrooms" value={bedrooms} setValue={setBedrooms} />
+                <LabelTextField keyboardType="numeric" small placeholder="Bathrooms" value={bathrooms} setValue={setBathrooms} />
               </View>
               <RadioButtons selectedValue={firnished} setSelectedValue={setFirnished} />
               <Button text="Apply Filters" compressed onPress={handleApplyFilters} />
               <Button text="Close" compressed outline onPress={() => setIsOpen(false)} />
             </View>
           </KeyboardAvoidingView>
+        </TouchableWithoutFeedback>
         </TouchableWithoutFeedback>
       </Modal>
     </>

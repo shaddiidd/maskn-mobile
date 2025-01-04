@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList } from "react
 import { Ionicons } from "@expo/vector-icons";
 import Button from "./Button";
 
-export default function DropdownMenu({ items, selectedValue, onValueChange, placeholder = "Select an option", additionalStyles = {} }) {
+export default function DropdownMenu({ items, selectedValue, onValueChange, placeholder = "Select an option", additionalStyles = {}, label }) {
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSelect = (item) => {
@@ -13,6 +13,7 @@ export default function DropdownMenu({ items, selectedValue, onValueChange, plac
 
   return (
     <View style={[styles.container, additionalStyles]}>
+      {label && <Text style={styles.label}>{label}</Text>}
       <TouchableOpacity activeOpacity={0.7} style={styles.dropdown} onPress={() => setIsVisible(true)}>
         <Text style={[styles.text, selectedValue ? styles.selectedText : styles.placeholderText]}>
           {selectedValue ? items.find((item) => item.id === selectedValue)?.label : placeholder}
@@ -47,6 +48,10 @@ const styles = StyleSheet.create({
   container: {
     width: "100%",
     marginBottom: 10,
+  },
+  label: {
+    color: "#333",
+    marginBottom: 5,
   },
   dropdown: {
     flexDirection: "row",

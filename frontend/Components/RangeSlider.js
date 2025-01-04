@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   label: {
-    color: "#666",
+    color: "#333",
   },
   sliderMarker: {
     width: 25,
