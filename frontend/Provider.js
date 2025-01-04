@@ -33,12 +33,9 @@ const Provider = ({ children }) => {
     );
     return JSON.parse(jsonPayload);
   };
-
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();
-
-      // Transform the decoded token keys
       const transformedToken = {
         ...decodedToken,
         first_name: decodedToken.firstName,
@@ -46,7 +43,6 @@ const Provider = ({ children }) => {
         username: decodedToken.userName,
       };
 
-      // Remove old keys to avoid duplication
       delete transformedToken.firstName;
       delete transformedToken.lastName;
       delete transformedToken.userName;

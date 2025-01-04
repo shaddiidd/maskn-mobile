@@ -1,13 +1,33 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import Navigation from "./Navigation";
 import { ActivityIndicator, StatusBar, StyleSheet, View } from "react-native";
 import Context from "./Context";
+import InitiateSurveysModal from "./Components/InitiateSurveysModal";
+import { get } from "./fetch";
 
 export default function AppContainer() {
-  const { loading } = useContext(Context);
+  const { loading, setLoading, isAuthenticated } = useContext(Context);
+  const [surveyData, setSurveyData] = useState([]);
+
+  const getSurverys = async () => {
+    setLoading(true);
+    try {
+      const response = await get("feedback/check-filled-survey");
+      setSurveyData(response.data);
+    } catch {
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (isAuthenticated) getSurverys()
+  }, [isAuthenticated]);
+
   return (
     <>
       <StatusBar barStyle="light-content" />
+      <InitiateSurveysModal reoloadSurvey={getSurverys} surveyData={surveyData} />
       <Navigation />
       {loading && (
         <View style={styles.loadingContainer}>
