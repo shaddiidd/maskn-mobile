@@ -11,7 +11,7 @@ const getFeedbackByRole = async (role) => {
   try {
     if (role === 1) {
       // Fetch tenant feedback
-      return await TenantFeedback.findAll();
+      return await TenantPropertyFeedback.findAll();
     } else if (role === 2) {
       // Fetch owner rental experience
       return await OwnerRentalExperience.findAll();

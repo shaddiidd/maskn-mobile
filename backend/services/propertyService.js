@@ -9,7 +9,7 @@ const { Op } = require("sequelize");
 const AppError = require("../utils/AppError");
 const { filterFields } = require("../utils/propertyUtils");
 const sequelize = require("../models/db");
-
+const { pushNotification } = require("./notificationService");
 const createProperty = async (property, ownerId, role, files) => {
   // Check if the user has the proper role to create a property
   if (role !== 2) {
@@ -308,7 +308,13 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
 //   }
 // };
 
-const updateProperty = async (updatedProperty, propertyId, userId, role, uploadedPhotos) => {
+const updateProperty = async (
+  updatedProperty,
+  propertyId,
+  userId,
+  role,
+  uploadedPhotos
+) => {
   try {
     // Fetch the property
     const property = await Property.findByPk(propertyId);
@@ -343,7 +349,7 @@ const updateProperty = async (updatedProperty, propertyId, userId, role, uploade
       "neighborhood_id",
       "parcel_number",
       "building_number",
-      "apartment_number"
+      "apartment_number",
     ];
 
     // Validate fields for the role
@@ -390,8 +396,6 @@ const updateProperty = async (updatedProperty, propertyId, userId, role, uploade
     });
   }
 };
-
-
 
 const deletePropertyService = async (propertyId, userId, role) => {
   try {
@@ -470,7 +474,18 @@ const requestTourByTenant = async (tenantId, propertyId) => {
       owner_id: ownerId,
     });
 
-    return newTourRequest; // Return created request data
+    try {
+      await pushNotification({
+        user_id: property.owner_id,
+        title: "Tour Request",
+        body: `Your property ${property.title} has new request `,
+      });
+    } catch (notificationError) {
+      console.error("Failed to send notification:", notificationError.message);
+      // Log the error but do not stop the service
+    }
+
+    return { newTourRequest }; // Return created request data
   } catch (error) {
     throw new AppError(error.message || "Failed to process tour request", 500);
   }

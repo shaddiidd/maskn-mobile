@@ -4,6 +4,7 @@ const authentication = require("../middleware/authentication");
 const {
   saveSurvey,
   checkSurveySubmission,
+  getFeedbackByRole
 } = require("../controllers/feedback");
 
 feedbackRouter.get(
@@ -13,5 +14,6 @@ feedbackRouter.get(
 );
 
 feedbackRouter.post("/survey-submission/:entityId/:contractId", authentication, saveSurvey)
+feedbackRouter.get("/get-survey", authentication, getFeedbackByRole)
 
 module.exports = feedbackRouter;

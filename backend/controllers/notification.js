@@ -3,7 +3,7 @@ const AppError = require("../utils/AppError");
 
 const getUserNotifications = async (req, res, next) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.token;
     const data = await notificationService.getUserNotifications(userId);
     res.success(
       data, // Data

@@ -1,6 +1,6 @@
 const Notification = require("../models/notification");
 const Token = require("../models/notificationToken");
-
+const AppError = require("../utils/AppError")
 // Fetch all notifications for a user
 const getUserNotifications = async (userId) => {
   return await Notification.findAll({
@@ -11,7 +11,7 @@ const getUserNotifications = async (userId) => {
 
 // Create and push a notification
 const pushNotification = async (userId, title, body) => {
-  return await Notification.create({
+    return await Notification.create({
     user_id: userId,
     title,
     body,
