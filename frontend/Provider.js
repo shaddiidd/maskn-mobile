@@ -33,6 +33,7 @@ const Provider = ({ children }) => {
     );
     return JSON.parse(jsonPayload);
   };
+
   useEffect(() => {
     if (token) {
       const decodedToken = decodeJWT();
@@ -64,8 +65,8 @@ const Provider = ({ children }) => {
       setAuthorizationToken(response.data.token);
       AsyncStorage.setItem("token", response.data.token);
       setIsAuthenticated(true);
-    } catch (error) {
-      console.log(error);
+    } catch {
+      logout();
     }
   };
 
