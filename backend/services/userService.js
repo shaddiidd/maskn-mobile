@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const OwnersRentalRequest = require("../models/ownerRentalRequests");
 const AppError = require("../utils/AppError");
 const { where } = require("sequelize");
+const OwnerReview = require("../models/ownerReviews");
 
 const createUser = async (userData, files) => {
   try {
@@ -88,7 +89,26 @@ const findAllUsers = async () => {
 
 const findUserByUserId = async (userId) => {
   try {
-    const user = await User.findByPk(userId);
+    const user = await User.findByPk(userId, {
+      include: [
+        {
+          model: OwnerReview,
+          as: "tenant_reviews_owner",
+          attributes: ["review_text"],include: [
+            {
+              model: User,
+              as: "owner",
+              attributes: [
+                "username",
+                "first_name",
+                "last_name",
+                "profile_photo",
+              ],
+            },
+          ],
+        },
+      ],
+    });
     return user;
   } catch (error) {
     throw error;
@@ -207,7 +227,17 @@ const getAllOwnersRequestsService = async () => {
     // Fetch all owner rental requests
     const requests = await OwnersRentalRequest.findAll({
       include: [
-        { model: User, as: "user", attributes: ["first_name", "last_name" , "date_of_birth", "national_number", "profile_photo"] },
+        {
+          model: User,
+          as: "user",
+          attributes: [
+            "first_name",
+            "last_name",
+            "date_of_birth",
+            "national_number",
+            "profile_photo",
+          ],
+        },
       ],
     });
 
