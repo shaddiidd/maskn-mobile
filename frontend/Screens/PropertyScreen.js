@@ -10,7 +10,7 @@ import { capitalizeFirstLetter, formatPrice } from "../helpers/textFunctions";
 import PropertyOwnerCard from "../Components/PropertyOwnerCard";
 
 export default function PropertyScreen({ route }) {
-  const [property, setProperty] = useState({});
+  const [property, setProperty] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const { property_id } = route.params;
   const { user, setLoading } = useContext(Context);
@@ -46,7 +46,7 @@ export default function PropertyScreen({ route }) {
     // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
   ];
 
-  if (!property) return null;
+  if (property === null) return null;
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
@@ -56,21 +56,21 @@ export default function PropertyScreen({ route }) {
           <PaginatedCarousel propertyImages={[require("../assets/house.png")]} />
         )}
         <ScrollView contentContainerStyle={styles.infoBoxesContainer} horizontal showsHorizontalScrollIndicator={false}>
-          <PropertyInfoBox title="Area" value={property?.area} />
+          <PropertyInfoBox title="Area" value={parseInt(property?.area)} />
           <PropertyInfoBox title="Bedrooms" value={property?.bedroom_num} />
           <PropertyInfoBox title="Bathrooms" value={property?.bathroom_num} />
           <PropertyInfoBox title="Floor" value={property?.floor_num} />
           <PropertyInfoBox title="Furnished" value={property?.is_furnished ? "Yes" : "No"} />
         </ScrollView>
-
         <Text style={styles.title}>{property?.title}</Text>
+        {/* Add rating here */}
         <Text style={styles.address}>{property?.address}</Text>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
           {property?.price && <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>}
           {property?.rental_period && <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>}
         </View>
-        {(!property.request_status && user.userId !== property.owner_id) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
+        {(user.role === 1 && !property.request_status) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
         {property.request_status === "approved" && (
           <PropertyOwnerCard id={property?.owner_id} name="Anas Bajawi" imageUrl={require("../assets/anas.png")} phoneNumber="0796199221" />

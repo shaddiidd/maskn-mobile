@@ -4,7 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 export default function RadioButtons({ selectedValue, setSelectedValue }) {
     return (
         <View style={styles.container}>
-            <Text style={{ fontSize: 16, color: "#333", marginRight: 8 }}>Is your property furnished?</Text>
+            <Text style={{ fontSize: 16, color: "#333", marginRight: 8 }}>Firnished:</Text>
             <TouchableOpacity activeOpacity={0.7} style={styles.option} onPress={() => setSelectedValue(1)}>
                 <View style={[styles.radio, selectedValue && styles.selected]} />
                 <Text style={styles.label}>Yes</Text>

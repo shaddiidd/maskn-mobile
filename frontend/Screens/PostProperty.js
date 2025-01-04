@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { StyleSheet, Text, View, ScrollView, Image, TouchableOpacity, Alert, KeyboardAvoidingView, Platform, Keyboard, ScrollViewBase } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
-import TextField from "../Components/TextField";
+import LabelTextField from "../Components/LabelTextField";
 import Button from "../Components/Button";
 import RadioButtons from "../Components/RadioButtons";
 import DropdownMenu from "../Components/DropdownMenu";
@@ -123,9 +123,9 @@ export default function PostProperty() {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"} keyboardVerticalOffset={100}>
-      <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom: 30, paddingHorizontal: 20 }}>
-        <Text style={styles.heading}>Property Images</Text>
-        <View style={styles.imageContainer}>
+      <ScrollView contentContainerStyle={{ alignItems: "center", paddingBottom: 30 }}>
+        <Text style={[styles.heading, { width: "90%" }]}>Property Images</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.imageContainer}>
           {images.map((image, index) => (
             <View key={index} style={styles.imageWrapper}>
               <Image source={{ uri: image.uri }} style={styles.image} />
@@ -140,27 +140,29 @@ export default function PostProperty() {
               <Text style={styles.uploadButtonText}> Upload</Text>
             </TouchableOpacity>
           )}
-        </View>
+        </ScrollView>
 
-        <Text style={styles.heading}>Property Information</Text>
-        <TextField placeholder="Title" value={propertyInfo.title} setValue={(value) => handleInputChange("title", value)} />
-        <TextField textarea placeholder="Description" value={propertyInfo.description} setValue={(value) => handleInputChange("description", value)} />
-        <TextField placeholder="Address" value={propertyInfo.address} setValue={(value) => handleInputChange("address", value)} />
-        <TextField placeholder="Area" keyboardType="numeric" value={propertyInfo.area} setValue={(value) => handleInputChange("area", value)} />
-        <TextField placeholder="Number of Bedrooms" keyboardType="numeric" value={propertyInfo.bedroom_num} setValue={(value) => handleInputChange("bedroom_num", value)} />
-        <TextField placeholder="Number of Bathrooms" keyboardType="numeric" value={propertyInfo.bathroom_num} setValue={(value) => handleInputChange("bathroom_num", value)} />
-        <TextField placeholder="Property Age" keyboardType="numeric" value={propertyInfo.property_age} setValue={(value) => handleInputChange("property_age", value)} />
-        <DropdownMenu items={[{  label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
-        <TextField placeholder="Building Number" keyboardType="numeric" value={propertyInfo.building_number} setValue={(value) => handleInputChange("building_number", value)} />
-        <TextField placeholder="Floor Number" keyboardType="numeric" value={propertyInfo.floor_num} setValue={(value) => handleInputChange("floor_num", value)} />
-        <TextField placeholder="Apartment Number" keyboardType="numeric" value={propertyInfo.apartment_number} setValue={(value) => handleInputChange("apartment_number", value)} />
-        <TextField placeholder="Location" value={propertyInfo.location} setValue={(value) => handleInputChange("location", value)} />
-        <TextField placeholder="Price" keyboardType="numeric" value={propertyInfo.price} setValue={(value) => handleInputChange("price", value)} />
-        <TextField placeholder="Parcel Number" keyboardType="numeric" value={propertyInfo.parcel_number} setValue={(value) => handleInputChange("parcel_number", value)} />
-        <DropdownMenu items={villages} selectedValue={propertyInfo.village_id} onValueChange={(value) => handleInputChange("village_id", value)} placeholder="Choose a village" />
-        {blocks.length ? <DropdownMenu items={blocks} selectedValue={propertyInfo.block_id} onValueChange={(value) => handleInputChange("block_id", value)} placeholder="Choose a block" /> : null}
-        <RadioButtons selectedValue={propertyInfo.is_furnished} setSelectedValue={(value) => handleInputChange("is_furnished", value)} />
-        <Button text="submit" onPress={handleSubmit} />
+        <View style={{ width: "90%" }}>
+          <Text style={styles.heading}>Property Information</Text>
+          <LabelTextField placeholder="Title" value={propertyInfo.title} setValue={(value) => handleInputChange("title", value)} />
+          <LabelTextField textarea placeholder="Description" value={propertyInfo.description} setValue={(value) => handleInputChange("description", value)} />
+          <LabelTextField placeholder="Address" value={propertyInfo.address} setValue={(value) => handleInputChange("address", value)} />
+          <LabelTextField placeholder="Area" keyboardType="numeric" value={propertyInfo.area} setValue={(value) => handleInputChange("area", value)} />
+          <LabelTextField placeholder="Number of Bedrooms" keyboardType="numeric" value={propertyInfo.bedroom_num} setValue={(value) => handleInputChange("bedroom_num", value)} />
+          <LabelTextField placeholder="Number of Bathrooms" keyboardType="numeric" value={propertyInfo.bathroom_num} setValue={(value) => handleInputChange("bathroom_num", value)} />
+          <LabelTextField placeholder="Property Age" keyboardType="numeric" value={propertyInfo.property_age} setValue={(value) => handleInputChange("property_age", value)} />
+          <DropdownMenu label="Rental Period" items={[{  label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
+          <LabelTextField placeholder="Building Number" keyboardType="numeric" value={propertyInfo.building_number} setValue={(value) => handleInputChange("building_number", value)} />
+          <LabelTextField placeholder="Floor Number" keyboardType="numeric" value={propertyInfo.floor_num} setValue={(value) => handleInputChange("floor_num", value)} />
+          <LabelTextField placeholder="Apartment Number" keyboardType="numeric" value={propertyInfo.apartment_number} setValue={(value) => handleInputChange("apartment_number", value)} />
+          <LabelTextField placeholder="Location" value={propertyInfo.location} setValue={(value) => handleInputChange("location", value)} />
+          <LabelTextField placeholder="Price" keyboardType="numeric" value={propertyInfo.price} setValue={(value) => handleInputChange("price", value)} />
+          <LabelTextField placeholder="Parcel Number" keyboardType="numeric" value={propertyInfo.parcel_number} setValue={(value) => handleInputChange("parcel_number", value)} />
+          <DropdownMenu label="Village" items={villages} selectedValue={propertyInfo.village_id} onValueChange={(value) => handleInputChange("village_id", value)} placeholder="Choose a village" />
+          {blocks.length ? <DropdownMenu label="Block" items={blocks} selectedValue={propertyInfo.block_id} onValueChange={(value) => handleInputChange("block_id", value)} placeholder="Choose a block" /> : null}
+          <RadioButtons selectedValue={propertyInfo.is_furnished} setSelectedValue={(value) => handleInputChange("is_furnished", value)} />
+          <Button text="submit" onPress={handleSubmit} />
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -180,17 +182,19 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    // flexWrap: "wrap",
     justifyContent: "center",
     marginBottom: 20,
+    columnGap: 10,
+    minWidth: "100%",
+    paddingHorizontal: 20
   },
   imageWrapper: {
     position: "relative",
-    margin: 5,
   },
   image: {
-    width: 100,
-    height: 100,
+    width: 180,
+    height: 180,
     borderRadius: 8,
   },
   deleteButton: {

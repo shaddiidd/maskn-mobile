@@ -6,7 +6,7 @@ import { NavigationContainer, useNavigation } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Ionicons } from "@expo/vector-icons";
 import { Image, TouchableOpacity, View, Text, StyleSheet, SafeAreaView, Alert } from "react-native";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Context from "./Context";
 import "./gesture-handler";
 import logo from "./assets/maskn-wide.png";
@@ -28,6 +28,7 @@ import PostProperty from "./Screens/PostProperty";
 import ContractScreen from "./Screens/ContractScreen";
 import SignContract from "./Screens/SignContract";
 import EditProfileScreen from "./Screens/EditProfileScreen";
+import PropertySearch from "./Screens/PropertySearch";
 
 const Drawer = createDrawerNavigator();
 
@@ -150,7 +151,7 @@ function CustomDrawerContent({ navigation }) {
 }
 
 function DrawerNavigation() {
-  const { isAuthenticated } = useContext(Context);
+  const { isAuthenticated, showNotificationsIndicator, setShowNotificationsIndicator } = useContext(Context);
   const navigation = useNavigation();
   return (
     <Drawer.Navigator
@@ -158,15 +159,15 @@ function DrawerNavigation() {
       screenOptions={({ navigation }) => {
         const baseOptions = {
           headerStyle: {
-            backgroundColor: "#508D4E",
+            backgroundColor: "#508D4E"
           },
           headerTintColor: "#fff",
           headerTitleStyle: {
             fontSize: 20,
-            fontWeight: "600",
+            fontWeight: "600"
           },
           drawerStyle: {
-            backgroundColor: "#508D4E",
+            backgroundColor: "#508D4E"
           },
           drawerActiveTintColor: "#fff",
           drawerInactiveTintColor: "#fff",
@@ -184,12 +185,7 @@ function DrawerNavigation() {
               onPress={() => navigation.navigate("Signin")}
               activeOpacity={0.7}
             >
-              <Ionicons
-                name="log-in-outline"
-                color="#fff"
-                size={24}
-                style={{ marginLeft: 10 }}
-              />
+              <Ionicons name="log-in-outline" color="#fff" size={24} style={{ marginLeft: 10 }} />
             </TouchableOpacity>
           );
         }
@@ -207,20 +203,39 @@ function DrawerNavigation() {
           headerTitle: () => (
             <Image
               source={logo}
-              style={{ width: 100,height: 25, resizeMode: "contain" }}
+              style={{ width: 100, height: 25, resizeMode: "contain" }}
             />
           ),
-          headerRight: () => (
-            <TouchableOpacity
-              activeOpacity={0.7}
-              onPress={() => navigation.navigate("Notifications")}
-              style={{ marginRight: 15 }}
-            >
-              <Ionicons name="notifications-outline" size={24} color="#fff" />
-            </TouchableOpacity>
-          ),
+          headerRight: () => {
+            if (!isAuthenticated) return null;
+            return (
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => { navigation.navigate("Notifications"); setShowNotificationsIndicator(false); }}
+                style={{ marginRight: 15 }}
+              >
+                <View style={{ position: "relative" }}>
+                  <Ionicons name="notifications-outline" size={24} color="#fff" />
+                  {showNotificationsIndicator && <View
+                    style={{
+                      position: "absolute",
+                      top: -2,
+                      right: -2,
+                      backgroundColor: "red",
+                      borderRadius: 10,
+                      width: 14,
+                      height: 14,
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  />}
+                </View>
+              </TouchableOpacity>
+            )
+          },
         }}
       />
+
     </Drawer.Navigator>
   );
 }
@@ -234,17 +249,9 @@ export default function Navigation() {
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerBackTitleVisible: false, headerStyle: { backgroundColor: "#508D4E" }, headerTintColor: "#fff" }}>
         <Stack.Screen name="Drawer" component={DrawerNavigation} options={{ title: "Home", headerShown: false }} />
-        <Stack.Screen
-          name="Profile"
-          component={ProfileScreen}
-          options={{
-            drawerIcon: ({ color }) => (
-              <Ionicons name="person-outline" size={24} color={color} />
-            ),
-            title: "Profile",
-          }}
-        />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
+        <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
+        <Stack.Screen name="PropertySearch" component={PropertySearch} options={{ title: "Search Properties", headerShadowVisible: false }} />
         <Stack.Screen name="Notifications" component={NotificationsScreen} />
         <Stack.Screen name="PropertyDetails" component={PropertyScreen} options={{ title: "Property Details" }} />
         <Stack.Screen name="TourRequests" component={TourRequestsScreen} options={{ title: "Tour Requests" }} />

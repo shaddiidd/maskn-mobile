@@ -8,6 +8,7 @@ const Provider = ({ children }) => {
   const [token, setToken] = useState("");
   const [user, setUser] = useState({});
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showNotificationsIndicator, setShowNotificationsIndicator] = useState(true);
   const [loading, setLoading] = useState(false);
 
   const logout = async () => {
@@ -17,6 +18,7 @@ const Provider = ({ children }) => {
     setAuthorizationToken("");
     setToken("");
     setLoading(false);
+    setShowNotificationsIndicator(true);
   };
 
   const decodeJWT = () => {
@@ -107,7 +109,7 @@ const Provider = ({ children }) => {
   };
 
   return (
-    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated, generateToken }}>
+    <Context.Provider value={{ user, token, auth, signUp, logout, loading, setLoading, isAuthenticated, generateToken, showNotificationsIndicator, setShowNotificationsIndicator }}>
       {children}
     </Context.Provider>
   );
