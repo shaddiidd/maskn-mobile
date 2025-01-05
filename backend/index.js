@@ -7,6 +7,7 @@ const propertyRouter = require("./routes/propertyRoute");
 const authRouter = require("./routes/authRoutes");
 const contractRouter = require("./routes/contractRoute");
 const feedbackRouter = require("./routes/feedbackRoutes")
+const notificationRouter = require("./routes/notificationRoutes")
 
 // require('./models/db')
 require("./models/index");
@@ -27,6 +28,7 @@ app.use("/property", propertyRouter);
 app.use("/auth", authRouter);
 app.use("/contract", contractRouter);
 app.use("/feedback", feedbackRouter)
+app.use("/notification", notificationRouter)
 app.use(errorHandler);
 // Handles any other endpoints [unassigned - endpoints]
 app.use("*", (req, res) => res.status(404).json("NO content at this path"));

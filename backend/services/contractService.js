@@ -15,6 +15,7 @@ const { PassThrough } = require("stream");
 const ContractAdditionalTerms = require("../models/contractAdditionalTerms");
 const puppeteer = require("puppeteer");
 const dayjs = require("dayjs");
+const { Or } = require("typeorm");
 
 const saveContractTerms = async (contractId, terms) => {
   const termsData = terms.map((term) => ({ contract_id: contractId, term }));
@@ -755,6 +756,15 @@ const getAllContracts = async () => {
   }
 };
 
+const getRentalHistoryByUserIdService = async (userId) => {
+  const user = await User.findByPk(userId);
+
+  if (!user) throw AppError("user id is not valid");
+  
+  const userHistory = await Contract.findAll({where : [Op.or]  [{tenant_id : userId  } , {owner_id : userId}], include : []},)
+
+};
+
 module.exports = {
   createContract,
   previewContractService,
@@ -763,5 +773,6 @@ module.exports = {
   updateContractTerm,
   deleteContractService,
   deleteTermById,
-  getAllContracts
+  getAllContracts,
+  getRentalHistoryByUserIdService,
 };

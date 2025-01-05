@@ -223,6 +223,24 @@ const getAllContracts = async (req, res, next) => {
     );
   }
 };
+const getRentalHistoryByUserId = async (req, res, next) => {
+  try {
+    const userId = req.token.userId;
+    const result = await contractService.getRentalHistoryByUserIdService(
+      userId
+    );
+
+    res.success(result, "user rental history retrived", 200);
+  } catch (error) {
+    next(
+      new AppError(
+        error.message || "failed to retrive user rental history",
+        error.status || 500,
+        error.details
+      )
+    );
+  }
+};
 
 module.exports = {
   generateContract,
@@ -232,5 +250,6 @@ module.exports = {
   updateContract,
   deleteContract,
   deleteTerm,
-  getAllContracts
+  getAllContracts,
+  getRentalHistoryByUserId
 };
