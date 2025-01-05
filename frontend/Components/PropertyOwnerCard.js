@@ -1,21 +1,38 @@
 import { StyleSheet, View, Image, Text, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
-export default function PropertyOwnerCard({ id, name, imageUrl, phoneNumber }) {
+export default function PropertyOwnerCard({ id, name, uri, phoneNumber }) {
+  const navigation = useNavigation();
+
+  const openProfile = () => {
+    navigation.navigate("Profile", { userId: id });
+  }
+
+  const handleCall = () => {
+    Linking.openURL(`tel:+962${phoneNumber.slice(1)}`);
+  }
+
   return (
     <View style={styles.container}>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Image style={styles.image} source={imageUrl} />
+        {uri ? (
+          <Image style={styles.image} source={{ uri }} />
+        ) : (
+          <View style={styles.image}>
+            <Ionicons name="person" color="#666" size={22} />
+          </View>
+        )}
         <View>
           <Text style={styles.subText}>owner</Text>
           <Text style={styles.mainText}>{name}</Text>
         </View>
       </View>
       <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={handleCall}>
           <Ionicons name="call" size={15} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity activeOpacity={0.7} style={styles.greenBtn} onPress={""}>
+        <TouchableOpacity activeOpacity={0.7} style={styles.greenBtn} onPress={openProfile}>
           <Text style={{ color: "#fff", fontSize: 15, fontWeight: "500" }}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -37,6 +54,11 @@ const styles = StyleSheet.create({
     height: 50,
     borderRadius: 25,
     marginRight: 10,
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#508D4E",
   },
   mainText: {
     fontSize: 17,

@@ -63,7 +63,7 @@ const Provider = ({ children }) => {
       const response = await post("users/generate-new-token");
       setToken(response.data.token);
       setAuthorizationToken(response.data.token);
-      AsyncStorage.setItem("token", response.data.token);
+      await AsyncStorage.setItem("token", response.data.token);
       setIsAuthenticated(true);
     } catch {
       logout();

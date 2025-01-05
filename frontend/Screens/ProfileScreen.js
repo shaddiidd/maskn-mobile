@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, Linking } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
-import Reviews from "../Components/Reviews";
+import ReviewCard from "../Components/ReviewCard";
 import Button from "../Components/Button";
-import { Link, useNavigation } from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import { Ionicons } from "@expo/vector-icons";
 import { get } from "../fetch";
@@ -16,7 +16,7 @@ export default function ProfileScreen({ route }) {
 
   const fetchProfile = async () => {
     try {
-      const response = await get(`users/${userId}`);
+      const response = await get(`users/${userId ? userId : user.userId}`);
       setProfile(response.data.user);
     } catch (error) {
       console.log(error.response.data);
@@ -26,23 +26,9 @@ export default function ProfileScreen({ route }) {
   }
 
   useEffect(() => {
-    if (userId) {
-      setLoading(true);
-      fetchProfile(userId);
-    } else {
-      setProfile(user);
-    }
+    setLoading(true);
+    fetchProfile();
   }, [userId, user]);
-
-  // const infoItems = [
-  //   { icon: "work-outline", text: "Student" },
-  //   { icon: "people-outline", text: "Single" },
-  //   { icon: "location-on", text: "Jordanian" },
-  // ];
-  const reviews = [
-    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh", date: "August 5, 2024", title: "Review title", description: "Review description" },
-    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi", date: "August 5, 2024", title: "Review title", description: "Review description" },
-  ];
 
   const handleCall = () => {
     Linking.openURL(`tel:+962${profile?.phone_number.slice(1)}`);
@@ -79,7 +65,6 @@ export default function ProfileScreen({ route }) {
             </TouchableOpacity>
           )}
         </View>
-
         <View style={styles.infoContainer}>
           <View style={styles.infoItem}>
             <Icon name="person" size={24} color="#333" />
@@ -94,27 +79,19 @@ export default function ProfileScreen({ route }) {
             <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
           </View>
         </View>
-
-        {/* <View style={styles.infoContainer}>
-          {infoItems.map((item, index) => (
-            <View
-              key={index}
-              style={[
-                styles.infoItem,
-                index % 2 === 1 ? styles.rightAlignedItem : null,
-              ]}
-            >
-              <Icon name={item.icon} size={24} color="#000" />
-              <Text style={styles.infoTxt}>{item.text}</Text>
-            </View>
-          ))}
-        </View> */}
-        {/* <TouchableOpacity activeOpacity={0.7} style={styles.historyBtn}>
-          <Icon name="history" size={25} color="#fff" />
-          <Text style={styles.historyBtnTxt}>  RENT HISTORY</Text>
-        </TouchableOpacity> */}
         <Button text="rent history" onPress={() => navigation.navigate("RentHistory")} />
-        <Reviews reviews={reviews} />
+        <Text style={styles.title}>Reviews</Text>
+        {profile?.tenant_reviews_owner?.length ? profile?.tenant_reviews_owner?.map((review, index) =>
+          <ReviewCard
+            key={index}
+            title={review?.owner?.first_name + " " + review?.owner?.last_name}
+            subtitle={"@" + review?.owner?.username}
+            imageUri={review?.owner?.profile_picture?.length ? review?.owner?.profile_picture[0] : null}
+            review={review?.review_text}
+          />
+        ) : (
+          <Text style={styles.noReviews}>No reviews yet...</Text>
+        )}
       </SafeAreaView>
     </ScrollView>
   );
@@ -187,4 +164,18 @@ const styles = StyleSheet.create({
     color: "#333",
     fontSize: 15,
   },
+  title: {
+    fontSize: 22,
+    fontWeight: "500",
+    width: "100%",
+    marginTop: 20,
+    marginBottom: -5
+  },
+  noReviews: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#666",
+    width: "100%",
+    marginTop: 10
+  }
 });
