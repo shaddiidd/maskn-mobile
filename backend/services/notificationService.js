@@ -4,17 +4,14 @@ const AppError = require("../utils/AppError");
 // Fetch all notifications for a user
 const getUserNotifications = async (userId) => {
   try {
-    console.log("Fetching notifications for user:", userId);
     
     const notification = await Notification.findAll({
       where: { user_id: userId },
       order: [["createdAt", "DESC"]],
     });
 
-    console.log("Fetched notifications:", notification);
     return notification;
   } catch (error) {
-    console.error("Error fetching notifications:", error.message);
     throw new AppError("Failed to get notifications", 500, error.message);
   }
 };
