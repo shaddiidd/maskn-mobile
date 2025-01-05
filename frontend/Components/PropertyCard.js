@@ -33,7 +33,6 @@ const styles = StyleSheet.create({
   imageContainer: {
     width: "100%",
     height: 200,
-    // overflow: "hidden",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -56,15 +55,16 @@ const styles = StyleSheet.create({
     marginTop: 7,
   },
   price: {
-    fontSize: 16,
-    fontWeight: "500",
+    fontSize: 15,
+    fontWeight: "600",
     width: "95%",
-    marginTop: 2,
+    color: "#333",
   },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#FFFFFF99",
+    fontWeight: "600",
     padding: 5,
     borderRadius: 6,
     position: "absolute",
