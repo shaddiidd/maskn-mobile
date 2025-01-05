@@ -53,6 +53,6 @@ propertyRouter.get(
 );
 propertyRouter.get("/get-villages", getAllVillages);
 propertyRouter.get("/get-blocks/:villageId", getBlockAndNieghbourhoodById);
-propertyRouter.get("/get-by-filter", filterProperty);
+propertyRouter.post("/get-by-filter", filterProperty);
 
 module.exports = propertyRouter;
