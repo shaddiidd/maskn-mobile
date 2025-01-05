@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from "react";
 import { StyleSheet, SafeAreaView, ScrollView, View, Text, Alert } from "react-native";
 import PaginatedCarousel from "../Components/PaginatedCarousel";
-import Reviews from "../Components/Reviews";
+import ReviewCard from "../Components/ReviewCard";
 import Button from "../Components/Button";
 import PropertyInfoBox from "../Components/PropertyInfoBox";
 import { get, post } from "../fetch";
 import Context from "../Context";
 import { capitalizeFirstLetter, formatPrice } from "../helpers/textFunctions";
 import PropertyOwnerCard from "../Components/PropertyOwnerCard";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function PropertyScreen({ route }) {
   const [property, setProperty] = useState(null);
@@ -20,12 +21,13 @@ export default function PropertyScreen({ route }) {
       const response = await get(`property/get-property/${property_id}`);
       setProperty(response.data.data);
     } catch (error) {
-      console.log(error.response.data);
+      Alert.alert("Error", "Failed to get property");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }
+
   useEffect(() => {
     setLoading(true);
     getProperty();
@@ -40,11 +42,6 @@ export default function PropertyScreen({ route }) {
       Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }])
     }
   }
-  
-  const reviews = [
-    // { id: 1, star_rating: 5, profile_picture: require("../assets/hazodeh.png"), name: "Hazem Odeh",date: "August 5, 2024", title: "Review title", description: "Review description", },
-    // { id: 2, star_rating: 3, profile_picture: require("../assets/anas.png"), name: "Anas Bajawi",date: "August 5, 2024", title: "Review title", description: "Review description", },
-  ];
 
   if (property === null) return null;
   return (
@@ -63,8 +60,11 @@ export default function PropertyScreen({ route }) {
           <PropertyInfoBox title="Furnished" value={property?.is_furnished ? "Yes" : "No"} />
         </ScrollView>
         <Text style={styles.title}>{property?.title}</Text>
-        {/* Add rating here */}
         <Text style={styles.address}>{property?.address}</Text>
+        <View style={styles.ratingContainer}>
+          <Ionicons name="star" size={22} color="gold" />
+          <Text style={styles.rating}>{property?.rating}</Text>
+        </View>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
           {property?.price && <Text style={styles.price}>JD {formatPrice(property?.price)} </Text>}
@@ -72,10 +72,29 @@ export default function PropertyScreen({ route }) {
         </View>
         {(user.role === 1 && !property.request_status) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
+        {console.log(property)}
         {property.request_status === "approved" && (
-          <PropertyOwnerCard id={property?.owner_id} name="Anas Bajawi" imageUrl={require("../assets/anas.png")} phoneNumber="0796199221" />
+          <PropertyOwnerCard
+            id={property?.owner_id}
+            name={property?.owner_details?.first_name + " " + property?.owner_details?.last_name}
+            uri={property?.owner_details?.profile_photo?.length ? property?.owner_details?.profile_photo[0] : null}
+            phoneNumber={property?.owner_details?.phone_number}
+          />
         )}
-        <Reviews additionalStyles={{ width: "90%" }} seeAll reviews={reviews} />
+        <Text style={[styles.title, { marginTop: 20, marginBottom: -5 }]}>Reviews</Text>
+        <View style={{ width: "90%" }}>
+          {property?.reviews?.length ? property?.reviews?.map((review, index) =>
+            <ReviewCard
+              key={index}
+              title={review?.tenant?.first_name + " " + review?.tenant?.last_name}
+              subtitle={"@" + review?.tenant?.username}
+              imageUri={review?.tenant?.profile_picture?.length ? review?.tenant?.profile_picture[0] : null}
+              review={review?.review_text}
+            />
+          ) : (
+            <Text style={styles.noReviews}>No reviews yet...</Text>
+          )}
+        </View>
       </SafeAreaView>
     </ScrollView>
   );
@@ -102,32 +121,24 @@ const styles = StyleSheet.create({
   address: {
     width: "90%",
     marginTop: 2,
-    marginBottom: 10,
     color: "#444"
+  },
+  ratingContainer: {
+    width: "90%",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    marginTop: 2,
+    marginBottom: 10,
+    columnGap: 4
+  },
+  rating: {
+    color: "#666",
+    fontWeight: "500",
+    fontSize: 16
   },
   description: {
     width: "90%",
     color: "#828282",
-  },
-  wideBtn: {
-    backgroundColor: "#508D4E",
-    borderWidth: 1.5,
-    borderColor: "#508D4E",
-    width: "90%",
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    height: 55,
-    borderRadius: 10,
-    marginTop: 20,
-  },
-  outlined: {
-    backgroundColor: "transparent",
-  },
-  wideBtnTxt: {
-    fontSize: 15,
-    fontWeight: "bold",
-    color: "white",
   },
   priceContainer: {
     flexDirection: "row",
@@ -145,5 +156,11 @@ const styles = StyleSheet.create({
   },
   ownerProfileContainer: {
     flexDirection: "row",
+  },
+  noReviews: {
+    fontSize: 15,
+    fontWeight: "500",
+    color: "#666",
+    width: "90%",
   }
 });
