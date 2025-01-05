@@ -34,8 +34,8 @@ const Notification = sequelize.define(
   },
   {
     timestamps: true,
-    createdAt: "created_at",
-    updatedAt: "updated_at",
+    createdAt: "createdAt",
+    updatedAt: "updatedAt",
     tableName: "notifications",
   }
 );
