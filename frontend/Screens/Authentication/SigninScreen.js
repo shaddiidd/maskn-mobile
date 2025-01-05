@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import {
   StyleSheet,
-  SafeAreaView,
+  ScrollView,
   Text,
   View,
   StatusBar,
@@ -45,16 +45,17 @@ export default function SigninScreen({ navigation }) {
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.safeArea}>
+      <ScrollView keyboardShouldPersistTaps="handled" style={{ width: "100%", paddingBottom: 20 }} contentContainerStyle={styles.scrollContainer}>
         <TouchableOpacity activeOpacity={0.7} onPress={() => navigation.pop()} style={styles.close}>
           <Ionicons name="close" size={25} />
         </TouchableOpacity>
         <Image style={styles.logo} source={require("../../assets/maskn-green.png")} />
-        <View style={{ width: "90%", alignItems: "center" }}>
+        <View style={{ width: "90%", alignItems: "center", marginVertical: 120 }}>
           <Text style={styles.title}>Sign In</Text>
           <Text style={styles.subtitle}>Enter your email and password</Text>
           <AuthInput
             placeholder="Email"
+            innerPlaceholder="ahmad@example.com"
             keyboardType="email-address"
             value={values.email.value}
             setValue={(value) =>
@@ -64,6 +65,7 @@ export default function SigninScreen({ navigation }) {
           />
           <AuthInput
             placeholder="Password"
+            innerPlaceholder="********"
             password
             value={values.password.value}
             setValue={(value) =>
@@ -74,7 +76,7 @@ export default function SigninScreen({ navigation }) {
           <TouchableOpacity activeOpacity={0.7} style={styles.button} onPress={handleSubmit}>
             <Text style={styles.buttonText}>SIGN IN</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 20 }} activeOpacity={0.7}>
+          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 10 }} activeOpacity={0.7}>
             <Text style={styles.signupText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>
@@ -85,7 +87,7 @@ export default function SigninScreen({ navigation }) {
             <Text style={styles.signupText}>Sign up</Text>
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -97,11 +99,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
   },
-  safeArea: {
+  scrollContainer: {
     flex: 1,
-    width: "100%",
     alignItems: "center",
-    justifyContent: "space-between",
+    justifyContent: "center",
   },
   close: {
     position: "absolute",
@@ -111,6 +112,9 @@ const styles = StyleSheet.create({
   },
   logo: {
     marginTop: 50,
+    width: 140,
+    height: 35,
+    resizeMode: "contain",
   },
   title: {
     fontSize: 22,
@@ -142,7 +146,6 @@ const styles = StyleSheet.create({
   },
   signupPrompt: {
     flexDirection: "row",
-    marginBottom: 20,
   },
   signupQuestion: {
     color: "grey",

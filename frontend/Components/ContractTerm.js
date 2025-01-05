@@ -27,7 +27,6 @@ export default function ContractTerm({ term, contractId, updateTerms, removeTerm
             endpoint += `?termId=${oldTerm.id}`;
             closeModal();
         }
-        console.log(endpoint);
         try {
             const response = await put(endpoint, { term: inputValue });
             if (oldTerm) updateTerms({ ...oldTerm, term: inputValue });
@@ -53,12 +52,12 @@ export default function ContractTerm({ term, contractId, updateTerms, removeTerm
     
     return (
         <>
-            <TouchableOpacity style={styles.container} activeOpacity={canEdit ? 0.7 : 1} onPress={canEdit && openModal}>
+            <TouchableOpacity style={styles.container} activeOpacity={canEdit ? 0.7 : 1} onPress={canEdit ? openModal : null}>
                 <Text style={styles.termTxt}>
                     {term?.term || "إضافة شرط"}
                 </Text>
                 {!term && <Ionicons name="add-circle" size={25} />}
-                {canEdit && (
+                {(canEdit && term) && (
                     <View style={styles.editIcon}>
                         <Icon name="edit" size={12} color="#fff" />
                     </View>

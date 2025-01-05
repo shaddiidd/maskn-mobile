@@ -14,27 +14,29 @@ import Context from "../../Context";
 import AuthInput from "../../Components/AuthInput";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../Components/Button";
+import DatePicker from "../../Components/DatePicker";
 
 export default function SignupScreen({ navigation }) {
   const { signUp } = useContext(Context);
   const [page, setPage] = useState(1);
   const [values, setValues] = useState({
-    first_name: { value: "Abdullah", error: "" },
-    last_name: { value: "Shadid", error: "" },
-    email: { value: "abdullah.shadid@icloud.com", error: "" },
+    first_name: { value: "", error: "" },
+    last_name: { value: "", error: "" },
+    email: { value: "", error: "" },
 
-    username: { value: "shadid01", error: "" },
-    phone_number: { value: "0796199000", error: "" },
-    password: { value: "abdullah", error: "" },
+    username: { value: "", error: "" },
+    phone_number: { value: "", error: "" },
+    password: { value: "", error: "" },
 
-    nationality: { value: "Jordianian", error: "" },
-    national_number: { value: "2000402010", error: "" },
-    date_of_birth: { value: "2001-12-02", error: "" },
+    nationality: { value: "Jordanian", error: "" },
+    national_number: { value: "", error: "" },
+    date_of_birth: { value: "", error: "" },
   });
 
   const validateFields = (fields) => {
     let isValid = true;
     fields.forEach((field) => {
+      console.log("field", values[field].value);
       if (!values[field].value) {
         setValues((prev) => ({
           ...prev,
@@ -58,15 +60,15 @@ export default function SignupScreen({ navigation }) {
       if (validateFields(fields)) {
         const formData = new FormData();
 
-        formData.append('first_name', values.first_name.value);
-        formData.append('last_name', values.last_name.value);
-        formData.append('username', values.username.value);
-        formData.append('email', values.email.value);
-        formData.append('phone_number', values.phone_number.value);
-        formData.append('nationality', values.nationality.value);
-        formData.append('national_number', values.national_number.value);
-        formData.append('date_of_birth', values.date_of_birth.value);
-        formData.append('password', values.password.value);
+        formData.append('first_name', values?.first_name?.value);
+        formData.append('last_name', values?.last_name?.value);
+        formData.append('username', values?.username?.value);
+        formData.append('email', values?.email?.value);
+        formData.append('phone_number', values?.phone_number?.value);
+        formData.append('nationality', values?.nationality?.value);
+        formData.append('national_number', values?.national_number?.value);
+        formData.append('date_of_birth', values?.date_of_birth?.value);
+        formData.append('password', values?.password?.value);
 
         signUp(formData);
       }
@@ -98,17 +100,17 @@ export default function SignupScreen({ navigation }) {
           <Text style={styles.subtitle}>Enter your information to sign up</Text>
           {page === 1 && (
             <>
-              <AuthInput placeholder="First Name" autoCapitalize="words" value={values.first_name.value} setValue={(value) => setValues({ ...values, first_name: { value, error: false } })} error={values.first_name.error} />
-              <AuthInput placeholder="Last Name" autoCapitalize="words" value={values.last_name.value} setValue={(value) => setValues({ ...values, last_name: { value, error: false } })} error={values.last_name.error} />
-              <AuthInput placeholder="Email" keyboardType="email-address" value={values.email.value} setValue={(value) => setValues({ ...values, email: { value, error: false } })} error={values.email.error} />
+              <AuthInput placeholder="First Name" innerPlaceholder="Abdullah" autoCapitalize="words" value={values?.first_name?.value} setValue={(value) => setValues({ ...values, first_name: { value, error: false } })} error={values?.first_name?.error} />
+              <AuthInput placeholder="Last Name" innerPlaceholder="Shadid" autoCapitalize="words" value={values?.last_name?.value} setValue={(value) => setValues({ ...values, last_name: { value, error: false } })} error={values?.last_name?.error} />
+              <AuthInput placeholder="Email" innerPlaceholder="abdullah@example.com" keyboardType="email-address" value={values?.email?.value} setValue={(value) => setValues({ ...values, email: { value, error: false } })} error={values?.email?.error} />
               <Button text="next" onPress={handleSubmit} />
             </>
           )}
           {page === 2 && (
             <>
-              <AuthInput placeholder="Username" value={values.username.value} setValue={(value) => setValues({ ...values, username: { value, error: false } })} error={values.username.error} />
-              <AuthInput placeholder="Phone Number" keyboardType="numeric" value={values.phone_number.value} setValue={(value) => setValues({ ...values, phone_number: { value, error: false } })} error={values.phone_number.error} />
-              <AuthInput placeholder="Password" password value={values.password.value} setValue={(value) => setValues({ ...values, password: { value, error: false } })} error={values.password.error} />
+              <AuthInput placeholder="Username" innerPlaceholder="abdullah_shadid" value={values?.username?.value} setValue={(value) => setValues({ ...values, username: { value, error: false } })} error={values?.username?.error} />
+              <AuthInput placeholder="Phone Number" innerPlaceholder="0791234567" keyboardType="numeric" value={values?.phone_number?.value} setValue={(value) => setValues({ ...values, phone_number: { value, error: false } })} error={values?.phone_number?.error} />
+              <AuthInput placeholder="Password" innerPlaceholder="********" password value={values?.password?.value} setValue={(value) => setValues({ ...values, password: { value, error: false } })} error={values?.password?.error} />
               <View style={styles.btnContainer}>
                 <Button text="back" onPress={() => setPage(page - 1)} outline small />
                 <Button text="next" onPress={handleSubmit} small />
@@ -117,9 +119,10 @@ export default function SignupScreen({ navigation }) {
           )}
           {page === 3 && (
             <>
-              <AuthInput placeholder="Nationality" value={values.nationality.value} setValue={(value) => setValues({ ...values, nationality: { value, error: false } })} error={values.nationality.error} />
-              <AuthInput placeholder="National ID" keyboardType="numeric" value={values.national_number.value} setValue={(value) => setValues({ ...values, national_number: { value, error: false } })} error={values.national_number.error} />
-              <AuthInput placeholder="Date of Birth" value={values.date_of_birth.value} setValue={(value) => setValues({ ...values, date_of_birth: { value, error: false } })} error={values.date_of_birth.error} />
+              {/* <AuthInput placeholder="Nationality" value={values?.nationality?.value} setValue={(value) => setValues({ ...values, nationality: { value, error: false } })} error={values?.nationality?.error} /> */}
+              <AuthInput placeholder="National ID" innerPlaceholder="1234567890" keyboardType="numeric" value={values?.national_number?.value} setValue={(value) => setValues({ ...values, national_number: { value, error: false } })} error={values?.national_number?.error} />
+              {/* <AuthInput placeholder="Date of Birth" value={values?.date_of_birth?.value} setValue={(value) => setValues({ ...values, date_of_birth: { value, error: false } })} error={values?.date_of_birth?.error} /> */}
+              <DatePicker placeholder="Date of Birth" value={values?.date_of_birth?.value} setValue={(value) => setValues({ ...values, date_of_birth: { value, error: false } })} error={values?.date_of_birth?.error} />
               <View style={styles.btnContainer}>
                 <Button text="back" onPress={() => setPage(page - 1)} outline small />
                 <Button text="sign up" onPress={handleSubmit} small />
@@ -127,9 +130,9 @@ export default function SignupScreen({ navigation }) {
             </>
           )}
           <Text style={[styles.signupQuestion, { marginTop: 20, textAlign: "center" }]}>
-            By signing up, you agree to our{" "}
-            <Text style={{ color: "#508D4E" }}>Terms of Service</Text> and{" "}
-            <Text style={{ color: "#508D4E" }}>Privacy Policy</Text>
+            By signing up, you agree to our
+            <Text style={{ color: "#508D4E" }}> Terms of Service </Text>and
+            <Text style={{ color: "#508D4E" }}> Privacy Policy</Text>
           </Text>
         </View>
 
@@ -165,6 +168,9 @@ const styles = StyleSheet.create({
   logo: {
     marginTop: 50,
     marginBottom: 20,
+    width: 140,
+    height: 35,
+    resizeMode: "contain",
   },
   paginationContainer: {
     flexDirection: "row",

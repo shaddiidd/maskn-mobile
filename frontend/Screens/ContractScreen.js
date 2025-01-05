@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Context from "../Context";
 import ContractTerm from "../Components/ContractTerm";
@@ -7,6 +7,7 @@ import Button from "../Components/Button";
 import { post, getPdf } from "../fetch";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import { capitalizeFirstLetter } from "../helpers/textFunctions";
 
 export default function ContractScreen({ route }) {
     const navigation = useNavigation();
@@ -19,9 +20,13 @@ export default function ContractScreen({ route }) {
             const response = await post(`contract/intiate-contract/${request_id}`);
             const contractFromResponse = response.data.data;
             const terms = contractFromResponse.terms.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+            if (user.role === 1 && contractFromResponse.contractInfo.status === "not signed") {
+                navigation.pop();
+                Alert.alert("Contract is not ready yet", "Please wait for the owner to sign the contract.");
+            }
             setContract({ ...contractFromResponse, terms });
-        } catch (error) {
-            console.log(error.response.data);
+        } catch {
+            Alert.alert("Error", "Failed to get contract");
         } finally {
             setLoading(false);
         }
@@ -71,6 +76,11 @@ export default function ContractScreen({ route }) {
     if (contract === null) return <></>;
     return (
         <ScrollView contentContainerStyle={styles.scrollContainer}>
+            {console.log(contract?.contractInfo?.status)}
+            <View style={styles.cardContainer}>
+                <Text style={styles.userRole}>Contract status</Text>
+                <Text style={styles.userName}>{capitalizeFirstLetter(contract?.contractInfo?.status)}</Text>
+            </View>
             <Text style={styles.title}>Contract Entities</Text>
             <View style={styles.cardContainer}>
                 <Text style={styles.userRole}>Owner</Text>
@@ -107,13 +117,14 @@ export default function ContractScreen({ route }) {
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {console.log(contract.property)}
                 {contract?.terms?.map((term) => <ContractTerm canEdit={contract?.property?.owner_id === user?.userId} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
-                {contract?.property?.owner_id === user?.userId && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} />}
+                {user?.role === 2 && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} canEdit />}
             </View>
             <View style={styles.infoRowBlock}>
-                <Button small outline text="save contract" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />
-                <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })} />
+                <Button small={!((user.role === 1 && contract.contractInfo.status === "partially signed") || contract.contractInfo.status === "not signed")} outline text="download pdf" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />
+                {!((user.role === 1 && contract.contractInfo.status === "partially signed") || contract.contractInfo.status === "not signed") && (
+                    <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })} />
+                )}
             </View>
         </ScrollView>
     )
