@@ -1,5 +1,4 @@
 const propertyService = require("../services/propertyService");
-const userService = require("../services/userService");
 const AppError = require("../utils/AppError");
 
 const addProperty = async (req, res, next) => {
@@ -156,11 +155,7 @@ const updateProperty = async (req, res, next) => {
     // Extract uploaded photos
     const uploadedPhotos = req.files ? req.files.map((file) => file.path) : [];
 
-    console.log("Updating Property API hit");
-    console.log("Request Params:", req.params);
-    console.log("Request Body:", req.body);
-    console.log("Uploaded Files:", req.files);
-    console.log("Token Data:", req.token);
+
 
     // Call the service to update the property
     const updatedProperty = await propertyService.updateProperty(
@@ -333,7 +328,7 @@ const getPropertyById = async (req, res, next) => {
   try {
     const { propertyId } = req.params;
     const tenantId = req.token?.userId || null; // Check if tenantId is provided
-    console.log(tenantId);
+
 
     // Fetch property data using the service
     const propertyData = await propertyService.getPropertyByPropertyIdService(

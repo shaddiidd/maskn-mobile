@@ -1,92 +1,44 @@
 const User = require("../models/users");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-const cron = require('node-cron');
+const admin = require("../config/firebase");
+const AppError = require("../utils/AppError");
 
-const generateResetToken = async (user) => {
-  
-  // this for the content of the payload of the token
-  const payload = {
-    userId: user.user_id,
-  };
-  
-  const options = { expiresIn: "1h" };
-  
-  const secret = process.env.SECRET;
-
-  
-  //the rest token gentration
-  const resetToken = jwt.sign(payload, secret, options);
-
-   
-  //assging the generated token to the rest token column in the user table
-  user.reset_token = resetToken;
-  
-  //assiging the expiration to the column in the user table
-  user.reset_token_expiration = new Date(Date.now() + 3600000);
-
-  
-
-  await User.update(
-    { reset_token : resetToken, reset_token_expiration: user.reset_token_expiration },
-    { where: { user_id: user.user_id } }
-  );
-
-  return resetToken;
-};
-
-const sendResetEmail = async (email, resetToken) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  await transporter.sendMail({
-    to: email,
-    subject: "Password Reset Request",
-    html: `<p>Click this <a href="http://localhost:3000/reset/${resetToken}">link</a> to reset your password.</p>`,
-  });
-};
-
-const verifyResetToken = (token) => {
+const sendOtp = async (phone) => {
   try {
-    return jwt.verify(token, process.env.SECRET);
+    // Firebase sends OTP to the provided phone number
+    const sessionInfo = await admin.auth().createCustomToken(phone);
+    return { message: "OTP sent successfully.", sessionInfo };
   } catch (error) {
-    throw new Error("Invalid or expired token");
+    throw new AppError("Failed to send OTP: " + error.message);
   }
 };
 
-const updatePassword = async(user, newPassword) =>{
-  
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  await User.update({password : hashedPassword ,reset_token : null, reset_token_expiration: null },
-    { where: { user_id: user.user_id } })
-}
-
-cron.schedule('0 0 * * *', async () => {
+const verifyOtp = async (phone, otp) => {
   try {
-    const users = await User.findAll();
-    const now = new Date();
-
-    await Promise.all(users.map(async (user) => {
-      if (user.resetTokenExpiration && new Date(user.resetTokenExpiration) < now) {
-        user.resetToken = null;
-        user.resetTokenExpiration = null;
-        await user.save();
-      }
-    }));
-
-    console.log('Expired tokens cleared');
+    // Verify OTP using Firebase
+    const decodedToken = await admin.auth().verifyIdToken(otp);
+    if (decodedToken.phone_number !== phone) {
+      throw new Error("Invalid OTP or phone number mismatch.");
+    }
+    return { message: "OTP verified successfully." };
   } catch (error) {
-    console.error('Error clearing expired tokens:', error);
+    throw new Error("Failed to verify OTP: " + error.message);
   }
-});
+};
 
+const updatePassword = async (phone, newPassword) => {
+  try {
+    const user = await User.findOne({ where: { phone_number: phone } });
+    if (!user) {
+      throw new AppError("User not found", 404);
+    }
 
-module.exports = { generateResetToken, sendResetEmail, verifyResetToken, updatePassword };
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    await user.update({ password: hashedPassword });
+    return { message: "Password updated successfully" };
+  } catch (error) {
+    throw new AppError(`Failed to update password: ${error.message}`, 500);
+  }
+};
+
+module.exports = { sendOtp, verifyOtp, updatePassword };

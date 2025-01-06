@@ -1,55 +1,39 @@
-const { where } = require("sequelize");
-const User = require("../models/users");
 const authService = require("../services/authService");
 
-const requestResetPassword = 
-async (req, res) => {
-  const { email } = req.body;
-
+const requestOtp = async (req, res, next) => {
   try {
-    const user = await User.findOne({ where: { email } });
-    
-    if (!user) {
-      res.status(404).json({ success: false, message: "User not found" });
+    const { phone } = req.body;
+
+    if (!phone) {
+      throw new AppError("Phone number is required", 400);
     }
 
-      const resetToken = await authService.generateResetToken(user.dataValues);
-      await authService.sendResetEmail(user.dataValues.email, resetToken);
-
-      res
-        .status(200)
-        .json({ success: true, message: "reset password link has been sent" });
-
+    const response = await authService.sendOtp(phone);
+    res.success(response, "OTP sent successfully", 200);
   } catch (error) {
-    res.status(500).json({ success: false, error: error });
+    next(new AppError(error.message || "Failed to send OTP", error.statusCode || 500));
   }
 };
 
-const resetPassword = async (req, res) => {
-  const { token, newPassword } = req.body;
-    
+const verifyOtpAndUpdatePassword = async (req, res, next) => {
   try {
-    const decodedToken = authService.verifyResetToken(token);
-    
-    const user = await User.findOne({
-      where: {
-        user_id: decodedToken.userId,
-        reset_token: token,
-      },
-    });
+    const { phone, otp, newPassword } = req.body;
 
-    if (!user.dataValues) {
-      res
-        .status(400)
-        .json({ success: false, message: "token expiered or invalid" });
-    } 
-        
-      await authService.updatePassword(user.dataValues, newPassword);
-      res.status(200).json({ message: "Password has been reset successfully" });
+    if (!phone || !otp || !newPassword) {
+      throw new AppError("Phone, OTP, and new password are required", 400);
+    }
+
+    // Verify OTP
+    await authService.verifyOtp(phone, otp);
+
+    // Update user password
+    const response = await authService.updatePassword(phone, newPassword);
+    res.success(response, "Password updated successfully", 200);
   } catch (error) {
-    
-    res.status(500).json({ message: 'Error resetting password', error: error });
+    next(new AppError(error.message || "Failed to verify OTP or update password", error.statusCode || 500));
   }
 };
 
-module.exports = { requestResetPassword, resetPassword };
+
+
+module.exports = { requestOtp,  verifyOtpAndUpdatePassword};
