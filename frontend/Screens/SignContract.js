@@ -28,12 +28,13 @@ export default function SignContract({ route }) {
                 user_signature: ownerSignature,
                 witness_signature: witnessSignature,
             };
+            console.log(`contract/sign-contract/${contractId}`);
+            // console.log(requestBody);
             const response = await post(`contract/sign-contract/${contractId}`, requestBody);
-            console.log(response);
             Alert.alert("Success", "Contract submitted successfully!");
             navigation.pop(2);
         } catch (error) {
-            console.error("Failed to submit data:", error);
+            console.error("Failed to submit data:", error.response.data);
             Alert.alert("Error", "An unexpected error occurred.");
         }
     };

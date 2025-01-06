@@ -203,7 +203,7 @@ function DrawerNavigation() {
           headerTitle: () => (
             <Image
               source={logo}
-              style={{ width: 100, height: 25, resizeMode: "contain" }}
+              style={{ width: 200, height: 25, resizeMode: "contain" }}
             />
           ),
           headerRight: () => {

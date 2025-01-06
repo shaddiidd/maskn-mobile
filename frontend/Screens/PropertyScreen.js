@@ -72,7 +72,6 @@ export default function PropertyScreen({ route }) {
         </View>
         {(user.role === 1 && !property.request_status) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
-        {console.log(property)}
         {property.request_status === "approved" && (
           <PropertyOwnerCard
             id={property?.owner_id}
