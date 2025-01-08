@@ -13,7 +13,7 @@ export default function SurveyQuestion({ question, onAnswerSelected, selectedOpt
 
     return (
         <View style={styles.container}>
-            <Text style={styles.question}>{question.question_text}</Text>
+            <Text style={styles.question}>The tenant complied with the agreed-upon procedures for moving in and out (e.g., timely move-out, proper notice)</Text>
             <View style={styles.optionsContainer}>
                 {options.map((option) => (
                     <TouchableOpacity key={option.id} style={[styles.option, selectedOption === option.id && styles.selectedOption]} activeOpacity={0.7} onPress={() => onAnswerSelected(option)}>

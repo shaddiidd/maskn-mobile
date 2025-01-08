@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, ScrollView, Image, Text, TouchableOpacity, View, Alert } from 'react-native';
-import TextField from '../Components/TextField';
+import LabelTextField from '../Components/LabelTextField';
 import Context from '../Context';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Button from '../Components/Button';
@@ -8,14 +8,19 @@ import * as ImagePicker from "expo-image-picker";
 import { put } from '../fetch';
 import { optimizeImage } from '../utils/images';
 import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from "@expo/vector-icons";
 
 export default function EditProfileScreen() {
-    const { user, generateToken, setLoading, token } = useContext(Context);
+    const { user, generateToken, setLoading } = useContext(Context);
     const [profile, setProfile] = useState(user);
     const [selectedProfilePic, setSelectedProfilePic] = useState(null);
     const navigation = useNavigation();
 
     const handleSave = async () => {
+        if (!profile.username || !profile.first_name || !profile.last_name || !profile.email || !profile.phone_number) {
+            Alert.alert("All fields are required", "Please fill in all the fields.");
+            return;
+        }
         setLoading(true);
         try {
             const body = new FormData();
@@ -41,10 +46,8 @@ export default function EditProfileScreen() {
             navigation.pop();
         } catch (error) {
             if (error.response) {
-                console.log("Error Response:", error.response.data);
                 Alert.alert("Error", error.response.data.message || "Failed to update profile.");
             } else {
-                console.log("Error:", error.message);
                 Alert.alert("Error", "Something went wrong. Please try again later.");
             }
         } finally {
@@ -70,7 +73,7 @@ export default function EditProfileScreen() {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
+        <ScrollView style={{ backgroundColor: "#fff" }} contentContainerStyle={styles.scrollContainer}>
             <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
                 {selectedProfilePic ? (
                     <Image source={{ uri: selectedProfilePic.uri }} style={styles.profilePicture} />
@@ -79,7 +82,9 @@ export default function EditProfileScreen() {
                 ) : null}
 
                 {!selectedProfilePic && !user.profile_photo?.[0] && (
-                    <Text style={styles.noImageText}>Upload a profile picture</Text>
+                <View style={styles.profilePicture}>
+                    <Ionicons name="person" color="#666" size={50} />
+                </View>
                 )}
                 <View style={styles.circleBtn}>
                     <Icon name="edit" size={18} color="#fff" />
@@ -88,11 +93,11 @@ export default function EditProfileScreen() {
             <TouchableOpacity activeOpacity={0.7} onPress={pickImage}>
                 <Text style={styles.profilePictureText}>Upload a profile picture</Text>
             </TouchableOpacity>
-            <TextField value={profile.username} setValue={(value) => setProfile({ ...profile, username: value })} placeholder="Username" />
-            <TextField value={profile.first_name} setValue={(value) => setProfile({ ...profile, first_name: value })} placeholder="First name" />
-            <TextField value={profile.last_name} setValue={(value) => setProfile({ ...profile, last_name: value })} placeholder="Last name" />
-            <TextField value={profile.email} setValue={(value) => setProfile({ ...profile, email: value })} placeholder="Email" />
-            <TextField value={profile.phone_number} setValue={(value) => setProfile({ ...profile, phone_number: value })} placeholder="Phone number" />
+            <LabelTextField value={profile.username} setValue={(value) => setProfile({ ...profile, username: value })} placeholder="Username" />
+            <LabelTextField value={profile.first_name} setValue={(value) => setProfile({ ...profile, first_name: value })} placeholder="First name" />
+            <LabelTextField value={profile.last_name} setValue={(value) => setProfile({ ...profile, last_name: value })} placeholder="Last name" />
+            <LabelTextField value={profile.email} setValue={(value) => setProfile({ ...profile, email: value })} placeholder="Email" />
+            <LabelTextField value={profile.phone_number} setValue={(value) => setProfile({ ...profile, phone_number: value })} placeholder="Phone number" />
             <Button text="Save" onPress={handleSave} />
         </ScrollView>
     );
@@ -102,8 +107,8 @@ const styles = StyleSheet.create({
     scrollContainer: {
         alignItems: "center",
         minWidth: "100%",
-        minHeight: "100%",
         padding: 20,
+        paddingTop: 5
     },
     profilePicture: {
         width: 120,

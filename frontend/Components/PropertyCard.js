@@ -2,9 +2,11 @@ import { useNavigation } from "@react-navigation/native";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { formatPrice } from "../helpers/textFunctions";
+import React, { useState } from "react";
 
 export default function PropertyCard({ property }) {
   const navigation = useNavigation();
+  const [imageError, setImageError] = useState(false);
 
   return (
     <TouchableOpacity
@@ -13,7 +15,15 @@ export default function PropertyCard({ property }) {
       onPress={() => navigation.navigate("PropertyDetails", { property_id: property.property_id })}
     >
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={property.photos ? { uri: property?.photos[0] } : require("../assets/house.png")} />
+        {imageError || !property.photos ? (
+          <Ionicons name="image-outline" size={80} color="#ccc" style={styles.placeholderIcon} />
+        ) : (
+          <Image
+            style={styles.image}
+            source={{ uri: property?.photos[0] }}
+            onError={() => setImageError(true)}
+          />
+        )}
       </View>
       <Text style={styles.title}>{property.title}</Text>
       <Text style={styles.price}>JD {formatPrice(property.price)}</Text>
@@ -42,15 +52,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    backgroundColor: "#eee"
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
   },
   image: {
     borderRadius: 12,
     width: "100%",
-    height: "100%"
+    height: "100%",
+  },
+  placeholderIcon: {
+    alignSelf: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     width: "95%",
     marginTop: 7,
   },
@@ -58,7 +73,8 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "600",
     width: "95%",
-    color: "#333",
+    color: "#508D4E",
+    marginTop: 2,
   },
   ratingContainer: {
     flexDirection: "row",
@@ -69,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     position: "absolute",
     top: 8,
-    right: 8
+    right: 8,
   },
   ratingTxt: {
     fontSize: 16,

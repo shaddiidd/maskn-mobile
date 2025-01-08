@@ -22,14 +22,13 @@ export default function PropertySearch({ route }) {
       body.is_furnished = Boolean(firnished);
       const response = await post("property/get-by-filter", body);
       let filteredProperties = response.data.properties;
-      console.log(filteredProperties);
       if (searchText) {
         filteredProperties = filteredProperties.filter(property => property?.title?.toLowerCase().includes(searchText?.toLowerCase()));
       }
       setProperties(filteredProperties);
-    } catch (error) {
-      console.log(error);
+    } catch {
       Alert.alert("Error", "Failed to get properties");
+      setProperties([]);
     } finally {
       setRefreshing(false);
       setLoading(false);
@@ -47,7 +46,7 @@ export default function PropertySearch({ route }) {
     fetchProperties();
   }, []);
 
-  if (properties === null) return <></>;
+  if (properties === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <View style={styles.container}>
       <FiltersContainer filters={filters} />

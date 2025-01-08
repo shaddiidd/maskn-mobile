@@ -15,7 +15,7 @@ const styles = StyleSheet.create({
   infoBox: {
     width: 75,
     height: 75,
-    backgroundColor: "#f7f7f7",
+    // backgroundColor: "#f7f7f7",
     borderRadius: 15,
     borderWidth: 0.2,
     justifyContent: "center",

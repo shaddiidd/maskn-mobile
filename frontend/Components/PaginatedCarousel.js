@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    marginTop: -15
   },
   image: {
     width: '100%',

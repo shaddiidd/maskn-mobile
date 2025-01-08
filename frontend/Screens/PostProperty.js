@@ -39,7 +39,7 @@ export default function PostProperty() {
     if (!propertyInfo.village_id) return;
     const fetchBlocks = async () => {
       try {
-        const response = await get(`property/get-/blocks/${propertyInfo.village_id}`);
+        const response = await get(`property/get-blocks/${propertyInfo.village_id}`);
         const blocks = response.data.blocks.map((block) => ({
           id: block.id,
           label: block.block_name,
@@ -50,7 +50,7 @@ export default function PostProperty() {
           block_id: undefined
         }))
       } catch (error) {
-        console.error("Error fetching blocks:", error);
+        console.error("Error fetching blocks:", error.response.data);
       }
     }
     fetchBlocks();
@@ -94,10 +94,17 @@ export default function PostProperty() {
     const requiredFields = ["description", "title", "address", "area", "price", "rental_period", "village_id", "block_id", "parcel_number", "building_number", "apartment_number"];
     const missingFields = requiredFields.filter((field) => !propertyInfo[field]);
     if (missingFields.length) {
-      Alert.alert("Missing Fields", `Please fill in: ${missingFields.join(", ")}`);
-      setIsSubmitting(false);
+      Alert.alert("Missing Fields", `Please fill in all fields`);
       return;
     }
+
+    const numericFields = ["area", "price", "parcel_number", "building_number", "apartment_number", "bedroom_num", "bathroom_num", "floor_num", "property_age"];
+    const invalidNumericFields = numericFields.filter((field) => propertyInfo[field] && isNaN(propertyInfo[field]));
+    if (invalidNumericFields.length) {
+      Alert.alert("Invalid Input", `The following fields must be numeric: ${invalidNumericFields.join(", ")}`);
+      return;
+    }  
+
     setLoading(true);
     try {
       const form = new FormData();
@@ -176,7 +183,7 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: 20,
     fontWeight: "600",
-    marginTop: 20,
+    // marginTop: 20,
     marginBottom: 10,
     width: "100%",
   },
@@ -184,10 +191,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     // flexWrap: "wrap",
     justifyContent: "center",
-    marginBottom: 20,
-    columnGap: 10,
+    gap: 10,
     minWidth: "100%",
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    marginBottom: 20
   },
   imageWrapper: {
     position: "relative",
@@ -199,8 +206,8 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     position: "absolute",
-    top: 0,
-    right: 0,
+    top: 5,
+    right: 5,
     backgroundColor: "rgba(255, 0, 0, 0.7)",
     borderRadius: 12,
     width: 24,
@@ -209,13 +216,12 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   uploadButton: {
-    width: 100,
-    height: 100,
+    width: 180,
+    height: 180,
     borderRadius: 8,
     backgroundColor: "#ccc",
     justifyContent: "center",
     alignItems: "center",
-    margin: 5,
     flexDirection: "row",
   },
   uploadButtonText: {

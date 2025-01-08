@@ -20,16 +20,6 @@ export default function RentHistory() {
     { property_id: 2, title: "Property 2", price: 350, rating: 4.5, date: "Jul 2023 - " },
   ]);
 
-  // useEffect(() => {
-  //   get("rentHistory")
-  //     .then((response) => {
-  //       setProperties(response.result);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
-
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]} style={{ flex: 1, width: "100%" }}>
@@ -58,7 +48,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     alignItems: "center",
     minHeight: "100%",
-    paddingTop: 20,
+    paddingTop: 5,
     rowGap: 15,
   },
   searchContainer: {

@@ -2,8 +2,8 @@ import { StyleSheet, View, ScrollView, Text } from "react-native";
 
 export default function FiltersContainer({ filters }) {
     return (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ backgroundColor: "#eee" }} contentContainerStyle={styles.container}>
-            {Object.entries(filters).map(([key, value]) => value && (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ borderBottomWidth: 0.5, borderColor: "#ccc" }} contentContainerStyle={styles.container}>
+            {Object.entries(filters).map(([_, value]) => value && (
                 <View style={styles.filterContainer}>
                     <Text numberOfLines={1} style={styles.filterTxt}>{value}</Text>
                 </View>
@@ -21,11 +21,9 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         paddingHorizontal: 20,
         paddingVertical: 10,
-        borderBottomWidth: 0.5,
-        borderColor: "#ccc",
     },
     filterContainer: {
-        backgroundColor: "#508D4E",
+        backgroundColor: "#ddd",
         height: 25,
         alignItems: "center",
         justifyContent: "center",
@@ -33,8 +31,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     filterTxt: {
-        color: "#fff",
-        fontSize: 15
+        color: "#000",
+        fontSize: 15,
     },
-    
 });

@@ -28,8 +28,10 @@ export default function TourRequestsScreen() {
       const received = sorted.filter(request => request.owner_id === user.userId);
       setSentRequests(sent);
       setReceivedRequests(received);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to get requests");
+      setSentRequests([]);
+      setReceivedRequests([]);
     } finally {
       setLoading(false);
     }
@@ -47,8 +49,6 @@ export default function TourRequestsScreen() {
       Alert.alert("Request Accepted", "The request has been accepted successfully", [{ text: "OK" }]);
     } catch (error) {
       Alert.alert("Error", "Failed to accept request");
-      console.log(error.response.data);
-      Alert.alert("Error", "Failed to accept request");
     }
   }
 
@@ -64,7 +64,7 @@ export default function TourRequestsScreen() {
     return (
       <ScrollView
         style={{ width: "100%" }}
-        contentContainerStyle={{ alignItems: "center", padding: 10, width: "100%" }}
+        contentContainerStyle={{ alignItems: "center", paddingTop: 0, padding: 10, width: "100%" }}
         showsVerticalScrollIndicator={false}
       >
         {sentRequests.map((item) => (
@@ -86,7 +86,7 @@ export default function TourRequestsScreen() {
     return (
       <ScrollView
         style={{ width: "100%" }}
-        contentContainerStyle={{ alignItems: "center", padding: 10, width: "100%" }}
+        contentContainerStyle={{ alignItems: "center", paddingTop: 0, padding: 10, width: "100%" }}
         showsVerticalScrollIndicator={false}
       >
         {receivedRequests.map((item) => (
@@ -96,7 +96,7 @@ export default function TourRequestsScreen() {
     );
   };
 
-  if (sentRequests === null) return null;
+  if (sentRequests === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <SafeAreaView style={styles.container}>
       {user.role === 1 ? <SentRequests /> : <ReceivedRequests />}
