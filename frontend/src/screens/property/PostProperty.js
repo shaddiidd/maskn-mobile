@@ -6,12 +6,13 @@ import LabelTextField from "../../ui/LabelTextField";
 import Button from "../../ui/Button";
 import RadioButtons from "../../ui/RadioButtons";
 import DropdownMenu from "../../ui/DropdownMenu";
-import { get } from "../../utils/fetch";
-import axios from "axios";
+import { get, post } from "../../utils/fetch";
 import Context from "../../context/Context";
 import { optimizeImage } from "../../utils/images";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PostProperty() {
+  const navigation = useNavigation();
   // const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
   const [propertyInfo, setPropertyInfo] = useState({
     water_meter_subscription_number: `WATER${Date.now()}`,
@@ -31,8 +32,6 @@ export default function PostProperty() {
     location: "Downtown, City",
     price: "1500",
     parcel_number: "12345",
-    village_id: "1",
-    block_id: "2",
   });  
   const [images, setImages] = useState([]);
   const [villages, setVillages] = useState([]);
@@ -83,17 +82,12 @@ export default function PostProperty() {
       Alert.alert("Permission Denied", "Please allow access to the gallery.");
       return;
     }
-    if (images.length >= 5) {
-      Alert.alert("Limit Reached", "You can only upload up to 5 images.");
-      return;
-    }
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!pickerResult.canceled) {
       const selectedImages = pickerResult.assets;
       setImages((prevImages) => [...prevImages, ...selectedImages].slice(0, 5));
@@ -136,13 +130,17 @@ export default function PostProperty() {
       form.append("is_furnished", propertyInfo.is_furnished ? true : false);
       for (const [_, image] of images.entries()) {
         const optimizedImage = await optimizeImage(image);
-        const blob = await fetch(optimizedImage.uri).then((r) => r.blob());
-        form.append("photos", blob);
+        form.append("photos", {
+          uri: optimizedImage.uri,
+          name: image.uri.split("/").pop(),
+          type: "image/jpeg",
+        });
       }
-      await axios.post("http://localhost:5002/property/add-property", form, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}` } });
+      await post("property/add-property", form);
       Alert.alert("Success", "Property posted successfully!");
       navigation.pop();
     } catch (error) {
+      console.log(error.response.data);
       Alert.alert("Error", "Failed to post the property. Please try again.");
     } finally {
       setLoading(false);
