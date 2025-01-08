@@ -13,26 +13,7 @@ import { useNavigation } from "@react-navigation/native";
 
 export default function PostProperty() {
   const navigation = useNavigation();
-  // const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
-  const [propertyInfo, setPropertyInfo] = useState({
-    water_meter_subscription_number: `WATER${Date.now()}`,
-    electricity_meter_reference_number: `ELECTRICITY${Date.now()}`,
-    is_furnished: true,
-    title: "Cozy Apartment",
-    description: "A beautiful apartment located in the city center with modern amenities.",
-    address: "123 Main Street, Downtown",
-    area: "120",
-    bedroom_num: "3",
-    bathroom_num: "2",
-    property_age: "5",
-    rental_period: "monthly",
-    building_number: "45",
-    floor_num: "3",
-    apartment_number: "12",
-    location: "Downtown, City",
-    price: "1500",
-    parcel_number: "12345",
-  });  
+  const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
   const [images, setImages] = useState([]);
   const [villages, setVillages] = useState([]);
   const [blocks, setBlocks] = useState([]);
@@ -217,6 +198,16 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     position: "relative",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: "#fff",
+    borderRadius: 8,
   },
   image: {
     width: 220,
