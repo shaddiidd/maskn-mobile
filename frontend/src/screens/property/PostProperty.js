@@ -12,7 +12,28 @@ import Context from "../../context/Context";
 import { optimizeImage } from "../../utils/images";
 
 export default function PostProperty() {
-  const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
+  // const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
+  const [propertyInfo, setPropertyInfo] = useState({
+    water_meter_subscription_number: `WATER${Date.now()}`,
+    electricity_meter_reference_number: `ELECTRICITY${Date.now()}`,
+    is_furnished: true,
+    title: "Cozy Apartment",
+    description: "A beautiful apartment located in the city center with modern amenities.",
+    address: "123 Main Street, Downtown",
+    area: "120",
+    bedroom_num: "3",
+    bathroom_num: "2",
+    property_age: "5",
+    rental_period: "monthly",
+    building_number: "45",
+    floor_num: "3",
+    apartment_number: "12",
+    location: "Downtown, City",
+    price: "1500",
+    parcel_number: "12345",
+    village_id: "1",
+    block_id: "2",
+  });  
   const [images, setImages] = useState([]);
   const [villages, setVillages] = useState([]);
   const [blocks, setBlocks] = useState([]);
@@ -75,7 +96,7 @@ export default function PostProperty() {
 
     if (!pickerResult.canceled) {
       const selectedImages = pickerResult.assets;
-      setImages((prevImages) => [...prevImages, ...selectedImages]);
+      setImages((prevImages) => [...prevImages, ...selectedImages].slice(0, 5));
     }
   };
 
@@ -103,7 +124,7 @@ export default function PostProperty() {
     if (invalidNumericFields.length) {
       Alert.alert("Invalid Input", `The following fields must be numeric: ${invalidNumericFields.join(", ")}`);
       return;
-    }  
+    }
 
     setLoading(true);
     try {
@@ -136,13 +157,13 @@ export default function PostProperty() {
           {images.map((image, index) => (
             <View key={index} style={styles.imageWrapper}>
               <Image source={{ uri: image.uri }} style={styles.image} />
-              <TouchableOpacity style={styles.deleteButton} onPress={() => handleImageDelete(index)}>
+              <TouchableOpacity activeOpacity={0.7} style={styles.deleteButton} onPress={() => handleImageDelete(index)}>
                 <Ionicons name="close" size={20} color="white" />
               </TouchableOpacity>
             </View>
           ))}
           {images.length < 5 && (
-            <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.uploadButton} onPress={handleImagePick}>
               <Ionicons name="camera" size={20} color="#666" />
               <Text style={styles.uploadButtonText}> Upload</Text>
             </TouchableOpacity>
@@ -158,7 +179,7 @@ export default function PostProperty() {
           <LabelTextField placeholder="Number of Bedrooms" keyboardType="numeric" value={propertyInfo.bedroom_num} setValue={(value) => handleInputChange("bedroom_num", value)} />
           <LabelTextField placeholder="Number of Bathrooms" keyboardType="numeric" value={propertyInfo.bathroom_num} setValue={(value) => handleInputChange("bathroom_num", value)} />
           <LabelTextField placeholder="Property Age" keyboardType="numeric" value={propertyInfo.property_age} setValue={(value) => handleInputChange("property_age", value)} />
-          <DropdownMenu label="Rental Period" items={[{  label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
+          <DropdownMenu label="Rental Period" items={[{ label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
           <LabelTextField placeholder="Building Number" keyboardType="numeric" value={propertyInfo.building_number} setValue={(value) => handleInputChange("building_number", value)} />
           <LabelTextField placeholder="Floor Number" keyboardType="numeric" value={propertyInfo.floor_num} setValue={(value) => handleInputChange("floor_num", value)} />
           <LabelTextField placeholder="Apartment Number" keyboardType="numeric" value={propertyInfo.apartment_number} setValue={(value) => handleInputChange("apartment_number", value)} />
@@ -200,8 +221,8 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   image: {
-    width: 180,
-    height: 180,
+    width: 220,
+    height: 220,
     borderRadius: 8,
   },
   deleteButton: {
@@ -216,8 +237,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   uploadButton: {
-    width: 180,
-    height: 180,
+    width: 220,
+    height: 220,
     borderRadius: 8,
     backgroundColor: "#ccc",
     justifyContent: "center",
