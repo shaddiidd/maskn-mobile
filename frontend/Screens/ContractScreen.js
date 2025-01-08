@@ -128,17 +128,17 @@ export default function ContractScreen({ route }) {
                     additionalStyles={{ marginTop: 20 }}
                     onPress={downloadContract}
                 />
-                {/* {!(
+                {!(
                     (user.role === 1 && contract.contractInfo.status.toLowerCase() === "signed") ||
                     (user.role === 2 && contract.contractInfo.status.toLowerCase() !== "not signed")
-                ) && ( */}
+                ) && (
                         <Button
                             small
                             text="Sign Contract"
                             additionalStyles={{ marginTop: 20 }}
                             onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })}
                         />
-                    {/* )} */}
+                    )}
             </View>
         </ScrollView>
     )

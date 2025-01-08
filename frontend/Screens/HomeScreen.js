@@ -66,7 +66,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     alignItems: "center",
-    minHeight: "100%",
     paddingTop: 5,
     paddingBottom: 20,
     rowGap: 15,

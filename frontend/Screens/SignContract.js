@@ -37,8 +37,8 @@ export default function SignContract({ route }) {
             await post(`contract/sign-contract/${contractId}`, requestBody);
             Alert.alert("Success", "Contract submitted successfully!");
             navigation.pop(2);
-        } catch {
-            Alert.alert("Error", "An unexpected error occurred.");
+        } catch (error) {
+            Alert.alert("Error", error.response.data.message)
         }
     };
 

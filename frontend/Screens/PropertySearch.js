@@ -56,8 +56,8 @@ export default function PropertySearch({ route }) {
         style={styles.scrollView}
       >
         {properties?.length ? (
-          properties?.map((property) => (
-            <PropertyCard key={property.property_id} property={property} />
+          properties?.map((property, index) => (
+            <PropertyCard key={index} property={property} />
           ))
         ) : (
           <>
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   scrollView: {
-    minWidth: "100%",
+    width: "100%",
     paddingTop: 10
   },
   scrollContainer: {

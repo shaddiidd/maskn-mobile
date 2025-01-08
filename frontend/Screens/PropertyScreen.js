@@ -82,7 +82,7 @@ export default function PropertyScreen({ route }) {
         )}
         <Text style={[styles.title, { marginTop: 20, marginBottom: -5 }]}>Reviews</Text>
         <View style={{ width: "90%" }}>
-          {property?.reviews?.length ? property?.reviews?.map((review, index) =>
+          {/* {property?.reviews?.length ? property?.reviews?.map((review, index) =>
             <ReviewCard
               key={index}
               title={review?.tenant?.first_name + " " + review?.tenant?.last_name}
@@ -92,7 +92,18 @@ export default function PropertyScreen({ route }) {
             />
           ) : (
             <Text style={styles.noReviews}>No reviews yet...</Text>
-          )}
+          )} */}
+          <ReviewCard
+            title={"Abdullah Shadid"}
+            subtitle="@shaddiidd"
+            review="The studio was perfect for my needs. Spacious, clean, and in a great location! The owner was responsive and helpful throughout my stay."
+          />
+
+          <ReviewCard
+            title={"Lina Mohammad"}
+            subtitle="@lina.m"
+            review="The studio is a gem! It’s small but very cozy, and everything I needed was within walking distance. Highly recommend for students or young professionals."
+          />
         </View>
       </SafeAreaView>
     </ScrollView>
