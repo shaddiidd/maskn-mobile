@@ -16,24 +16,10 @@ export default function Payment({ route }) {
     { id: 2, name: "Etihad Bank", displayNumber: "**** 035", type: "master" },
   ]);
 
-  // useEffect(() => {
-  //   get("paymentMethods")
-  //     .then((response) => {
-  //       setPaymentMethods(response.result);
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  // }, []);
-
   const pay = (paymentMethod) => setSelectedPaymentMethod(paymentMethod);
 
   const removePaymentMethod = (paymentMethod) => {
-    // remove(`paymentMethods/${paymentMethod.id}`)
-    //   .then(() => {
     setPaymentMethods(paymentMethods.filter((method) => method.id !== paymentMethod.id));
-    // })
-    // .catch(() => {});
   };
 
   return (

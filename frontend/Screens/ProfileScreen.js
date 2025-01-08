@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, Linking } from "react-native";
+import { StyleSheet, SafeAreaView, View, TouchableOpacity, Text, ScrollView, Image, Linking, Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import ReviewCard from "../Components/ReviewCard";
 import Button from "../Components/Button";
@@ -18,8 +18,8 @@ export default function ProfileScreen({ route }) {
     try {
       const response = await get(`users/${userId ? userId : user.userId}`);
       setProfile(response.data.user);
-    } catch (error) {
-      console.log(error.response.data);
+    } catch {
+      Alert.alert("Error", "Failed to get profile");
     } finally {
       setLoading(false);
     }
@@ -34,52 +34,49 @@ export default function ProfileScreen({ route }) {
     Linking.openURL(`tel:+962${profile?.phone_number.slice(1)}`);
   }
 
-  if (profile === null) return null;
+  if (profile === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <ScrollView style={{ paddingHorizontal: 20, backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
         <View style={styles.card}>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            {profile?.profile_photo && profile?.profile_photo.length ? (
-              <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
-            ) : (
-              <View style={styles.profilePicture}>
-                <Ionicons name="person" color="#666" size={32} />
-              </View>
-            )}
-            <View>
-              <Text style={styles.name}>{profile?.first_name} {profile?.last_name}</Text>
-              <View style={styles.ratingContainer}>
-                <Ionicons name="star" size={22} color="gold" />
-                <Text style={styles.rating}> {profile?.rating || 5}</Text>
+          <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: 10 }}>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              {profile?.profile_photo && profile?.profile_photo.length ? (
+                <Image style={styles.profilePicture} source={{ uri: profile?.profile_photo[0] }} />
+              ) : (
+                <View style={styles.profilePicture}>
+                  <Ionicons name="person" color="#666" size={32} />
+                </View>
+              )}
+              <View>
+                <Text style={styles.name}>{profile?.first_name} {profile?.last_name}</Text>
+                <Text style={styles.infoTxt}>@{profile?.username}</Text>
+                <View style={styles.ratingContainer}>
+                  <Ionicons name="star" size={18} color="gold" />
+                  <Text style={styles.rating}> {profile?.rating === 0 ? "Not rated" : profile?.rating}</Text>
+                </View>
               </View>
             </View>
-          </View>
-          {userId ? (
-            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={handleCall}>
-              <Icon name="phone" size={20} color="#fff" />
-            </TouchableOpacity>
-          ) : (
-            <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={() => navigation.navigate("EditProfile")}>
-              <Icon name="edit" size={20} color="#fff" />
-            </TouchableOpacity>
-          )}
-        </View>
-        <View style={styles.infoContainer}>
-          <View style={styles.infoItem}>
-            <Icon name="person" size={24} color="#333" />
-            <Text style={styles.infoTxt}>@{profile?.username}</Text>
+            {userId ? (
+              <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={handleCall}>
+                <Icon name="phone" size={20} color="#fff" />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity activeOpacity={0.7} style={styles.circleBtn} onPress={() => navigation.navigate("EditProfile")}>
+                <Icon name="edit" size={20} color="#fff" />
+              </TouchableOpacity>
+            )}
           </View>
           <View style={styles.infoItem}>
-            <Icon name="email" size={24} color="#333" />
+            <Icon name="email" size={24} color="#000" />
             <Text style={styles.infoTxt}>{profile?.email}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Icon name="phone" size={24} color="#333" />
+            <Icon name="phone" size={24} color="#000" />
             <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
           </View>
         </View>
-        <Button text="rent history" onPress={() => navigation.navigate("RentHistory")} />
+        {/* <Button text="rent history" onPress={() => navigation.navigate("RentHistory")} /> */}
         <Text style={styles.title}>Reviews</Text>
         {profile?.tenant_reviews_owner?.length ? profile?.tenant_reviews_owner?.map((review, index) =>
           <ReviewCard
@@ -105,15 +102,25 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   card: {
-    borderWidth: 1,
+    // borderWidth: 1,
     width: "100%",
-    flexDirection: "row",
+    // flexDirection: "row",
+    rowGap: 5,
     alignItems: "center",
     justifyContent: "space-between",
     padding: 10,
-    marginTop: 25,
+    marginTop: 10,
     borderRadius: 10,
     borderColor: "#D9D9D9",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: "#fff",
   },
   profilePicture: {
     width: 70,
@@ -136,7 +143,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   rating: {
-    fontSize: 18,
+    fontSize: 16,
     color: "#1E1E1E",
   },
   circleBtn: {
@@ -147,7 +154,7 @@ const styles = StyleSheet.create({
   infoContainer: {
     marginTop: 10,
     width: "100%",
-    rowGap: 8,
+    rowGap: 5,
   },
   infoItem: {
     flexDirection: "row",
@@ -155,10 +162,6 @@ const styles = StyleSheet.create({
     columnGap: 5,
     width: "100%",
     paddingHorizontal: 10,
-  },
-  rightAlignedItem: {
-    justifyContent: "flex-end",
-    alignItems: "flex-end",
   },
   infoTxt: {
     color: "#333",

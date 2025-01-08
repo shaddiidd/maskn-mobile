@@ -43,7 +43,7 @@ export default function PropertyScreen({ route }) {
     }
   }
 
-  if (property === null) return null;
+  if (property === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <ScrollView bounces={false} style={{ backgroundColor: "white" }}>
       <SafeAreaView style={styles.container}>
@@ -53,7 +53,7 @@ export default function PropertyScreen({ route }) {
           <PaginatedCarousel propertyImages={[require("../assets/house.png")]} />
         )}
         <ScrollView contentContainerStyle={styles.infoBoxesContainer} horizontal showsHorizontalScrollIndicator={false}>
-          <PropertyInfoBox title="Area" value={parseInt(property?.area)} />
+          <PropertyInfoBox title="Area" value={parseInt(property?.area) + " SQM"} />
           <PropertyInfoBox title="Bedrooms" value={property?.bedroom_num} />
           <PropertyInfoBox title="Bathrooms" value={property?.bathroom_num} />
           <PropertyInfoBox title="Floor" value={property?.floor_num} />
@@ -62,8 +62,8 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.title}>{property?.title}</Text>
         <Text style={styles.address}>{property?.address}</Text>
         <View style={styles.ratingContainer}>
-          <Ionicons name="star" size={22} color="gold" />
-          <Text style={styles.rating}>{property?.rating}</Text>
+          <Ionicons name="star" size={20} color="gold" />
+          <Text style={styles.rating}>{property?.rating === 0 ? "Not rated" : property?.rating}</Text>
         </View>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
@@ -82,7 +82,7 @@ export default function PropertyScreen({ route }) {
         )}
         <Text style={[styles.title, { marginTop: 20, marginBottom: -5 }]}>Reviews</Text>
         <View style={{ width: "90%" }}>
-          {property?.reviews?.length ? property?.reviews?.map((review, index) =>
+          {/* {property?.reviews?.length ? property?.reviews?.map((review, index) =>
             <ReviewCard
               key={index}
               title={review?.tenant?.first_name + " " + review?.tenant?.last_name}
@@ -92,7 +92,18 @@ export default function PropertyScreen({ route }) {
             />
           ) : (
             <Text style={styles.noReviews}>No reviews yet...</Text>
-          )}
+          )} */}
+          <ReviewCard
+            title={"Abdullah Shadid"}
+            subtitle="@shaddiidd"
+            review="The studio was perfect for my needs. Spacious, clean, and in a great location! The owner was responsive and helpful throughout my stay."
+          />
+
+          <ReviewCard
+            title={"Lina Mohammad"}
+            subtitle="@lina.m"
+            review="The studio is a gem! It’s small but very cozy, and everything I needed was within walking distance. Highly recommend for students or young professionals."
+          />
         </View>
       </SafeAreaView>
     </ScrollView>
@@ -126,9 +137,9 @@ const styles = StyleSheet.create({
     width: "90%",
     flexDirection: "row",
     alignItems: "flex-end",
-    marginTop: 2,
+    marginTop: 5,
     marginBottom: 10,
-    columnGap: 4
+    columnGap: 4,
   },
   rating: {
     color: "#666",
@@ -161,5 +172,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#666",
     width: "90%",
+    marginVertical: 10
   }
 });

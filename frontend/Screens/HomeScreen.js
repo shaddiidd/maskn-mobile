@@ -17,6 +17,7 @@ export default function HomeScreen() {
       setProperties(response.data);
     } catch {
       Alert.alert("Error", "Failed to get properties");
+      setProperties([]);
     } finally {
       setRefreshing(false);
       setLoading(false);
@@ -28,7 +29,7 @@ export default function HomeScreen() {
     fetchProperties();
   }, []);
 
-  if (properties === null) return <></>;
+  if (properties === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <View style={styles.container}>
       <SearchModal />
@@ -65,7 +66,6 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     alignItems: "center",
-    minHeight: "100%",
     paddingTop: 5,
     paddingBottom: 20,
     rowGap: 15,

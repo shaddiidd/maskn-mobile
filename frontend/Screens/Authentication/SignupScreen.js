@@ -36,7 +36,6 @@ export default function SignupScreen({ navigation }) {
   const validateFields = (fields) => {
     let isValid = true;
     fields.forEach((field) => {
-      console.log("field", values[field].value);
       if (!values[field].value) {
         setValues((prev) => ({
           ...prev,

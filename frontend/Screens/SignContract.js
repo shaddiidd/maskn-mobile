@@ -2,9 +2,10 @@ import React, { useRef, useState } from "react";
 import { StyleSheet, View, Text, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../Components/Button";
-import TextField from "../Components/TextField";
+import LabelTextField from "../Components/LabelTextField";
 import SignaturePad from "../Components/SignaturePad";
 import { post } from "../fetch";
+import { formatDate } from "../helpers/dateFunctions";
 
 export default function SignContract({ route }) {
     const { contractId } = route.params || "";
@@ -20,32 +21,34 @@ export default function SignContract({ route }) {
             Alert.alert("Error", "Please complete all fields before submitting.");
             return;
         }
+        const now = new Date();
+        const start_date = formatDate(now.getTime(), true);
+        const oneMonthLater = new Date();
+        oneMonthLater.setMonth(now.getMonth() + 1);
+        const end_date = formatDate(oneMonthLater.getTime(), true);
         try {
             const requestBody = {
-                start_date: "2025-01-05",
-                end_date: "2025-12-31",
+                start_date,
+                end_date,
                 witness_name: witnessName,
                 user_signature: ownerSignature,
                 witness_signature: witnessSignature,
             };
-            console.log(`contract/sign-contract/${contractId}`);
-            // console.log(requestBody);
-            const response = await post(`contract/sign-contract/${contractId}`, requestBody);
+            await post(`contract/sign-contract/${contractId}`, requestBody);
             Alert.alert("Success", "Contract submitted successfully!");
             navigation.pop(2);
         } catch (error) {
-            console.error("Failed to submit data:", error.response.data);
-            Alert.alert("Error", "An unexpected error occurred.");
+            Alert.alert("Error", error.response.data.message)
         }
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>Your Signature</Text>
+            <Text style={styles.title}>Your signature</Text>
             <SignaturePad ref={ownerSignatureRef} canvasStyle={styles.canvas} />
-            <Text style={styles.title}>Witness's Signature</Text>
+            <Text style={styles.title}>Witness's signature</Text>
             <SignaturePad ref={witnessSignatureRef} canvasStyle={styles.canvas} />
-            <TextField
+            <LabelTextField
                 style={styles.input}
                 placeholder="Witness's full name"
                 value={witnessName}
@@ -60,12 +63,10 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        padding: 20,
+        paddingHorizontal: 20,
         backgroundColor: "#fff",
     },
     title: {
-        fontSize: 16,
-        fontWeight: "bold",
         marginBottom: 8,
         width: "100%",
         color: "#333",

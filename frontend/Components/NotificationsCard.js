@@ -5,17 +5,17 @@ import { capitalizeFirstLetter } from "../helpers/textFunctions";
 
 export default function NotificationsCard({ notification }) {
   return (
-    <TouchableOpacity style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.iconContainer}>
         <Ionicons name="notifications-outline" size={25} color="#fff" />
       </View>
       <View style={styles.contentContainer}>
-        <Text numberOfLines={1} style={styles.text}>{notification.content}</Text>
+        <Text numberOfLines={2} style={styles.text}>{notification.content}</Text>
         <Text style={styles.time}>
           {capitalizeFirstLetter(formatDistanceToNow(new Date(notification.created), { addSuffix: true }))}
         </Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 }
 
@@ -39,7 +39,8 @@ const styles = StyleSheet.create({
   },
   text: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 16,
+    fontWeight: "400",
     width: "100%",
   },
   time: {

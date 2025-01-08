@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Text, Alert } from "react-native";
+import { StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Text, Alert, View } from "react-native";
 import PropertyCard from "../Components/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
@@ -15,9 +15,9 @@ export default function MyProperties() {
     try {
       const response = await get("property/get-by-user-id");
       setProperties(response.data);
-    } catch (error) {
-      console.log(error);
+    } catch {
       Alert.alert("Error", "Failed to get properties");
+      setProperties([]);
     } finally {
       setLoading(false);
     }
@@ -28,7 +28,7 @@ export default function MyProperties() {
     fetchProperties();
   }, []);
 
-  if (properties === null) return <></>;
+  if (properties === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]} style={{ flex: 1, width: "100%" }}>
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   scrollContainer: {
     alignItems: "center",
     minHeight: "100%",
-    paddingTop: 20,
+    paddingTop: 5,
     rowGap: 15,
   },
   noContent: {

@@ -27,7 +27,7 @@ export default function AppContainer() {
 
   return (
     <>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle="dark-content" />
       <InitiateSurveysModal reloadSurvey={getSurverys} surveyData={surveyData} />
       <Navigation />
       {loading && (

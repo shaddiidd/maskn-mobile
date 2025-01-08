@@ -9,7 +9,7 @@ import { Image, TouchableOpacity, View, Text, StyleSheet, SafeAreaView, Alert } 
 import { useContext, useState } from "react";
 import Context from "./Context";
 import "./gesture-handler";
-import logo from "./assets/maskn-wide.png";
+import logo from "./assets/maskn-green.png";
 
 import SignupScreen from "./Screens/Authentication/SignupScreen";
 import SigninScreen from "./Screens/Authentication/SigninScreen";
@@ -63,7 +63,7 @@ function CustomDrawerContent({ navigation }) {
             style={styles.drawerItem}
             labelStyle={styles.drawerItemLabel}
             icon={() => (
-              <Ionicons name="person-outline" size={24} color="#fff" />
+              <Ionicons name="person-outline" size={24} color="#508D4E" />
             )}
             onPress={() => handleNavigation("Profile")}
           />
@@ -71,14 +71,14 @@ function CustomDrawerContent({ navigation }) {
             label="Tour Requests"
             labelStyle={styles.drawerItemLabel}
             style={styles.drawerItem}
-            icon={() => <Ionicons name="eye-outline" size={24} color="#fff" />}
+            icon={() => <Ionicons name="eye-outline" size={24} color="#508D4E" />}
             onPress={() => handleNavigation("TourRequests")}
           />
           <DrawerItem
             label="Rent History"
             style={styles.drawerItem}
             labelStyle={styles.drawerItemLabel}
-            icon={() => <Ionicons name="time-outline" size={24} color="#fff" />}
+            icon={() => <Ionicons name="time-outline" size={24} color="#508D4E" />}
             onPress={() => handleNavigation("RentHistory")}
           />
           {user.role === 1 ? (
@@ -87,7 +87,7 @@ function CustomDrawerContent({ navigation }) {
               labelStyle={styles.drawerItemLabel}
               style={styles.drawerItem}
               icon={() => (
-                <Ionicons name="key-outline" size={24} color="#fff" />
+                <Ionicons name="key-outline" size={24} color="#508D4E" />
               )}
               onPress={() => handleNavigation("BecomeRenter")}
             />
@@ -97,7 +97,7 @@ function CustomDrawerContent({ navigation }) {
               labelStyle={styles.drawerItemLabel}
               style={styles.drawerItem}
               icon={() => (
-                <Ionicons name="key-outline" size={24} color="#fff" />
+                <Ionicons name="key-outline" size={24} color="#508D4E" />
               )}
               onPress={() => handleNavigation("MyProperties")}
             />
@@ -107,7 +107,7 @@ function CustomDrawerContent({ navigation }) {
             style={styles.drawerItem}
             labelStyle={styles.drawerItemLabel}
             icon={() => (
-              <Ionicons name="help-circle-outline" size={24} color="#fff" />
+              <Ionicons name="help-circle-outline" size={24} color="#508D4E" />
             )}
             onPress={() => {
               navigation.closeDrawer();
@@ -126,7 +126,7 @@ function CustomDrawerContent({ navigation }) {
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => (
-            <Ionicons name="settings-outline" size={27} color="#fff" />
+            <Ionicons name="settings-outline" size={27} color="#508D4E" />
           )}
           onPress={() => {
             navigation.closeDrawer();
@@ -138,7 +138,7 @@ function CustomDrawerContent({ navigation }) {
           style={styles.drawerItem}
           labelStyle={styles.drawerItemLabel}
           icon={() => (
-            <Ionicons name="log-out-outline" size={27} color="#fff" />
+            <Ionicons name="log-out-outline" size={27} color="#508D4E" />
           )}
           onPress={() => {
             navigation.closeDrawer();
@@ -158,23 +158,17 @@ function DrawerNavigation() {
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={({ navigation }) => {
         const baseOptions = {
-          headerStyle: {
-            backgroundColor: "#508D4E"
-          },
-          headerTintColor: "#fff",
+          headerTintColor: "#508D4E",
           headerTitleStyle: {
             fontSize: 20,
             fontWeight: "600"
           },
-          drawerStyle: {
-            backgroundColor: "#508D4E"
-          },
-          drawerActiveTintColor: "#fff",
-          drawerInactiveTintColor: "#fff",
+          drawerActiveTintColor: "#508D4E",
+          drawerInactiveTintColor: "#508D4E",
           drawerItemStyle: {
             paddingVertical: 5,
           },
-          // drawerType: "front",
+          drawerType: "front",
           swipeEnabled: isAuthenticated,
           gestureEnabled: isAuthenticated,
         };
@@ -185,7 +179,7 @@ function DrawerNavigation() {
               onPress={() => navigation.navigate("Signin")}
               activeOpacity={0.7}
             >
-              <Ionicons name="log-in-outline" color="#fff" size={24} style={{ marginLeft: 10 }} />
+              <Ionicons name="log-in-outline" color="#508D4E" size={24} style={{ marginLeft: 10 }} />
             </TouchableOpacity>
           );
         }
@@ -211,27 +205,37 @@ function DrawerNavigation() {
             return (
               <TouchableOpacity
                 activeOpacity={0.7}
-                onPress={() => { navigation.navigate("Notifications"); setShowNotificationsIndicator(false); }}
+                onPress={() => {
+                  navigation.navigate("Notifications");
+                  setShowNotificationsIndicator(false);
+                }}
                 style={{ marginRight: 15 }}
               >
                 <View style={{ position: "relative" }}>
-                  <Ionicons name="notifications-outline" size={24} color="#fff" />
-                  {showNotificationsIndicator && <View
-                    style={{
-                      position: "absolute",
-                      top: -2,
-                      right: -2,
-                      backgroundColor: "red",
-                      borderRadius: 10,
-                      width: 14,
-                      height: 14,
-                      justifyContent: "center",
-                      alignItems: "center",
-                    }}
-                  />}
+                  <Ionicons name="notifications-outline" size={24} color="#508D4E" />
+                  {showNotificationsIndicator && (
+                    <View
+                      style={{
+                        position: "absolute",
+                        top: -2,
+                        right: -2,
+                        backgroundColor: "red",
+                        borderRadius: 10,
+                        width: 14,
+                        height: 14,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    />
+                  )}
                 </View>
               </TouchableOpacity>
-            )
+            );
+          },
+          headerStyle: {
+            elevation: 0, // Remove shadow on Android
+            shadowOpacity: 0, // Remove shadow on iOS
+            borderBottomWidth: 0, // Remove the separator line
           },
         }}
       />
@@ -247,7 +251,22 @@ export default function Navigation() {
 
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerBackTitleVisible: false, headerStyle: { backgroundColor: "#508D4E" }, headerTintColor: "#fff" }}>
+      <Stack.Navigator
+        screenOptions={{
+          headerBackTitleVisible: false,
+          headerShadowVisible: false,
+          headerTintColor: "#000",
+          headerStyle: {
+            elevation: 0,
+            shadowOpacity: 0,
+            borderBottomWidth: 0,
+          },
+          headerTitleStyle: {
+            fontSize: 20,
+            fontWeight: "600",
+          },
+        }}
+      >
         <Stack.Screen name="Drawer" component={DrawerNavigation} options={{ title: "Home", headerShown: false }} />
         <Stack.Screen name="EditProfile" component={EditProfileScreen} options={{ title: "Edit Profile" }} />
         <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: "Profile" }} />
@@ -286,7 +305,7 @@ const styles = StyleSheet.create({
   userInfoSection: {
     paddingLeft: 20,
     paddingTop: 20,
-    backgroundColor: "#508D4E",
+    // backgroundColor: "#508D4E",
     alignItems: "center",
   },
   profileImage: {
@@ -294,21 +313,20 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,
     borderWidth: 2,
-    borderColor: "white",
+    borderColor: "#508D4E",
     backgroundColor: "#EEE",
     justifyContent: "center",
     alignItems: "center",
   },
   name: {
-    color: "#fff",
+    // color: "#508D4E",
     fontSize: 20,
     fontWeight: "bold",
     marginTop: 10,
   },
   userName: {
-    color: "#fff",
-    fontSize: 17,
-    marginTop: 2,
+    color: "#508D4E",
+    fontSize: 15,
   },
   drawerContent: {
     marginTop: 20
@@ -318,7 +336,7 @@ const styles = StyleSheet.create({
   },
   drawerItemLabel: {
     fontSize: 18,
-    color: "#fff",
+    color: "#333",
     fontWeight: "600",
     marginLeft: -15,
   },
@@ -328,7 +346,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   separator: {
-    backgroundColor: "white",
+    backgroundColor: "#ccc",
     width: "90%",
     height: 1,
   },

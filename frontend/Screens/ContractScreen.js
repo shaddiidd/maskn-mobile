@@ -46,7 +46,7 @@ export default function ContractScreen({ route }) {
             setLoading(false);
         }
     };
-    
+
     const updateTerms = (term) => {
         if (!contract?.terms || !Array.isArray(contract.terms)) {
             console.error("Contract terms are not properly initialized.");
@@ -58,7 +58,7 @@ export default function ContractScreen({ route }) {
             : [...contract.terms, term];
         setContract(prevContract => ({ ...prevContract, terms: updatedTerms }));
     };
-    
+
     const removeTerm = (termId) => {
         if (!contract?.terms || !Array.isArray(contract.terms)) {
             console.error("Contract terms are not properly initialized.");
@@ -73,10 +73,9 @@ export default function ContractScreen({ route }) {
         fetchContract();
     }, [request_id]);
 
-    if (contract === null) return <></>;
+    if (contract === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
     return (
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-            {console.log(contract?.contractInfo?.status)}
+        <ScrollView style={{ backgroundColor: "white" }} contentContainerStyle={styles.scrollContainer}>
             <View style={styles.cardContainer}>
                 <Text style={styles.userRole}>Contract status</Text>
                 <Text style={styles.userName}>{capitalizeFirstLetter(contract?.contractInfo?.status)}</Text>
@@ -117,14 +116,29 @@ export default function ContractScreen({ route }) {
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {contract?.terms?.map((term) => <ContractTerm canEdit={contract?.property?.owner_id === user?.userId} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
-                {user?.role === 2 && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} canEdit />}
+                {contract?.terms?.map((term) => <ContractTerm canEdit={(user?.role === 2 && contract?.contractInfo?.status.toLowerCase() !== "signed")} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
+                {(user?.role === 2 && contract?.contractInfo?.status.toLowerCase() !== "signed") && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} canEdit />}
             </View>
             <View style={styles.infoRowBlock}>
-                <Button small={!((user.role === 1 && contract.contractInfo.status === "partially signed") || contract.contractInfo.status === "not signed")} outline text="download pdf" additionalStyles={{ marginTop: 20 }} onPress={downloadContract} />
-                {!((user.role === 1 && contract.contractInfo.status === "partially signed") || contract.contractInfo.status === "not signed") && (
-                    <Button small text="sign contract" additionalStyles={{ marginTop: 20 }} onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })} />
-                )}
+                <Button
+                    small={!((user.role === 1 && contract.contractInfo.status.toLowerCase() === "signed") ||
+                        (user.role === 2 && contract.contractInfo.status.toLowerCase() !== "not signed"))}
+                    outline
+                    text="download pdf"
+                    additionalStyles={{ marginTop: 20 }}
+                    onPress={downloadContract}
+                />
+                {!(
+                    (user.role === 1 && contract.contractInfo.status.toLowerCase() === "signed") ||
+                    (user.role === 2 && contract.contractInfo.status.toLowerCase() !== "not signed")
+                ) && (
+                        <Button
+                            small
+                            text="Sign Contract"
+                            additionalStyles={{ marginTop: 20 }}
+                            onPress={() => navigation.navigate("SignContract", { contractId: contract?.contractInfo?.contract_id })}
+                        />
+                    )}
             </View>
         </ScrollView>
     )
@@ -134,14 +148,15 @@ const styles = StyleSheet.create({
     scrollContainer: {
         minWidth: "100%",
         alignItems: "center",
-        padding: 20,
+        paddingHorizontal: 20,
+        paddingTop: 10,
         paddingBottom: 30
     },
     title: {
         width: "100%",
         fontSize: 15,
         fontWeight: "500",
-        color: "#333",
+        color: "#508D4E",
         marginBottom: 8
     },
     cardContainer: {
@@ -163,7 +178,7 @@ const styles = StyleSheet.create({
     },
     userRole: {
         fontSize: 14,
-        color: "#828282",
+        color: "#666",
         width: "100%",
     },
     infoRowBlock: {
@@ -175,7 +190,7 @@ const styles = StyleSheet.create({
     },
     infoRowTitle: {
         color: "#666",
-        fontWeight: "500"
+        fontWeight: "500",
     },
     infoRowValue: {
         fontWeight: "500",

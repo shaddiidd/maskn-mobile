@@ -1,32 +1,41 @@
-import { StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, View, ScrollView } from "react-native";
 import NotificationsCard from "../Components/NotificationsCard";
-import { useEffect, useState } from "react";
-import { ScrollView } from "react-native";
-// import { get } from "../fetch";
+import { useEffect, useState, useContext } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { get } from "../fetch";
+import Context from "../Context";
 
 export default function NotificationsScreen() {
-  const [notifications, setNotifications] = useState([]);
+  const [notifications, setNotifications] = useState(null);
+  const { setLoading } = useContext(Context);
 
   useEffect(() => {
-    // get("notifications")
-    //   .then((response) => {
-    //     setNotifications(response.data);
-    //   })
-    //   .catch((error) => {
-    //     console.log(error);
-    //   });
-    setNotifications([
-      { id: 1, content: "lorem ipsum dolor sit amet consectetur adipisicing elit", created: Date.now() },
-      { id: 2, content: "lorem ipsum dolor sit amet consectetur", created: Date.now() },
-      { id: 3, content: "lorem ipsum dolor sit amet consectetur adipisicing", created: Date.now() },
-    ])
+    const fetchNotifications = async () => {
+      setLoading(true);
+      try {
+        const response = await get("notification/get-notification");
+        setNotifications(response.data);
+      } catch {
+        Alert.alert("Error", "Failed to get notifications");
+        setNotifications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchNotifications();
   }, []);
 
+  if (notifications === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
-    <ScrollView contentContainerStyle={{ alignItems: "center", gap: 15 }} style={styles.container}>
-      {notifications?.map((notification) => (
-          <NotificationsCard key={notification.id} notification={notification} />
-      ))}
+    <ScrollView contentContainerStyle={{ flex: 1, alignItems: "center", gap: 15, flexDirection: "column-reverse" }} style={styles.container}>
+      {notifications?.length ? notifications?.map((notification) => (
+        <NotificationsCard key={notification.id} notification={notification} />
+      )) : (
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <Ionicons name="notifications-outline" size={50} color="#666" />
+          <Text style={styles.noContent}>You have no notifications</Text>
+        </View>
+      )}
     </ScrollView>
   );
 }
@@ -34,6 +43,14 @@ export default function NotificationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 10,
+    backgroundColor: "#fff",
   },
+  noContent: {
+    color: "#666",
+    fontSize: 17,
+    marginTop: 5,
+    marginBottom: 100,
+  }
 });

@@ -135,19 +135,20 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         width: "100%",
-        backgroundColor: "#508D4E",
+        backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
         paddingVertical: 10,
     },
     headerTitle: {
-        color: "#fff",
-        fontSize: 18,
+        color: "#000",
+        fontSize: 20,
         fontWeight: "600",
         marginVertical: 10,
     },
     contentContainer: {
         padding: 20,
+        paddingTop: 5,
         justifyContent: "space-between",
         flex: 1,
         paddingBottom: 50,
