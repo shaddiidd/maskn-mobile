@@ -25,7 +25,7 @@ export default function PropertyCard({ property }) {
           />
         )}
       </View>
-      <Text style={styles.title}>{property.title}</Text>
+      <Text numberOfLines={2} style={styles.title}>{property.title}</Text>
       <Text style={styles.price}>JD {formatPrice(property.price)}</Text>
       <View style={styles.ratingContainer}>
         <Ionicons name="star" size={19} color="gold" />
