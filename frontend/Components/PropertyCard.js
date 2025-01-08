@@ -29,7 +29,7 @@ export default function PropertyCard({ property }) {
       <Text style={styles.price}>JD {formatPrice(property.price)}</Text>
       <View style={styles.ratingContainer}>
         <Ionicons name="star" size={19} color="gold" />
-        <Text style={styles.ratingTxt}> {property.rating || "5"} </Text>
+        <Text style={styles.ratingTxt}> {property.rating === 0 ? "Not rated" : property.rating} </Text>
       </View>
     </TouchableOpacity>
   );

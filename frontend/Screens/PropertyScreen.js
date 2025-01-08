@@ -63,7 +63,7 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={20} color="gold" />
-          <Text style={styles.rating}>{property?.rating}</Text>
+          <Text style={styles.rating}>{property?.rating === 0 ? "Not rated" : property?.rating}</Text>
         </View>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>

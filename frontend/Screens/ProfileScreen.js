@@ -53,7 +53,7 @@ export default function ProfileScreen({ route }) {
                 <Text style={styles.infoTxt}>@{profile?.username}</Text>
                 <View style={styles.ratingContainer}>
                   <Ionicons name="star" size={18} color="gold" />
-                  <Text style={styles.rating}> {profile?.rating || 5}</Text>
+                  <Text style={styles.rating}> {profile?.rating === 0 ? "Not rated" : profile?.rating}</Text>
                 </View>
               </View>
             </View>
