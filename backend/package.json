@@ -30,6 +30,7 @@
     "puppeteer": "^23.11.1",
     "sequelize": "^6.37.5",
     "sequelize-cli": "^6.6.2",
+    "twilio": "^5.4.0",
     "typeorm": "^0.3.20"
   }
 }
