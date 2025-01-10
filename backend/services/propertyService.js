@@ -164,7 +164,31 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
     }
 
     // Fetch properties from the database
-    const properties = await Property.findAll({ where: whereCondition });
+    const properties = await Property.findAll({
+      where: whereCondition,
+      include: [
+        { model: VillageName, as: "village", attributes: ["village_name"] },
+        { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+        { model: BlockName, as: "block", attributes: ["block_name"] },
+        {
+          model: TenantReview,
+          as: "reviews",
+          attributes: ["review_text"],
+          include: [
+            {
+              model: User,
+              as: "tenant",
+              attributes: [
+                "username",
+                "first_name",
+                "last_name",
+                "profile_photo",
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
     return properties; // Return properties directly
   } catch (error) {
