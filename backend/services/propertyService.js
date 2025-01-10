@@ -155,7 +155,7 @@ const getAllProperties = async (userRole = null) => {
 const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
     // Define the base condition for fetching properties
-    const whereCondition = { owner_id: userId };
+    const whereCondition = { [Op.or]: [{ owner_id: userId }, { tenant_id: userId }]};
 
     // Apply filtering for non-owners (restrict data)
     if (tokenUserId !== userId) {

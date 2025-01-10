@@ -1,17 +1,10 @@
 const User = require("../models/users");
-const admin = require("../config/firebase");
 const AppError = require("../utils/AppError");
 const twilio = require("twilio");
 const jwt = require("jsonwebtoken");
-const { log } = require("handlebars");
-require("dotenv").config();
+const { twilio: twilioConfig } = require("../config/twilioConfig");
 
-// Twilio credentials
-const accountSid = "ACb75a847a1f7e61fde31e0705ac7699a8";
-const authToken = "507f82fdea3ce1b90b23a73ee8bae5b4";
-const verifyServiceSid = "VAc1880cdca240cd764a7d8e317267f920";
-
-const client = twilio(accountSid, authToken);
+const client = twilio(twilioConfig.accountSid, twilioConfig.authToken);
 
 const requestOtp = async (phoneNumber) => {
   try {
@@ -22,7 +15,7 @@ const requestOtp = async (phoneNumber) => {
 
     const phone = "+962779582933";
     const verification = await client.verify.v2
-      .services("VAc1880cdca240cd764a7d8e317267f920")
+      .services(twilioConfig.verifyServiceSid)
       .verifications.create({ to: phone, channel: "sms" });
 
     return verification.status; // E.g., "pending"
@@ -37,11 +30,9 @@ const verifyOtp = async (phoneNumber, otp) => {
     const user = await User.findOne({ where: { phone_number: phoneNumber } });
     const phone = "+962779582933";
     const result = await client.verify.v2
-      .services("VAc1880cdca240cd764a7d8e317267f920")
+      .services(twilioConfig.verifyServiceSid)
       .verificationChecks.create({ to: phone, code: otp });
 
-      console.log(result);
-      
     if (result.status === "approved") {
       const payload = {
         userId: user.user_id,
