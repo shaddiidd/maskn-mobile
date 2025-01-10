@@ -143,7 +143,7 @@ const Property = sequelize.define(
     rating: {
       type: DataTypes.DECIMAL(3, 2), // Decimal type for ratings
       allowNull: false, // Optional field
-      defaultValue: 5.0,
+      defaultValue: 0.0,
     },
     additional_contact_info: {
       type: DataTypes.STRING,

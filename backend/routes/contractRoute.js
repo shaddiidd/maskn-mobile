@@ -2,7 +2,6 @@ const express = require("express");
 const contractRouter = express.Router();
 const authentication = require("../middleware/authentication");
 const authorization = require("../middleware/authorization")
-const upload = require("../middleware/upload");
 const {
   generateContract,
   previewContract,

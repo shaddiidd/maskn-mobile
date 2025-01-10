@@ -1,7 +1,5 @@
 const contractService = require("../services/contractService");
 const AppError = require("../utils/AppError"); // Assuming this is your custom error class
-const fs = require("fs");
-const path = require("path");
 const generateContract = async (req, res, next) => {
   try {
     const requestId = req.params.requestId; // Extract request ID from URL parameters
@@ -46,14 +44,10 @@ const previewContract = async (req, res, next) => {
     const userId = req.token.userId;
     const contractId = req.params.contractId;
 
-    console.log("userId:", userId, "contractId:", contractId);
-
     const pdfBuffer = await contractService.previewContractService(
       userId,
       contractId
     );
-    console.log("pdfBuffer : ", pdfBuffer);
-
     // Set the response headers for serving the PDF file
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
@@ -76,8 +70,6 @@ const previewContract = async (req, res, next) => {
 
 const signContract = async (req, res, next) => {
   try {
-    console.log("anas");
-
     const contractId = req.params.contractId;
     const userId = req.token.userId;
 
@@ -106,15 +98,11 @@ const getContractTerms = async (req, res, next) => {
     // const { termNumber, newTerm } = req.body;
     const ownerId = req.token.userId;
     const contractId = req.params.contractId;
-    console.log(contractId);
-
     const result = await contractService.getContractTermsService(
       ownerId,
       contractId
       // { termNumber, newTerm }
     );
-
-    console.log(result);
 
     res.success(result, "contract terms updated successfully", 200);
   } catch (error) {

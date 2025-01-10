@@ -49,7 +49,6 @@ const uploadHtmlToCloudinary = (htmlContent, requestId) => {
 };
 
 const createContractPDF = async (htmlContent, outputPath) => {
-  console.log("Starting Puppeteer...");
   const browser = await puppeteer.launch({
     executablePath:
       "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
@@ -59,24 +58,12 @@ const createContractPDF = async (htmlContent, outputPath) => {
 
   try {
     const page = await browser.newPage();
-    console.log("New page created successfully.");
     await page.setContent(htmlContent, { waitUntil: "domcontentloaded" });
-    console.log("HTML content set successfully.");
 
     const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
-    console.log("PDF Buffer Generated Successfully:", pdfBuffer.length);
-
-    if (!Buffer.isBuffer(pdfBuffer)) {
-      console.error("PDF Buffer is not a valid buffer.");
-    }
-
-    if (pdfBuffer.length === 0) {
-      console.error("PDF Buffer is empty.");
-    }
 
     // Save PDF locally
     await fs.writeFile(outputPath, pdfBuffer);
-    console.log("PDF successfully written to:", outputPath);
 
     return pdfBuffer;
   } catch (error) {
@@ -115,7 +102,6 @@ const createContract = async (requestId) => {
       const existingContractTerms = await ContractAdditionalTerms.findAll({
         where: { contract_id: existingContract.contract_id },
       });
-      console.log("existingContractTerms", existingContractTerms);
 
       // Fetch property details
       const property = await Property.findByPk(request.property_id, {
@@ -254,8 +240,6 @@ const previewContractService = async (userId, contractId) => {
         403
       );
     }
-
-    console.log("Fetched Contract Info:", contractInfo);
 
     // Fetch contract terms
     const contractTerms = await ContractAdditionalTerms.findAll({
@@ -760,9 +744,11 @@ const getRentalHistoryByUserIdService = async (userId) => {
   const user = await User.findByPk(userId);
 
   if (!user) throw AppError("user id is not valid");
-  
-  const userHistory = await Contract.findAll({where : [Op.or]  [{tenant_id : userId  } , {owner_id : userId}], include : []},)
 
+  const userHistory = await Contract.findAll({
+    where: [Op.or][({ tenant_id: userId }, { owner_id: userId })],
+    include: [],
+  });
 };
 
 module.exports = {

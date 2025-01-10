@@ -12,7 +12,6 @@ const authentication = (req, res, next) => {
               403
           );
       }
-
       const token = authHeader.split(" ").pop();
       const SECRET = process.env.SECRET;
 
