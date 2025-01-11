@@ -71,7 +71,7 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={20} color="gold" />
-          <Text style={styles.rating}>{property?.rating ? "Not rated" : property?.rating}</Text>
+          <Text style={styles.rating}>{!property?.rating ? "Not rated" : property?.rating}</Text>
         </View>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
@@ -79,7 +79,7 @@ export default function PropertyScreen({ route }) {
           {property?.rental_period && <Text style={styles.period}>- {capitalizeFirstLetter(property?.rental_period)}</Text>}
         </View>
         {(user.role === 1 && !property.request_status) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
-        <Button additionalStyles={{ width: "90%" }} text="location" outline />
+        <Button additionalStyles={{ width: "90%" }} text="location" outline onPress={handleLocation} />
         {(property.request_status === "approved") && (
           <PropertyOwnerCard
             id={property?.owner_id}

@@ -9,15 +9,18 @@ import {
     TouchableOpacity,
     KeyboardAvoidingView,
     Platform,
+    Alert,
 } from "react-native";
-import Context from "../../context/Context";
 import AuthInput from "../../components/authentication/AuthInput";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../ui/Button";
 import OTPInput from "../../ui/OTPInput";
 import { post } from "../../utils/fetch";
+import axios from "axios";
+import Context from "../../context/Context";
 
 export default function ForgotPassword({ navigation }) {
+    const { setLoading } = useContext(Context);
     const [page, setPage] = useState(1);
     const [phone, setPhone] = useState({ value: "", error: "" });
     const [otp, setOtp] = useState({ value: "", error: false });
@@ -25,25 +28,87 @@ export default function ForgotPassword({ navigation }) {
         password: { value: "", error: "" },
         confirmPassword: { value: "", error: "" },
     });
+    const [token, setToken] = useState("");
 
     const requestOTP = async () => {
+        setLoading(true);
         try {
             await post("auth/request-otp", { phoneNumber: phone.value });
             setPage(2);
         } catch (error) {
             console.log(error);
+        } finally {
+            setLoading(false);
         }
     }
 
     const verifyOTP = async () => {
+        setLoading(true);
         try {
-            await post("auth/verify-otp", { phoneNumber: phone.value, otp: otp.value });
+            const response = await post("auth/verify-otp", { phoneNumber: phone.value, otp: otp.value });
+            setToken(response.data.token);
             setPage(3);
         } catch (error) {
-            console.log(error);
+            Alert.alert("Incorrect OTP", "Make sure you entered the right OTP", [{ text: "OK" }]);
+        } finally {
+            setLoading(false);
         }
     }
 
+    const updatePassword = async () => {
+        setLoading(true);
+        try {
+            await axios.put("http://192.168.1.17:5002/users/update-profile", { password: passwordForm.password.value }, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            Alert.alert("Success", "Your password has been updated successfully", [{ text: "OK" }]);
+            navigation.navigate("Signin");
+        } catch (error) {
+            console.log(error.response.data);
+            Alert.alert("Error", "There was a problem updating your password", [{ text: "OK" }]);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const validateFields = () => {
+        let isValid = true;
+        let passwordError = "";
+        let passwordConfirmationError = "";
+    
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
+        // Validate password
+        if (!passwordForm.password.value.trim()) {
+            passwordError = "Password is required";
+            isValid = false;
+        } else if (!passwordRegex.test(passwordForm.password.value)) {
+            passwordError =
+                "Password must be at least 8 characters, include a number, a symbol, and an uppercase letter";
+            isValid = false;
+        }
+    
+        // Validate password confirmation
+        if (!passwordForm.confirmPassword.value.trim()) {
+            passwordConfirmationError = "Password confirmation is required";
+            isValid = false;
+        } else if (passwordForm.confirmPassword.value !== passwordForm.password.value) {
+            passwordConfirmationError = "Password confirmation does not match password";
+            isValid = false;
+        }
+    
+        // Update form state based on validation results
+        setPasswordForm((prev) => ({
+            ...prev,
+            password: { value: passwordError ? "" : prev.password.value, error: passwordError },
+            confirmPassword: { value: passwordConfirmationError ? "" : prev.confirmPassword.value, error: passwordConfirmationError },
+        }));
+    
+        return isValid;
+    };
+    
     const handleNext = () => {
         if (page === 1) {
             if (phone.value.trim().length === 10) requestOTP();
@@ -52,16 +117,7 @@ export default function ForgotPassword({ navigation }) {
             if (otp.value.length === 4) verifyOTP();
             else setOtp({ value: "", error: "true" });
         } else if (page === 3) {
-            console.log(passwordForm);
-            if (!passwordForm.password.value.length) {
-                setPasswordForm((prev) => ({ ...prev, password: { value: "", error: true } }))
-                return;
-            }
-            if (!passwordForm.confirmPassword.value.length || passwordForm.password.value !== passwordForm.confirmPassword.value) {
-                setPasswordForm((prev) => ({ ...prev, confirmPassword: { value: "", error: "Passwords don't match" } }));
-                return;
-            }
-            navigation.navigate("Signin");
+            if (validateFields()) updatePassword();
         }
     };
 
@@ -106,6 +162,9 @@ export default function ForgotPassword({ navigation }) {
                         <>
                             <Text style={styles.subtitle}>Enter the OTP sent to your email</Text>
                             <OTPInput setValue={(value) => setOtp({ value, error: false })} />
+                            <TouchableOpacity style={{ width: "100%", alignItems: "center" }} activeOpacity={0.7} onPress={requestOTP}>
+                                <Text style={{ color: "#508D4E", fontWeight: "500" }}>Resend Verification Code</Text>
+                            </TouchableOpacity>
                         </>
                     )}
                     {page === 3 && (
