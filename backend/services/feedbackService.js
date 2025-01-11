@@ -42,7 +42,6 @@ const saveSurveyAndUpdateRating = async (
     const reviewModel = isOwner ? OwnerReview : TenantReview;
     const relatedModel = isOwner ? User : Property;
     const idField = isOwner ? "tenant_id" : "property_id";
-    const maxWeight = isOwner ? 85 : 88;
 
     // Check for existing feedback
     const existingFeedback = await answerModel.findOne({
@@ -94,9 +93,21 @@ const saveSurveyAndUpdateRating = async (
       return map;
     }, {});
 
-    // Step 4: Fetch all answers
+    // Dynamically calculate total possible test score
+    const maxResponseValue = 10; // Define the maximum response value for each question
+    const totalTestScore = Object.entries(weightMap).reduce(
+      (sum, [questionId, weight]) => sum + weight * maxResponseValue,
+      0
+    );
+
+    console.log("Total Test Score:", totalTestScore);
+
+    // Step 4: Fetch all answers for the current survey
     const allAnswers = await answerModel.findAll({
-      where: { [idField]: entityId },
+      where: {
+        [idField]: entityId,
+        contract_id: contractId, // Only include answers for the current survey
+      },
     });
 
     if (allAnswers.length === 0) {
@@ -106,39 +117,39 @@ const saveSurveyAndUpdateRating = async (
       );
     }
 
-    // Step 5: Calculate scores
-    const surveyScores = {};
+    // Step 5: Calculate total score achieved for the test
+    let totalScoreAchieved = 0;
     allAnswers.forEach((answer) => {
       const weight = weightMap[answer.question_id];
+      const responseValue = answer.response_value;
+
+      console.log("Answer:", answer);
+      console.log("Weight:", weight);
+      console.log("Response Value:", responseValue);
+
       if (weight) {
-        const surveyKey = answer.contract_id;
-        if (!surveyScores[surveyKey]) {
-          surveyScores[surveyKey] = { totalScore: 0 };
-        }
-        surveyScores[surveyKey].totalScore += answer.response_value * weight;
+        totalScoreAchieved += responseValue * weight;
       }
     });
 
-    // Step 6: Calculate normalized scores
-    const surveyRatings = Object.values(surveyScores).map((survey) => {
-      const normalizedScore = (survey.totalScore / (maxWeight * 5)) * 5;
-      return normalizedScore;
-    });
+    console.log("Total Score Achieved:", totalScoreAchieved);
 
-    // Step 7: Calculate overall average rating
-    const averageRating =
-      surveyRatings.length > 0
-        ? surveyRatings.reduce((sum, rating) => sum + rating, 0) /
-          surveyRatings.length
-        : null;
+    // Step 6: Calculate normalized score for the current survey
+    const normalizedScore = (totalScoreAchieved / totalTestScore) * 5;
 
-    // Step 8: Update the related entity's rating
+    console.log("Normalized Score (before clamping):", normalizedScore);
+
+    const finalRating = Math.min(normalizedScore, 5);
+
+    console.log("Final Rating:", finalRating);
+
+    // Step 7: Update the related entity's rating
     await relatedModel.update(
-      { rating: averageRating },
+      { rating: finalRating },
       { where: { [isOwner ? "user_id" : "property_id"]: entityId } }
     );
 
-    // Step 9: Update the contract's survey field
+    // Step 8: Update the contract's survey field
     const surveyField = isOwner
       ? "owner_survey_filled"
       : "tenant_survey_filled";
@@ -152,7 +163,7 @@ const saveSurveyAndUpdateRating = async (
       message: `Survey saved and ${
         isOwner ? "tenant" : "property"
       } rating updated successfully`,
-      averageRating: averageRating || 0,
+      finalRating: finalRating || 0,
     };
   } catch (error) {
     console.error("Error occurred:", error);
