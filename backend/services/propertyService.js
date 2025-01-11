@@ -155,7 +155,7 @@ const getAllProperties = async (userRole = null) => {
 const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
     // Define the base condition for fetching properties
-    const whereCondition = { [Op.or]: [{ owner_id: userId }, { tenant_id: userId }]};
+    const whereCondition = { [Op.or]: [{ owner_id: userId }, { tenant_id: userId }] };
 
     // Apply filtering for non-owners (restrict data)
     if (tokenUserId !== userId) {
@@ -163,9 +163,10 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
       whereCondition.mark_as_rented = { [Op.ne]: 1 }; // Exclude rented properties
     }
 
-    // Fetch properties from the database
+    // Fetch properties from the database, sorted by created_at in descending order
     const properties = await Property.findAll({
       where: whereCondition,
+      order: [["created_at", "DESC"]], // Sort by created_at (latest first)
       include: [
         { model: VillageName, as: "village", attributes: ["village_name"] },
         { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
