@@ -35,7 +35,7 @@ export default function HomeScreen() {
       <SearchModal />
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
-        contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center", }]}
+        contentContainerStyle={[styles.scrollContainer, { flex: 1, justifyContent: properties?.length ? "flex-start" : "center", }]}
         style={styles.scrollView}
       >
         {properties?.length ? (
