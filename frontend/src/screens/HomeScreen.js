@@ -35,7 +35,7 @@ export default function HomeScreen() {
       <SearchModal />
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
-        contentContainerStyle={[styles.scrollContainer, { flex: 1, justifyContent: properties?.length ? "flex-start" : "center", }]}
+        contentContainerStyle={[styles.scrollContainer, !properties?.length && { rowGap: 5, flex: 1, justifyContent: "center" }]}
         style={styles.scrollView}
       >
         {properties?.length ? (
@@ -75,7 +75,6 @@ const styles = StyleSheet.create({
   emptyText: {
     color: "#666",
     fontSize: 17,
-    marginTop: 5,
     marginBottom: 100,
   }
 });
