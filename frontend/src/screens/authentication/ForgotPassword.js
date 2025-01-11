@@ -58,7 +58,7 @@ export default function ForgotPassword({ navigation }) {
     const updatePassword = async () => {
         setLoading(true);
         try {
-            await axios.put("http://localhost:5002/users/update-profile", { password: passwordForm.password.value }, {
+            await axios.put("http://192.168.1.17:5002/users/update-profile", { password: passwordForm.password.value }, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
@@ -73,6 +73,42 @@ export default function ForgotPassword({ navigation }) {
         }
     }
 
+    const validateFields = () => {
+        let isValid = true;
+        let passwordError = "";
+        let passwordConfirmationError = "";
+    
+        const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    
+        // Validate password
+        if (!passwordForm.password.value.trim()) {
+            passwordError = "Password is required";
+            isValid = false;
+        } else if (!passwordRegex.test(passwordForm.password.value)) {
+            passwordError =
+                "Password must be at least 8 characters, include a number, a symbol, and an uppercase letter";
+            isValid = false;
+        }
+    
+        // Validate password confirmation
+        if (!passwordForm.confirmPassword.value.trim()) {
+            passwordConfirmationError = "Password confirmation is required";
+            isValid = false;
+        } else if (passwordForm.confirmPassword.value !== passwordForm.password.value) {
+            passwordConfirmationError = "Password confirmation does not match password";
+            isValid = false;
+        }
+    
+        // Update form state based on validation results
+        setPasswordForm((prev) => ({
+            ...prev,
+            password: { value: passwordError ? "" : prev.password.value, error: passwordError },
+            confirmPassword: { value: passwordConfirmationError ? "" : prev.confirmPassword.value, error: passwordConfirmationError },
+        }));
+    
+        return isValid;
+    };
+    
     const handleNext = () => {
         if (page === 1) {
             if (phone.value.trim().length === 10) requestOTP();
@@ -81,16 +117,7 @@ export default function ForgotPassword({ navigation }) {
             if (otp.value.length === 4) verifyOTP();
             else setOtp({ value: "", error: "true" });
         } else if (page === 3) {
-            console.log(passwordForm);
-            if (!passwordForm.password.value.length) {
-                setPasswordForm((prev) => ({ ...prev, password: { value: "", error: true } }))
-                return;
-            }
-            if (!passwordForm.confirmPassword.value.length || passwordForm.password.value !== passwordForm.confirmPassword.value) {
-                setPasswordForm((prev) => ({ ...prev, confirmPassword: { value: "", error: "Passwords don't match" } }));
-                return;
-            }
-            updatePassword();
+            if (validateFields()) updatePassword();
         }
     };
 

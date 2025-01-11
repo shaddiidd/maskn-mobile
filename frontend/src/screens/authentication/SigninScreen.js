@@ -8,8 +8,8 @@ import Button from "../../ui/Button";
 export default function SigninScreen({ navigation }) {
   const { auth } = useContext(Context);
   const [values, setValues] = useState({
-    email: { value: "abdullah.shadid49@gmail.com", error: false },
-    password: { value: "abdullah", error: false },
+    email: { value: "", error: false },
+    password: { value: "", error: false },
   });
 
   const handleSubmit = () => {

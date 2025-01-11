@@ -2,7 +2,8 @@ import axios from "axios";
 import { Alert } from "react-native";
 import { Buffer } from "buffer";
 
-const baseURL = "http://localhost:5002/";
+// const baseURL = "http://localhost:5002/";
+const baseURL = "http://192.168.1.17:5002/";
 
 const axiosInstance = axios.create({
   baseURL,

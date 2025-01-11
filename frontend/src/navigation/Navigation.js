@@ -32,6 +32,7 @@ import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import PropertySearch from "../screens/property/PropertySearch";
 import SettingsScreen from "../screens/settings/SettingsScreen";
 import ResetPassword from "../screens/settings/ResetPassword";
+import HelpScreen from "../screens/settings/HelpScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -77,13 +78,6 @@ function CustomDrawerContent({ navigation }) {
             icon={() => <Ionicons name="eye-outline" size={24} color="#508D4E" />}
             onPress={() => handleNavigation("TourRequests")}
           />
-          <DrawerItem
-            label="Rent History"
-            style={styles.drawerItem}
-            labelStyle={styles.drawerItemLabel}
-            icon={() => <Ionicons name="time-outline" size={24} color="#508D4E" />}
-            onPress={() => handleNavigation("RentHistory")}
-          />
           {user.role === 1 ? (
             <DrawerItem
               label="Become a Renter"
@@ -112,10 +106,7 @@ function CustomDrawerContent({ navigation }) {
             icon={() => (
               <Ionicons name="help-circle-outline" size={24} color="#508D4E" />
             )}
-            onPress={() => {
-              navigation.closeDrawer();
-              Alert.alert("Unavailable", "This screen is not ready yet.");
-            }}
+            onPress={() => handleNavigation("HelpScreen")}
           />
         </View>
       </View>
@@ -143,6 +134,7 @@ function CustomDrawerContent({ navigation }) {
           onPress={() => {
             navigation.closeDrawer();
             logout();
+            Alert.alert("Success", "You have been logged out successfully", [{ text: "OK" }]);
           }}
         />
       </View>
@@ -282,6 +274,7 @@ export default function Navigation() {
         <Stack.Screen name="Utilities" component={UtilitiesScreen} />
         <Stack.Screen name="Contract" component={ContractScreen} />
         <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ title: "Settings" }} />
+        <Stack.Screen name="HelpScreen" component={HelpScreen} options={{ title: "Help & FAQ" }} />
         <Stack.Screen name="ResetPassword" component={ResetPassword} options={{ title: "Reset Password" }} />
         <Stack.Screen name="SignContract" component={SignContract} options={{ title: "Sign Contract" }} />
         {!isAuthenticated && (

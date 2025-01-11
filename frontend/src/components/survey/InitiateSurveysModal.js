@@ -1,11 +1,11 @@
 import { useEffect, useState, useContext } from "react";
-import { View, StyleSheet, Modal, ScrollView, SafeAreaView, Text, Image } from "react-native";
+import { View, StyleSheet, Modal, ScrollView, SafeAreaView, Text, Image, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import SurveyModal from "./SurveyModal";
 import { get } from "../../utils/fetch";
 import Context from "../../context/Context";
 
-export default function InitiateSurveysModal({ surveyData, reloadSurvey }) {
+export default function InitiateSurveysModal({ surveyData, setSurveyData, reloadSurvey }) {
     const [questions, setQuestions] = useState([]);
     const { setLoading, user } = useContext(Context);
 
@@ -31,6 +31,9 @@ export default function InitiateSurveysModal({ surveyData, reloadSurvey }) {
             <View style={styles.modalContainer}>
                 <SafeAreaView style={styles.headerContainer}>
                     <Text style={styles.headerTitle}>Survey</Text>
+                    <TouchableOpacity style={styles.closeButton} onPress={() => setSurveyData([])}>
+                        <Ionicons name="close" size={22} color="#666" />
+                    </TouchableOpacity>
                 </SafeAreaView>
                 <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
                     <Ionicons name="checkmark-circle-outline" size={150} color="#508D4E" />
@@ -89,6 +92,12 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         justifyContent: "center",
         alignItems: "center",
+        flexDirection: "row",
+    },
+    closeButton: {
+        position: "absolute",
+        right: 20,
+        bottom: 8,
     },
     headerTitle: {
         color: "#000",
