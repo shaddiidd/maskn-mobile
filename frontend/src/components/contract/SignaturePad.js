@@ -98,7 +98,7 @@ const styles = StyleSheet.create({
     },
     canvas: {
         width: "100%",
-        height: 100,
+        height: 150,
         backgroundColor: "white",
         borderColor: "#ccc",
         borderWidth: 1,

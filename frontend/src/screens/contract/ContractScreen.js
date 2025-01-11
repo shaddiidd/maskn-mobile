@@ -22,7 +22,7 @@ export default function ContractScreen({ route }) {
             const terms = contractFromResponse.terms.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
             if (user.role === 1 && contractFromResponse.contractInfo.status === "not signed") {
                 navigation.pop();
-                Alert.alert("Contract is not ready yet", "Please wait for the owner to sign the contract.");
+                Alert.alert("Contract not found", "Please wait for the owner to create and sign the contract.");
             }
             setContract({ ...contractFromResponse, terms });
         } catch {
@@ -116,7 +116,7 @@ export default function ContractScreen({ route }) {
             </View>
             <Text style={styles.title}>Contract Terms</Text>
             <View style={{ rowGap: 15 }}>
-                {contract?.terms?.map((term) => <ContractTerm canEdit={(user?.role === 2 && contract?.contractInfo?.status.toLowerCase() !== "signed")} updateTerms={updateTerms} removeTerm={removeTerm} key={term.id} term={term} contractId={contract?.contractInfo?.contract_id} />)}
+                {contract?.terms?.map((term, index) => <ContractTerm canEdit={(user?.role === 2 && contract?.contractInfo?.status.toLowerCase() !== "signed")} updateTerms={updateTerms} removeTerm={removeTerm} key={index} term={term} contractId={contract?.contractInfo?.contract_id} />)}
                 {(user?.role === 2 && contract?.contractInfo?.status.toLowerCase() !== "signed") && <ContractTerm updateTerms={updateTerms} contractId={contract?.contractInfo?.contract_id} canEdit />}
             </View>
             <View style={styles.infoRowBlock}>

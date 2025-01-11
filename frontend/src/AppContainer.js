@@ -28,7 +28,7 @@ export default function AppContainer() {
   return (
     <>
       <StatusBar barStyle="dark-content" />
-      <InitiateSurveysModal reloadSurvey={getSurverys} surveyData={surveyData} />
+      <InitiateSurveysModal reloadSurvey={getSurverys} setSurveyData={setSurveyData} surveyData={surveyData} />
       <Navigation />
       {loading && (
         <View style={styles.loadingContainer}>
@@ -47,5 +47,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     justifyContent: "center",
     alignItems: "center",
+    zIndex: 100
   }
 });

@@ -1,10 +1,8 @@
-const express = require("express")
+const express = require("express");
 const authRouter = express.Router();
 
-const {requestResetPassword, resetPassword} = require("../controllers/auth")
+const {requestOtp,verifyOtpAndUpdatePassword,  } = require("../controllers/auth");
 
-authRouter.post("/request-password-reset", requestResetPassword)
-authRouter.post("/request-reset", resetPassword)
-
-
-module.exports = authRouter
+authRouter.post("/request-otp", requestOtp);
+authRouter.post("/verify-otp", verifyOtpAndUpdatePassword);
+module.exports = authRouter;

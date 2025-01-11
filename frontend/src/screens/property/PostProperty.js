@@ -17,7 +17,7 @@ export default function PostProperty() {
   const [images, setImages] = useState([]);
   const [villages, setVillages] = useState([]);
   const [blocks, setBlocks] = useState([]);
-  const { setLoading, token } = useContext(Context);
+  const { setLoading } = useContext(Context);
 
   useEffect(() => {
     const fetchVillages = async () => {
@@ -89,7 +89,7 @@ export default function PostProperty() {
   const handleSubmit = async () => {
     const requiredFields = ["description", "title", "address", "area", "price", "rental_period", "village_id", "block_id", "parcel_number", "building_number", "apartment_number"];
     const missingFields = requiredFields.filter((field) => !propertyInfo[field]);
-    if (missingFields.length) {
+    if (missingFields.length || !images.length) {
       Alert.alert("Missing Fields", `Please fill in all fields`);
       return;
     }
@@ -107,6 +107,7 @@ export default function PostProperty() {
       Object.keys(propertyInfo).forEach((key) => {
         form.append(key, propertyInfo[key]);
       });
+      form.append("post_status_id", 1);
       form.append("neighborhood_id", propertyInfo.block_id);
       form.append("is_furnished", propertyInfo.is_furnished ? true : false);
       for (const [_, image] of images.entries()) {

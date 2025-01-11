@@ -155,7 +155,7 @@ const getAllProperties = async (userRole = null) => {
 const findPropertiesByUserId = async (userId, tokenUserId = null) => {
   try {
     // Define the base condition for fetching properties
-    const whereCondition = { owner_id: userId };
+    const whereCondition = { [Op.or]: [{ owner_id: userId }, { tenant_id: userId }]};
 
     // Apply filtering for non-owners (restrict data)
     if (tokenUserId !== userId) {
@@ -164,7 +164,31 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
     }
 
     // Fetch properties from the database
-    const properties = await Property.findAll({ where: whereCondition });
+    const properties = await Property.findAll({
+      where: whereCondition,
+      include: [
+        { model: VillageName, as: "village", attributes: ["village_name"] },
+        { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
+        { model: BlockName, as: "block", attributes: ["block_name"] },
+        {
+          model: TenantReview,
+          as: "reviews",
+          attributes: ["review_text"],
+          include: [
+            {
+              model: User,
+              as: "tenant",
+              attributes: [
+                "username",
+                "first_name",
+                "last_name",
+                "profile_photo",
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
     return properties; // Return properties directly
   } catch (error) {
@@ -173,142 +197,6 @@ const findPropertiesByUserId = async (userId, tokenUserId = null) => {
     });
   }
 };
-
-// const updateProperty = async (updatedProperty, propertyId, userId, role) => {
-//   try {
-//     const property = await Property.findByPk(propertyId);
-
-//     if (!property) {
-//       throw new AppError("Property not found", 404);
-//     }
-
-//     if (role !== 3 && property.owner_id !== userId) {
-//       throw new AppError("Unauthorized: You do not own this property", 403);
-//     }
-
-//     // Allowed fields for regular users
-//     const allowedFieldsForOwners = [
-//       "description",
-//       "title",
-//       "address",
-//       "location",
-//       "area",
-//       "is_furnished",
-//       "floor_num",
-//       "bedroom_num",
-//       "bathroom_num",
-//       "property_age",
-//       "water_meter_subscription_number",
-//       "electricity_meter_reference_number",
-//       "price",
-//       "rental_period",
-//       "village_id",
-//       "block_id",
-//       "neighborhood_id",
-//       "parcel_number",
-//       "building_number",
-//       "apartment_number",
-//       "photos"
-//     ];
-
-//     // Filter fields based on user role
-//     const filteredUpdates =
-//       role === 3
-//         ? updatedProperty // Admins can update any field
-//         : filterFields(updatedProperty, allowedFieldsForOwners);
-
-//     if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
-//       if (property.mark_as_rented === 1) {
-//         throw new AppError(
-//           "Cannot change post_status_id when the property is marked as rented",
-//           400
-//         );
-//       }
-//     }
-
-//     if (Object.keys(filteredUpdates).length === 0) {
-//       throw new AppError("No valid fields to update", 400);
-//     }
-
-//     // Update and save property
-//     Object.assign(property, filteredUpdates);
-//     const updatedData = await property.save();
-
-//     return updatedData;
-//   } catch (error) {
-//     throw new AppError("Failed to update the property", 500, {
-//       details: error.message,
-//     });
-//   }
-// };
-
-// const updateProperty = async (updatedProperty, propertyId, userId, role) => {
-//   try {
-//     const property = await Property.findByPk(propertyId);
-
-//     if (!property) {
-//       throw new AppError("Property not found", 404);
-//     }
-
-//     if (role !== 3 && property.owner_id !== userId) {
-//       throw new AppError("Unauthorized: You do not own this property", 403);
-//     }
-
-//     // Allowed fields for regular users
-//     const allowedFieldsForOwners = [
-//       "description",
-//       "title",
-//       "address",
-//       "location",
-//       "area",
-//       "is_furnished",
-//       "floor_num",
-//       "bedroom_num",
-//       "bathroom_num",
-//       "property_age",
-//       "water_meter_subscription_number",
-//       "electricity_meter_reference_number",
-//       "price",
-//       "rental_period",
-//       "village_id",
-//       "block_id",
-//       "neighborhood_id",
-//       "parcel_number",
-//       "building_number",
-//       "apartment_number",
-//       "photos", // Include photos
-//     ];
-
-//     // Filter fields based on user role
-//     const filteredUpdates =
-//       role === 3
-//         ? updatedProperty // Admins can update any field
-//         : filterFields(updatedProperty, allowedFieldsForOwners);
-
-//     if (role === 3 && filteredUpdates.hasOwnProperty("post_status_id")) {
-//       if (property.mark_as_rented === 1) {
-//         throw new AppError(
-//           "Cannot change post_status_id when the property is marked as rented",
-//           400
-//         );
-//       }
-//     }
-
-//     if (Object.keys(filteredUpdates).length === 0) {
-//       throw new AppError("No valid fields to update", 400);
-//     }
-
-//     // Update and save property
-//     Object.assign(property, filteredUpdates);
-//     const updatedData = await property.save();
-
-//     return updatedData;
-//   } catch (error) {
-//     throw new AppError("Failed to update the property", 500, {
-//       details: error.message,
-//     });
-//   }
-// };
 
 const updateProperty = async (
   updatedProperty,
@@ -553,66 +441,6 @@ const acceptTourRequestService = async (ownerId, requestId) => {
     });
   }
 };
-
-// const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
-//   try {
-//     // Fetch the property with necessary details
-//     const property = await Property.findOne({
-//       where: {
-//         property_id: propertyId,
-//         post_status_id: 2,
-//         mark_as_rented: 0,
-//       },
-//       include: [
-//         { model: VillageName, as: "village", attributes: ["village_name"] },
-//         { model: NeighborhoodNumber, as: "neighborhood", attributes: ["name"] },
-//         { model: BlockName, as: "block", attributes: ["block_name"] },
-//       ],
-//     });
-
-//     if (!property) {
-//       throw new AppError("Property not found or not approved by admin", 404);
-//     }
-
-//     // Default values
-//     let additionalContactInfo = null;
-//     let additionalContactInfoName = null;
-//     let requestStatus = null;
-
-//     // Check tenant's request status
-//     if (tenantId) {
-//       const request = await TourRequest.findOne({
-//         where: { property_id: propertyId, tenant_id: tenantId },
-//       });
-
-//       if (request) {
-//         requestStatus = request.status;
-
-//         // Include contact info only if the request is approved
-//         if (request.status === "approved") {
-//           additionalContactInfo = property.additional_contact_info;
-//           additionalContactInfoName = property.additional_contact_info_name;
-//         }
-//       }
-//     }
-
-//     // Return formatted response
-//     return {
-//       success: true,
-//       message: "Property details fetched successfully",
-//       data: {
-//         ...property.toJSON(),
-//         additional_contact_info: additionalContactInfo,
-//         additional_contact_info_name: additionalContactInfoName,
-//         request_status: requestStatus, // Include request status
-//       },
-//     };
-//   } catch (error) {
-//     throw new AppError("Failed to fetch property details", 500, {
-//       details: error.message,
-//     });
-//   }
-// };
 
 const getPropertyByPropertyIdService = async (propertyId, tenantId) => {
   try {

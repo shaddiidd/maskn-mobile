@@ -22,7 +22,7 @@ export default function AuthInput({ placeholder, value, setValue, error, passwor
           <Ionicons name={showPassword ? "eye-off-outline" : "eye-outline"} color="#666" size={25} />
         </TouchableOpacity>
       ) : null}
-      {error && <Text style={styles.errorText}>This field is required</Text>}
+      {error && <Text style={styles.errorText}>{error.length ? error : "This field is required"}</Text>}
     </View>
   );
 }

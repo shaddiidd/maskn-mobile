@@ -3,7 +3,6 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const OwnersRentalRequest = require("../models/ownerRentalRequests");
 const AppError = require("../utils/AppError");
-const { where } = require("sequelize");
 const OwnerReview = require("../models/ownerReviews");
 
 const createUser = async (userData, files) => {
@@ -94,7 +93,8 @@ const findUserByUserId = async (userId) => {
         {
           model: OwnerReview,
           as: "tenant_reviews_owner",
-          attributes: ["review_text"],include: [
+          attributes: ["review_text"],
+          include: [
             {
               model: User,
               as: "owner",

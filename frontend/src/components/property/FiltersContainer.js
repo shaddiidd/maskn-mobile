@@ -3,8 +3,8 @@ import { StyleSheet, View, ScrollView, Text } from "react-native";
 export default function FiltersContainer({ filters }) {
     return (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ borderBottomWidth: 0.5, borderColor: "#ccc" }} contentContainerStyle={styles.container}>
-            {Object.entries(filters).map(([_, value]) => value && (
-                <View style={styles.filterContainer}>
+            {Object.entries(filters).map(([key, value]) => value && (
+                <View key={key} style={styles.filterContainer}>
                     <Text numberOfLines={1} style={styles.filterTxt}>{value}</Text>
                 </View>
             ))}

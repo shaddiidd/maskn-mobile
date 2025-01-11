@@ -1,92 +1,62 @@
 const User = require("../models/users");
-const bcrypt = require("bcrypt");
+const AppError = require("../utils/AppError");
+const twilio = require("twilio");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-const cron = require('node-cron');
+const { twilio: twilioConfig } = require("../config/twilioConfig");
 
-const generateResetToken = async (user) => {
-  
-  // this for the content of the payload of the token
-  const payload = {
-    userId: user.user_id,
-  };
-  
-  const options = { expiresIn: "1h" };
-  
-  const secret = process.env.SECRET;
+const client = twilio(twilioConfig.accountSid, twilioConfig.authToken);
 
-  
-  //the rest token gentration
-  const resetToken = jwt.sign(payload, secret, options);
-
-   
-  //assging the generated token to the rest token column in the user table
-  user.reset_token = resetToken;
-  
-  //assiging the expiration to the column in the user table
-  user.reset_token_expiration = new Date(Date.now() + 3600000);
-
-  
-
-  await User.update(
-    { reset_token : resetToken, reset_token_expiration: user.reset_token_expiration },
-    { where: { user_id: user.user_id } }
-  );
-
-  return resetToken;
-};
-
-const sendResetEmail = async (email, resetToken) => {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  await transporter.sendMail({
-    to: email,
-    subject: "Password Reset Request",
-    html: `<p>Click this <a href="http://localhost:3000/reset/${resetToken}">link</a> to reset your password.</p>`,
-  });
-};
-
-const verifyResetToken = (token) => {
+const requestOtp = async (phoneNumber) => {
   try {
-    return jwt.verify(token, process.env.SECRET);
+    const user = await User.findOne({ where: { phone_number: phoneNumber } });
+
+    if (!user)
+      throw new AppError("user with tis phone number is not found", 404);
+
+    const phone = "+962779582933";
+    const verification = await client.verify.v2
+      .services(twilioConfig.verifyServiceSid)
+      .verifications.create({ to: phone, channel: "sms" });
+
+    return verification.status; // E.g., "pending"
   } catch (error) {
-    throw new Error("Invalid or expired token");
+    throw new AppError(`Failed to send OTP: ${error.message}`, 500);
   }
 };
 
-const updatePassword = async(user, newPassword) =>{
-  
-
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  await User.update({password : hashedPassword ,reset_token : null, reset_token_expiration: null },
-    { where: { user_id: user.user_id } })
-}
-
-cron.schedule('0 0 * * *', async () => {
+const verifyOtp = async (phoneNumber, otp) => {
   try {
-    const users = await User.findAll();
-    const now = new Date();
+    // Verify OTP using twilio
+    const user = await User.findOne({ where: { phone_number: phoneNumber } });
+    const phone = "+962779582933";
+    const result = await client.verify.v2
+      .services(twilioConfig.verifyServiceSid)
+      .verificationChecks.create({ to: phone, code: otp });
 
-    await Promise.all(users.map(async (user) => {
-      if (user.resetTokenExpiration && new Date(user.resetTokenExpiration) < now) {
-        user.resetToken = null;
-        user.resetTokenExpiration = null;
-        await user.save();
-      }
-    }));
+    if (result.status === "approved") {
+      const payload = {
+        userId: user.user_id,
+        country: user.nationality,
+        userName: user.username,
+        role: user.role_id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        profile_photo: user.profile_photo,
+        date_of_birth: user.date_of_birth,
+        national_number: user.national_number,
+        email: user.email,
+        rating: user.rating,
+        phone_number: user.phone_number,
+      };
+      const options = { expiresIn: "1d" };
+      const secret = process.env.SECRET;
 
-    console.log('Expired tokens cleared');
+      const token = jwt.sign(payload, secret, options);
+      return { result, token };
+    }
   } catch (error) {
-    console.error('Error clearing expired tokens:', error);
+    throw new AppError("Failed to verify OTP: " + error.message, 500);
   }
-});
+};
 
-
-module.exports = { generateResetToken, sendResetEmail, verifyResetToken, updatePassword };
+module.exports = { requestOtp, verifyOtp };

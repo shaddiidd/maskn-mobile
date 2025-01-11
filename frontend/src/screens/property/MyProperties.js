@@ -1,4 +1,4 @@
-import { StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Text, Alert, View } from "react-native";
+import { StyleSheet, SafeAreaView, TouchableOpacity, ScrollView, Text, Alert, View, RefreshControl } from "react-native";
 import PropertyCard from "../../components/property/PropertyCard";
 import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useState, useContext } from "react";
@@ -10,6 +10,7 @@ export default function MyProperties() {
   const navigation = useNavigation();
   const { setLoading } = useContext(Context);
   const [properties, setProperties] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchProperties = async () => {
     try {
@@ -20,6 +21,7 @@ export default function MyProperties() {
       setProperties([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -31,7 +33,11 @@ export default function MyProperties() {
   if (properties === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]} style={{ flex: 1, width: "100%" }}>
+      <ScrollView
+        style={{ flex: 1, width: "100%" }}
+        contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center" }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
+      >
         {properties?.length ? (
           properties?.map((property) => (
             <PropertyCard key={property.property_id} property={property} />

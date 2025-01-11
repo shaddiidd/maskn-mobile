@@ -8,8 +8,8 @@ import Button from "../../ui/Button";
 export default function SigninScreen({ navigation }) {
   const { auth } = useContext(Context);
   const [values, setValues] = useState({
-    email: { value: "abdullah.shadid49@gmail.com", error: false },
-    password: { value: "abdullah", error: false },
+    email: { value: "", error: false },
+    password: { value: "", error: false },
   });
 
   const handleSubmit = () => {
@@ -65,7 +65,7 @@ export default function SigninScreen({ navigation }) {
             error={values.password.error}
           />
           <Button text="Sign In" onPress={handleSubmit} />
-          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 10 }} activeOpacity={0.7}>
+          <TouchableOpacity style={{ width: "100%", alignItems: "center", marginTop: 10 }} activeOpacity={0.7} onPress={() => navigation.navigate("ForgotPassword")}>
             <Text style={styles.signupText}>Forgot Password?</Text>
           </TouchableOpacity>
         </View>

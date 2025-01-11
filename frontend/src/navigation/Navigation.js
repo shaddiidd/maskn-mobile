@@ -13,6 +13,7 @@ import logo from "../assets/maskn-green.png";
 
 import SignupScreen from "../screens/authentication/SignupScreen";
 import SigninScreen from "../screens/authentication/SigninScreen";
+import ForgotPassword from "../screens/authentication/ForgotPassword";
 
 import HomeScreen from "../screens/HomeScreen";
 import PropertyScreen from "../screens/property/PropertyScreen";
@@ -29,6 +30,9 @@ import ContractScreen from "../screens/contract/ContractScreen";
 import SignContract from "../screens/contract/SignContract";
 import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import PropertySearch from "../screens/property/PropertySearch";
+import SettingsScreen from "../screens/settings/SettingsScreen";
+import ResetPassword from "../screens/settings/ResetPassword";
+import HelpScreen from "../screens/settings/HelpScreen";
 
 const Drawer = createDrawerNavigator();
 
@@ -74,13 +78,6 @@ function CustomDrawerContent({ navigation }) {
             icon={() => <Ionicons name="eye-outline" size={24} color="#508D4E" />}
             onPress={() => handleNavigation("TourRequests")}
           />
-          <DrawerItem
-            label="Rent History"
-            style={styles.drawerItem}
-            labelStyle={styles.drawerItemLabel}
-            icon={() => <Ionicons name="time-outline" size={24} color="#508D4E" />}
-            onPress={() => handleNavigation("RentHistory")}
-          />
           {user.role === 1 ? (
             <DrawerItem
               label="Become a Renter"
@@ -109,10 +106,7 @@ function CustomDrawerContent({ navigation }) {
             icon={() => (
               <Ionicons name="help-circle-outline" size={24} color="#508D4E" />
             )}
-            onPress={() => {
-              navigation.closeDrawer();
-              Alert.alert("Unavailable", "This screen is not ready yet.");
-            }}
+            onPress={() => handleNavigation("HelpScreen")}
           />
         </View>
       </View>
@@ -128,10 +122,7 @@ function CustomDrawerContent({ navigation }) {
           icon={() => (
             <Ionicons name="settings-outline" size={27} color="#508D4E" />
           )}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
+          onPress={() => handleNavigation("SettingsScreen")}
         />
         <DrawerItem
           label="Logout"
@@ -143,6 +134,7 @@ function CustomDrawerContent({ navigation }) {
           onPress={() => {
             navigation.closeDrawer();
             logout();
+            Alert.alert("Success", "You have been logged out successfully", [{ text: "OK" }]);
           }}
         />
       </View>
@@ -281,19 +273,15 @@ export default function Navigation() {
         <Stack.Screen name="Payment" component={Payment} />
         <Stack.Screen name="Utilities" component={UtilitiesScreen} />
         <Stack.Screen name="Contract" component={ContractScreen} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ title: "Settings" }} />
+        <Stack.Screen name="HelpScreen" component={HelpScreen} options={{ title: "Help & FAQ" }} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} options={{ title: "Reset Password" }} />
         <Stack.Screen name="SignContract" component={SignContract} options={{ title: "Sign Contract" }} />
         {!isAuthenticated && (
           <>
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Signin"
-              component={SigninScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Signup"
-              component={SignupScreen}
-            />
+            <Stack.Screen options={{ headerShown: false }} name="Signin" component={SigninScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="Signup" component={SignupScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="ForgotPassword" component={ForgotPassword} />
           </>
         )}
       </Stack.Navigator>

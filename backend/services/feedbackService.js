@@ -6,8 +6,8 @@ const User = require("../models/users");
 const OwnerRentalExperience = require("../models/ownerRentalExperience");
 const AppError = require("../utils/AppError");
 const Contract = require("../models/contract");
-const TenantReview = require("../models/tenantReviews")
-const OwnerReview = require("../models/ownerReviews")
+const TenantReview = require("../models/tenantReviews");
+const OwnerReview = require("../models/ownerReviews");
 
 const getFeedbackByRole = async (role) => {
   try {
@@ -24,137 +24,6 @@ const getFeedbackByRole = async (role) => {
     throw new AppError("survey cant be retrived", 404);
   }
 };
-
-// const saveSurveyAndUpdateRating = async (
-//   userId,
-//   entityId,
-//   contractId,
-//   answers,
-//   userRole,
-//   review
-// ) => {
-//   try {
-//     const isOwner = userRole === 2;
-//     const model = isOwner ? OwnerAnswer : TenantAnswer;
-//     const questionModel = isOwner
-//       ? OwnerRentalExperience
-//       : TenantPropertyFeedback;
-//     const relatedModel = isOwner ? User : Property;
-//     const idField = isOwner ? "tenant_id" : "property_id";
-//     const maxWeight = isOwner ? 85 : 88;
-//     const existingFeedback = await model.findOne({
-//       where: { contract_id: contractId },
-//     });
-//     if (existingFeedback) {
-//       throw new AppError(
-//         "Feedback for this contract has already been submitted",
-//         400
-//       );
-//     }
-
-//     // Step 1: Save answers
-//     const answersToSave = answers.map((answer) => ({
-//       [isOwner ? "owner_id" : "tenant_id"]: userId,
-//       [idField]: entityId,
-//       contract_id: contractId,
-//       question_id: answer.questionId,
-//       response_value: answer.questionAnsValue,
-//     }));
-//     console.log("Answers to save:", answersToSave);
-
-//     await model.bulkCreate(answersToSave);
-
-//     // Step 2: Fetch question weights
-//     const questionWeights = await questionModel.findAll({
-//       attributes: ["question_id", "weight"],
-//     });
-
-//     const weightMap = questionWeights.reduce((map, question) => {
-//       map[question.question_id] = question.weight;
-//       return map;
-//     }, {});
-//     console.log("Weight map:", weightMap);
-
-//     // Step 3: Fetch all answers
-//     const allAnswers = await model.findAll({
-//       where: { [idField]: entityId },
-//     });
-
-//     if (allAnswers.length === 0) {
-//       throw new AppError(
-//         `No feedback found for this ${isOwner ? "tenant" : "property"}`,
-//         404
-//       );
-//     }
-
-//     // Step 4: Calculate scores
-//     const surveyScores = {};
-//     allAnswers.forEach((answer) => {
-//       const weight = weightMap[answer.question_id];
-//       console.log(`Processing answer:`, {
-//         questionId: answer.question_id,
-//         responseValue: answer.response_value,
-//         weight,
-//         contribution: weight ? answer.response_value * weight : 0,
-//       });
-
-//       if (weight) {
-//         const surveyKey = answer.contract_id;
-//         if (!surveyScores[surveyKey]) {
-//           surveyScores[surveyKey] = { totalScore: 0 };
-//         }
-//         surveyScores[surveyKey].totalScore += answer.response_value * weight;
-//       }
-//     });
-//     console.log("Survey scores:", surveyScores);
-
-//     // Step 5: Calculate normalized scores for each survey
-//     const surveyRatings = Object.values(surveyScores).map((survey) => {
-//       const normalizedScore = (survey.totalScore / (maxWeight * 5)) * 5;
-//       return normalizedScore;
-//     });
-
-//     // Step 6: Calculate overall average rating
-//     const averageRating =
-//       surveyRatings.length > 0
-//         ? surveyRatings.reduce((sum, rating) => sum + rating, 0) /
-//           surveyRatings.length
-//         : null;
-
-//     // Step 7: Update the related entity's rating
-//     const [updatedRows] = await relatedModel.update(
-//       { rating: averageRating },
-//       { where: { [isOwner ? "user_id" : "property_id"]: entityId } }
-//     );
-
-//     // Step 8: Update the contract's survey field
-//     const surveyField = isOwner
-//       ? "owner_survey_filled"
-//       : "tenant_survey_filled";
-//     const [updatedContracts] = await Contract.update(
-//       { [surveyField]: true },
-//       { where: { contract_id: contractId } }
-//     );
-
-//     return {
-//       success: true,
-//       message: `Survey saved and ${
-//         isOwner ? "tenant" : "property"
-//       } rating updated successfully`,
-//       averageRating: averageRating || 0, // Return 0 if no valid ratings
-//     };
-//   } catch (error) {
-//     console.error("Error occurred:", error);
-//     throw new AppError(
-//       error.message ||
-//         `Failed to save survey or update ${
-//           isOwner ? "tenant" : "property"
-//         } rating`,
-//       error.statusCode || 500
-//     );
-//   }
-// };
-
 
 const saveSurveyAndUpdateRating = async (
   userId,
@@ -191,10 +60,7 @@ const saveSurveyAndUpdateRating = async (
       where: { contract_id: contractId },
     });
     if (existingReview) {
-      throw new AppError(
-        "A review for this contract already exists",
-        400
-      );
+      throw new AppError("A review for this contract already exists", 400);
     }
 
     // Step 1: Save answers
@@ -299,7 +165,6 @@ const saveSurveyAndUpdateRating = async (
     );
   }
 };
-
 
 const checkSurveySubmissionService = async (userId, userRole) => {
   try {

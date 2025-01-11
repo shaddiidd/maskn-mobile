@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import { StyleSheet, View, Text, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import Button from "../../ui/Button";
@@ -6,6 +6,7 @@ import LabelTextField from "../../ui/LabelTextField";
 import SignaturePad from "../../components/contract/SignaturePad";
 import { post } from "../../utils/fetch";
 import { formatDate } from "../../helpers/dateFunctions";
+import Context from "../../context/Context";
 
 export default function SignContract({ route }) {
     const { contractId } = route.params || "";
@@ -13,6 +14,7 @@ export default function SignContract({ route }) {
     const witnessSignatureRef = useRef(null);
     const [witnessName, setWitnessName] = useState("");
     const navigation = useNavigation();
+    const { setLoading } = useContext(Context);
 
     const handleSubmit = async () => {
         const ownerSignature = await ownerSignatureRef.current.exportSignature();
@@ -26,6 +28,7 @@ export default function SignContract({ route }) {
         const oneMonthLater = new Date();
         oneMonthLater.setMonth(now.getMonth() + 1);
         const end_date = formatDate(oneMonthLater.getTime(), true);
+        setLoading(true);
         try {
             const requestBody = {
                 start_date,
@@ -38,7 +41,10 @@ export default function SignContract({ route }) {
             Alert.alert("Success", "Contract submitted successfully!");
             navigation.pop(2);
         } catch (error) {
-            Alert.alert("Error", error.response.data.message)
+            Alert.alert("Error", "Failed to sign contract");
+            console.log(error.response.data)
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -73,7 +79,7 @@ const styles = StyleSheet.create({
     },
     canvas: {
         width: "100%",
-        height: 100,
+        height: 150,
         backgroundColor: "white",
         borderColor: "#ccc",
         borderWidth: 1,

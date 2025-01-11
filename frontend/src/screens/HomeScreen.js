@@ -35,7 +35,7 @@ export default function HomeScreen() {
       <SearchModal />
       <ScrollView
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchProperties(); }} />}
-        contentContainerStyle={[styles.scrollContainer, { justifyContent: properties?.length ? "flex-start" : "center", }]}
+        contentContainerStyle={[styles.scrollContainer, !properties?.length && { rowGap: 5, flex: 1, justifyContent: "center" }]}
         style={styles.scrollView}
       >
         {properties?.length ? (
@@ -45,7 +45,7 @@ export default function HomeScreen() {
         ) : (
           <>
             <Ionicons name="home-outline" size={50} color="#666" />
-            <Text style={styles.emptyText}>No properties yet</Text>
+            <Text style={styles.emptyText}>No properties found</Text>
           </>
         )}
       </ScrollView>
@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   scrollView: {
-    flex: 1,
     width: "100%"
   },
   scrollContainer: {
@@ -76,7 +75,6 @@ const styles = StyleSheet.create({
   emptyText: {
     color: "#666",
     fontSize: 17,
-    marginTop: 5,
     marginBottom: 100,
   }
 });
