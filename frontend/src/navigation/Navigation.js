@@ -30,6 +30,8 @@ import ContractScreen from "../screens/contract/ContractScreen";
 import SignContract from "../screens/contract/SignContract";
 import EditProfileScreen from "../screens/profile/EditProfileScreen";
 import PropertySearch from "../screens/property/PropertySearch";
+import SettingsScreen from "../screens/settings/SettingsScreen";
+import ResetPassword from "../screens/settings/ResetPassword";
 
 const Drawer = createDrawerNavigator();
 
@@ -129,10 +131,7 @@ function CustomDrawerContent({ navigation }) {
           icon={() => (
             <Ionicons name="settings-outline" size={27} color="#508D4E" />
           )}
-          onPress={() => {
-            navigation.closeDrawer();
-            Alert.alert("Unavailable", "This screen is not ready yet.");
-          }}
+          onPress={() => handleNavigation("SettingsScreen")}
         />
         <DrawerItem
           label="Logout"
@@ -282,6 +281,8 @@ export default function Navigation() {
         <Stack.Screen name="Payment" component={Payment} />
         <Stack.Screen name="Utilities" component={UtilitiesScreen} />
         <Stack.Screen name="Contract" component={ContractScreen} />
+        <Stack.Screen name="SettingsScreen" component={SettingsScreen} options={{ title: "Settings" }} />
+        <Stack.Screen name="ResetPassword" component={ResetPassword} options={{ title: "Reset Password" }} />
         <Stack.Screen name="SignContract" component={SignContract} options={{ title: "Sign Contract" }} />
         {!isAuthenticated && (
           <>
