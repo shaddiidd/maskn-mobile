@@ -38,7 +38,8 @@ export default function SignContract({ route }) {
             Alert.alert("Success", "Contract submitted successfully!");
             navigation.pop(2);
         } catch (error) {
-            Alert.alert("Error", error.response.data.message)
+            // Alert.alert("Error", error.response.data.message)
+            console.log(error.response.data)
         }
     };
 

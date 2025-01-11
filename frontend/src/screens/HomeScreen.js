@@ -45,7 +45,7 @@ export default function HomeScreen() {
         ) : (
           <>
             <Ionicons name="home-outline" size={50} color="#666" />
-            <Text style={styles.emptyText}>No properties yet</Text>
+            <Text style={styles.emptyText}>No properties found</Text>
           </>
         )}
       </ScrollView>
@@ -61,7 +61,6 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
   },
   scrollView: {
-    flex: 1,
     width: "100%"
   },
   scrollContainer: {

@@ -13,6 +13,7 @@ import logo from "../assets/maskn-green.png";
 
 import SignupScreen from "../screens/authentication/SignupScreen";
 import SigninScreen from "../screens/authentication/SigninScreen";
+import ForgotPassword from "../screens/authentication/ForgotPassword";
 
 import HomeScreen from "../screens/HomeScreen";
 import PropertyScreen from "../screens/property/PropertyScreen";
@@ -284,16 +285,9 @@ export default function Navigation() {
         <Stack.Screen name="SignContract" component={SignContract} options={{ title: "Sign Contract" }} />
         {!isAuthenticated && (
           <>
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Signin"
-              component={SigninScreen}
-            />
-            <Stack.Screen
-              options={{ headerShown: false }}
-              name="Signup"
-              component={SignupScreen}
-            />
+            <Stack.Screen options={{ headerShown: false }} name="Signin" component={SigninScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="Signup" component={SignupScreen} />
+            <Stack.Screen options={{ headerShown: false }} name="ForgotPassword" component={ForgotPassword} />
           </>
         )}
       </Stack.Navigator>

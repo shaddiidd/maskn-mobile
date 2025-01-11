@@ -22,7 +22,7 @@ export default function ContractScreen({ route }) {
             const terms = contractFromResponse.terms.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
             if (user.role === 1 && contractFromResponse.contractInfo.status === "not signed") {
                 navigation.pop();
-                Alert.alert("Contract is not ready yet", "Please wait for the owner to sign the contract.");
+                Alert.alert("Contract not found", "Please wait for the owner to create and sign the contract.");
             }
             setContract({ ...contractFromResponse, terms });
         } catch {
@@ -91,27 +91,27 @@ export default function ContractScreen({ route }) {
             <View style={styles.cardContainer}>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Title</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.title} </Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.title} </Text>
                 </View>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Village</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.village?.village_name}</Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.village?.village_name}</Text>
                 </View>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Block</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.block?.block_name}</Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.block?.block_name}</Text>
                 </View>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Neighborhood</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.neighborhood?.name}</Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.neighborhood?.name}</Text>
                 </View>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Building number</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.building_number}</Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.building_number}</Text>
                 </View>
                 <View style={styles.infoRowBlock}>
                     <Text style={styles.infoRowTitle}>Appartment number</Text>
-                    <Text style={styles.infoRowValue}>{contract?.property?.apartment_number}</Text>
+                    <Text numberOfLines={1} style={styles.infoRowValue}>{contract?.property?.apartment_number}</Text>
                 </View>
             </View>
             <Text style={styles.title}>Contract Terms</Text>

@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { StyleSheet, SafeAreaView, ScrollView, View, Text, Alert } from "react-native";
+import { StyleSheet, SafeAreaView, ScrollView, View, Text, Alert, Linking } from "react-native";
 import PaginatedCarousel from "../../components/property/PaginatedCarousel";
 import ReviewCard from "../../components/survey/ReviewCard";
 import Button from "../../ui/Button";
@@ -9,19 +9,22 @@ import Context from "../../context/Context";
 import { capitalizeFirstLetter, formatPrice } from "../../helpers/textFunctions";
 import PropertyOwnerCard from "../../components/property/PropertyOwnerCard";
 import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PropertyScreen({ route }) {
   const [property, setProperty] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const { property_id } = route.params;
   const { user, setLoading } = useContext(Context);
+  const navigation = useNavigation();
 
   const getProperty = async () => {
     try {
       const response = await get(`property/get-property/${property_id}`);
       setProperty(response.data.data);
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to get property");
+      navigation.pop();
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -41,6 +44,10 @@ export default function PropertyScreen({ route }) {
     } catch {
       Alert.alert("Request Failed", "Your request has failed", [{ text: "OK" }])
     }
+  }
+
+  const handleLocation = () => {
+    Linking.openURL(property.location)
   }
 
   if (property === null) return <View style={{ flex: 1, backgroundColor: "white" }} />;
@@ -73,7 +80,7 @@ export default function PropertyScreen({ route }) {
         </View>
         {(user.role === 1 && !property.request_status) && <Button onPress={handleRequestTour} additionalStyles={{ width: "90%" }} text="request tour" />}
         <Button additionalStyles={{ width: "90%" }} text="location" outline />
-        {property.request_status === "approved" && (
+        {(property.request_status === "approved") && (
           <PropertyOwnerCard
             id={property?.owner_id}
             name={property?.owner_details?.first_name + " " + property?.owner_details?.last_name}
@@ -83,7 +90,7 @@ export default function PropertyScreen({ route }) {
         )}
         <Text style={[styles.title, { marginTop: 20, marginBottom: -5 }]}>Reviews</Text>
         <View style={{ width: "90%" }}>
-          {/* {property?.reviews?.length ? property?.reviews?.map((review, index) =>
+          {property?.reviews?.length ? property?.reviews?.map((review, index) =>
             <ReviewCard
               key={index}
               title={review?.tenant?.first_name + " " + review?.tenant?.last_name}
@@ -93,8 +100,8 @@ export default function PropertyScreen({ route }) {
             />
           ) : (
             <Text style={styles.noReviews}>No reviews yet...</Text>
-          )} */}
-          <ReviewCard
+          )}
+          {/* <ReviewCard
             title={"Abdullah Shadid"}
             subtitle="@shaddiidd"
             review="The studio was perfect for my needs. Spacious, clean, and in a great location! The owner was responsive and helpful throughout my stay."
@@ -104,7 +111,7 @@ export default function PropertyScreen({ route }) {
             title={"Lina Mohammad"}
             subtitle="@lina.m"
             review="The studio is a gem! It’s small but very cozy, and everything I needed was within walking distance. Highly recommend for students or young professionals."
-          />
+          /> */}
         </View>
       </SafeAreaView>
     </ScrollView>

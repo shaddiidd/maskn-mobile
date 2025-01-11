@@ -14,7 +14,6 @@ import Context from "../../context/Context";
 import AuthInput from "../../components/authentication/AuthInput";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "../../ui/Button";
-import DatePicker from "../../ui/DatePicker";
 
 export default function SignupScreen({ navigation }) {
   const { signUp } = useContext(Context);
@@ -26,48 +25,96 @@ export default function SignupScreen({ navigation }) {
 
     username: { value: "", error: "" },
     phone_number: { value: "", error: "" },
-    password: { value: "", error: "" },
-
-    nationality: { value: "Jordanian", error: "" },
     national_number: { value: "", error: "" },
-    date_of_birth: { value: "", error: "" },
+
+    password: { value: "", error: "" },
+    passwordConfirmation: { value: "", error: "" },
   });
 
   const validateFields = (fields) => {
     let isValid = true;
     fields.forEach((field) => {
-      if (!values[field].value) {
+      const value = values[field].value;
+      let error = "";
+
+      if (!value) {
+        error = "This field is required";
+      } else {
+        switch (field) {
+          case "email":
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(value)) error = "Invalid email format";
+            break;
+          case "phone_number":
+            const phoneRegex = /^07\d{8}$/;
+            if (!phoneRegex.test(value)) error = "Phone number must be 10 digits and start with 07";
+            break;
+          case "password":
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            if (!passwordRegex.test(value))
+              error = "Password must be at least 8 characters, include a number, a symbol, and an uppercase letter";
+            break;
+          case "passwordConfirmation":
+            if (value !== values.password.value)
+              error = "Password confirmation does not match password";
+            break;
+          case "national_number":
+            const nationalIdRegex = /^\d{10}$/;
+            if (!nationalIdRegex.test(value)) error = "National ID must be 10 digits";
+            break;
+          default:
+            break;
+        }
+      }
+
+      if (!error) {
         setValues((prev) => ({
           ...prev,
-          [field]: { ...prev[field], error: true },
+          [field]: { ...prev[field], error: "" },
+        }));
+      } else if (field === "password") {
+        setValues((prev) => ({
+          ...prev,
+          password: { value: "", error },
+          passwordConfirmation: { value: "", error },
+        }));
+        isValid = false;
+      } else if (field === "passwordConfirmation") {
+        setValues((prev) => ({
+          ...prev,
+          passwordConfirmation: { value: "", error },
+        }));
+        isValid = false;
+      } else {
+        setValues((prev) => ({
+          ...prev,
+          [field]: { value: values[field].value, error },
         }));
         isValid = false;
       }
     });
     return isValid;
-  }
+  };
 
   const handleSubmit = () => {
     if (page === 1) {
       const fields = ["first_name", "last_name", "email"];
       if (validateFields(fields)) setPage(2);
     } else if (page === 2) {
-      const fields = ["username", "phone_number", "password"];
+      const fields = ["username", "phone_number", "national_number"];
       if (validateFields(fields)) setPage(3);
     } else {
-      const fields = ["nationality", "national_number", "date_of_birth"];
+      const fields = ["password", "passwordConfirmation"];
       if (validateFields(fields)) {
         const formData = new FormData();
 
-        formData.append('first_name', values?.first_name?.value);
-        formData.append('last_name', values?.last_name?.value);
-        formData.append('username', values?.username?.value);
-        formData.append('email', values?.email?.value);
-        formData.append('phone_number', values?.phone_number?.value);
-        formData.append('nationality', values?.nationality?.value);
-        formData.append('national_number', values?.national_number?.value);
-        formData.append('date_of_birth', values?.date_of_birth?.value);
-        formData.append('password', values?.password?.value);
+        formData.append("first_name", values?.first_name?.value);
+        formData.append("last_name", values?.last_name?.value);
+        formData.append("username", values?.username?.value.toLowerCase());
+        formData.append("email", values?.email?.value.toLowerCase());
+        formData.append("phone_number", values?.phone_number?.value);
+        formData.append("national_number", values?.national_number?.value);
+        formData.append("password", values?.password?.value);
 
         signUp(formData);
       }
@@ -99,17 +146,17 @@ export default function SignupScreen({ navigation }) {
           <Text style={styles.subtitle}>Enter your information to sign up</Text>
           {page === 1 && (
             <>
-              <AuthInput placeholder="First Name" innerPlaceholder="Abdullah" autoCapitalize="words" value={values?.first_name?.value} setValue={(value) => setValues({ ...values, first_name: { value, error: false } })} error={values?.first_name?.error} />
-              <AuthInput placeholder="Last Name" innerPlaceholder="Shadid" autoCapitalize="words" value={values?.last_name?.value} setValue={(value) => setValues({ ...values, last_name: { value, error: false } })} error={values?.last_name?.error} />
-              <AuthInput placeholder="Email" innerPlaceholder="abdullah@example.com" keyboardType="email-address" value={values?.email?.value} setValue={(value) => setValues({ ...values, email: { value, error: false } })} error={values?.email?.error} />
+              <AuthInput placeholder="First Name" innerPlaceholder="Abdullah" autoCapitalize="words" value={values?.first_name?.value} setValue={(value) => setValues({ ...values, first_name: { value, error: "" } })} error={values?.first_name?.error} />
+              <AuthInput placeholder="Last Name" innerPlaceholder="Shadid" autoCapitalize="words" value={values?.last_name?.value} setValue={(value) => setValues({ ...values, last_name: { value, error: "" } })} error={values?.last_name?.error} />
+              <AuthInput placeholder="Email" innerPlaceholder="abdullah@example.com" keyboardType="email-address" value={values?.email?.value} setValue={(value) => setValues({ ...values, email: { value, error: "" } })} error={values?.email?.error} />
               <Button text="next" onPress={handleSubmit} />
             </>
           )}
           {page === 2 && (
             <>
-              <AuthInput placeholder="Username" innerPlaceholder="abdullah_shadid" value={values?.username?.value} setValue={(value) => setValues({ ...values, username: { value, error: false } })} error={values?.username?.error} />
-              <AuthInput placeholder="Phone Number" innerPlaceholder="0791234567" keyboardType="numeric" value={values?.phone_number?.value} setValue={(value) => setValues({ ...values, phone_number: { value, error: false } })} error={values?.phone_number?.error} />
-              <AuthInput placeholder="Password" innerPlaceholder="********" password value={values?.password?.value} setValue={(value) => setValues({ ...values, password: { value, error: false } })} error={values?.password?.error} />
+              <AuthInput placeholder="Username" innerPlaceholder="abdullah_shadid" value={values?.username?.value} setValue={(value) => setValues({ ...values, username: { value, error: "" } })} error={values?.username?.error} />
+              <AuthInput placeholder="Phone Number" innerPlaceholder="0791234567" keyboardType="numeric" value={values?.phone_number?.value} setValue={(value) => setValues({ ...values, phone_number: { value, error: "" } })} error={values?.phone_number?.error} />
+              <AuthInput placeholder="National ID" innerPlaceholder="1234567890" keyboardType="numeric" value={values?.national_number?.value} setValue={(value) => setValues({ ...values, national_number: { value, error: "" } })} error={values?.national_number?.error} />
               <View style={styles.btnContainer}>
                 <Button text="back" onPress={() => setPage(page - 1)} outline small />
                 <Button text="next" onPress={handleSubmit} small />
@@ -118,21 +165,15 @@ export default function SignupScreen({ navigation }) {
           )}
           {page === 3 && (
             <>
-              {/* <AuthInput placeholder="Nationality" value={values?.nationality?.value} setValue={(value) => setValues({ ...values, nationality: { value, error: false } })} error={values?.nationality?.error} /> */}
-              <AuthInput placeholder="National ID" innerPlaceholder="1234567890" keyboardType="numeric" value={values?.national_number?.value} setValue={(value) => setValues({ ...values, national_number: { value, error: false } })} error={values?.national_number?.error} />
-              {/* <AuthInput placeholder="Date of Birth" value={values?.date_of_birth?.value} setValue={(value) => setValues({ ...values, date_of_birth: { value, error: false } })} error={values?.date_of_birth?.error} /> */}
-              <DatePicker placeholder="Date of Birth" value={values?.date_of_birth?.value} setValue={(value) => setValues({ ...values, date_of_birth: { value, error: false } })} error={values?.date_of_birth?.error} />
+              <AuthInput placeholder="Password" innerPlaceholder="********" password value={values?.password?.value} setValue={(value) => setValues({ ...values, password: { value, error: "" } })} error={values?.password?.error} />
+              <AuthInput placeholder="Confirm Password" innerPlaceholder="********" password value={values?.passwordConfirmation?.value} setValue={(value) => setValues({ ...values, passwordConfirmation: { value, error: "" } })} error={values?.passwordConfirmation?.error} />
               <View style={styles.btnContainer}>
                 <Button text="back" onPress={() => setPage(page - 1)} outline small />
                 <Button text="sign up" onPress={handleSubmit} small />
               </View>
             </>
           )}
-          <Text style={[styles.signupQuestion, { marginTop: 20, textAlign: "center" }]}>
-            By signing up, you agree to our
-            <Text style={{ color: "#508D4E" }}> Terms of Service </Text>and
-            <Text style={{ color: "#508D4E" }}> Privacy Policy</Text>
-          </Text>
+          <Text style={[styles.signupQuestion, { marginTop: 20, textAlign: "center" }]}>By signing up, you agree to our <Text style={{ color: "#508D4E" }}> Terms of Service </Text>and<Text style={{ color: "#508D4E" }}> Privacy Policy</Text></Text>
         </View>
 
         <View style={styles.signupPrompt}>

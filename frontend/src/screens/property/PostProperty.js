@@ -6,17 +6,18 @@ import LabelTextField from "../../ui/LabelTextField";
 import Button from "../../ui/Button";
 import RadioButtons from "../../ui/RadioButtons";
 import DropdownMenu from "../../ui/DropdownMenu";
-import { get } from "../../utils/fetch";
-import axios from "axios";
+import { get, post } from "../../utils/fetch";
 import Context from "../../context/Context";
 import { optimizeImage } from "../../utils/images";
+import { useNavigation } from "@react-navigation/native";
 
 export default function PostProperty() {
+  const navigation = useNavigation();
   const [propertyInfo, setPropertyInfo] = useState({ water_meter_subscription_number: `WATER${Date.now()}`, electricity_meter_reference_number: `ELECTRICITY${Date.now()}`, is_furnished: false });
   const [images, setImages] = useState([]);
   const [villages, setVillages] = useState([]);
   const [blocks, setBlocks] = useState([]);
-  const { setLoading, token } = useContext(Context);
+  const { setLoading } = useContext(Context);
 
   useEffect(() => {
     const fetchVillages = async () => {
@@ -62,20 +63,15 @@ export default function PostProperty() {
       Alert.alert("Permission Denied", "Please allow access to the gallery.");
       return;
     }
-    if (images.length >= 5) {
-      Alert.alert("Limit Reached", "You can only upload up to 5 images.");
-      return;
-    }
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
       aspect: [4, 3],
       quality: 1,
     });
-
     if (!pickerResult.canceled) {
       const selectedImages = pickerResult.assets;
-      setImages((prevImages) => [...prevImages, ...selectedImages]);
+      setImages((prevImages) => [...prevImages, ...selectedImages].slice(0, 5));
     }
   };
 
@@ -93,7 +89,7 @@ export default function PostProperty() {
   const handleSubmit = async () => {
     const requiredFields = ["description", "title", "address", "area", "price", "rental_period", "village_id", "block_id", "parcel_number", "building_number", "apartment_number"];
     const missingFields = requiredFields.filter((field) => !propertyInfo[field]);
-    if (missingFields.length) {
+    if (missingFields.length || !images.length) {
       Alert.alert("Missing Fields", `Please fill in all fields`);
       return;
     }
@@ -103,7 +99,7 @@ export default function PostProperty() {
     if (invalidNumericFields.length) {
       Alert.alert("Invalid Input", `The following fields must be numeric: ${invalidNumericFields.join(", ")}`);
       return;
-    }  
+    }
 
     setLoading(true);
     try {
@@ -111,17 +107,22 @@ export default function PostProperty() {
       Object.keys(propertyInfo).forEach((key) => {
         form.append(key, propertyInfo[key]);
       });
+      form.append("post_status_id", 1);
       form.append("neighborhood_id", propertyInfo.block_id);
       form.append("is_furnished", propertyInfo.is_furnished ? true : false);
       for (const [_, image] of images.entries()) {
         const optimizedImage = await optimizeImage(image);
-        const blob = await fetch(optimizedImage.uri).then((r) => r.blob());
-        form.append("photos", blob);
+        form.append("photos", {
+          uri: optimizedImage.uri,
+          name: image.uri.split("/").pop(),
+          type: "image/jpeg",
+        });
       }
-      await axios.post("http://localhost:5002/property/add-property", form, { headers: { "Content-Type": "multipart/form-data", "Authorization": `Bearer ${token}` } });
+      await post("property/add-property", form);
       Alert.alert("Success", "Property posted successfully!");
       navigation.pop();
     } catch (error) {
+      console.log(error.response.data);
       Alert.alert("Error", "Failed to post the property. Please try again.");
     } finally {
       setLoading(false);
@@ -136,13 +137,13 @@ export default function PostProperty() {
           {images.map((image, index) => (
             <View key={index} style={styles.imageWrapper}>
               <Image source={{ uri: image.uri }} style={styles.image} />
-              <TouchableOpacity style={styles.deleteButton} onPress={() => handleImageDelete(index)}>
+              <TouchableOpacity activeOpacity={0.7} style={styles.deleteButton} onPress={() => handleImageDelete(index)}>
                 <Ionicons name="close" size={20} color="white" />
               </TouchableOpacity>
             </View>
           ))}
           {images.length < 5 && (
-            <TouchableOpacity style={styles.uploadButton} onPress={handleImagePick}>
+            <TouchableOpacity activeOpacity={0.7} style={styles.uploadButton} onPress={handleImagePick}>
               <Ionicons name="camera" size={20} color="#666" />
               <Text style={styles.uploadButtonText}> Upload</Text>
             </TouchableOpacity>
@@ -158,7 +159,7 @@ export default function PostProperty() {
           <LabelTextField placeholder="Number of Bedrooms" keyboardType="numeric" value={propertyInfo.bedroom_num} setValue={(value) => handleInputChange("bedroom_num", value)} />
           <LabelTextField placeholder="Number of Bathrooms" keyboardType="numeric" value={propertyInfo.bathroom_num} setValue={(value) => handleInputChange("bathroom_num", value)} />
           <LabelTextField placeholder="Property Age" keyboardType="numeric" value={propertyInfo.property_age} setValue={(value) => handleInputChange("property_age", value)} />
-          <DropdownMenu label="Rental Period" items={[{  label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
+          <DropdownMenu label="Rental Period" items={[{ label: "Monthly", id: "monthly" }, { label: "Yearly", id: "yearly" }]} selectedValue={propertyInfo.rental_period} onValueChange={(value) => handleInputChange("rental_period", value)} placeholder="Choose rental period" />
           <LabelTextField placeholder="Building Number" keyboardType="numeric" value={propertyInfo.building_number} setValue={(value) => handleInputChange("building_number", value)} />
           <LabelTextField placeholder="Floor Number" keyboardType="numeric" value={propertyInfo.floor_num} setValue={(value) => handleInputChange("floor_num", value)} />
           <LabelTextField placeholder="Apartment Number" keyboardType="numeric" value={propertyInfo.apartment_number} setValue={(value) => handleInputChange("apartment_number", value)} />
@@ -198,10 +199,20 @@ const styles = StyleSheet.create({
   },
   imageWrapper: {
     position: "relative",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+    backgroundColor: "#fff",
+    borderRadius: 8,
   },
   image: {
-    width: 180,
-    height: 180,
+    width: 220,
+    height: 220,
     borderRadius: 8,
   },
   deleteButton: {
@@ -216,8 +227,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   uploadButton: {
-    width: 180,
-    height: 180,
+    width: 220,
+    height: 220,
     borderRadius: 8,
     backgroundColor: "#ccc",
     justifyContent: "center",

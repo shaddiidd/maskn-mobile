@@ -75,18 +75,20 @@ export default function ProfileScreen({ route }) {
             <Text style={styles.infoTxt}>{profile?.phone_number}</Text>
           </View>
         </View>
-        <Text style={styles.title}>Reviews</Text>
-        {profile?.tenant_reviews_owner?.length ? profile?.tenant_reviews_owner?.map((review, index) =>
-          <ReviewCard
-            key={index}
-            title={review?.owner?.first_name + " " + review?.owner?.last_name}
-            subtitle={"@" + review?.owner?.username}
-            imageUri={review?.owner?.profile_picture?.length ? review?.owner?.profile_picture[0] : null}
-            review={review?.review_text}
-          />
-        ) : (
-          <Text style={styles.noReviews}>No reviews yet...</Text>
-        )}
+        {profile?.role_id === 1 && <>
+          <Text style={styles.title}>Reviews</Text>
+          {profile?.tenant_reviews_owner?.length ? profile?.tenant_reviews_owner?.map((review, index) =>
+            <ReviewCard
+              key={index}
+              title={review?.owner?.first_name + " " + review?.owner?.last_name}
+              subtitle={"@" + review?.owner?.username}
+              imageUri={review?.owner?.profile_picture?.length ? review?.owner?.profile_picture[0] : null}
+              review={review?.review_text}
+            />
+          ) : (
+            <Text style={styles.noReviews}>No reviews yet...</Text>
+          )}
+        </>}
       </SafeAreaView>
     </ScrollView>
   );

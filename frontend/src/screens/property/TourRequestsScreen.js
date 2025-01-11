@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, SafeAreaView, ScrollView, Text, View, Alert } from 'react-native';
+import { StyleSheet, SafeAreaView, ScrollView, Text, View, Alert, RefreshControl } from 'react-native';
 // import { TabView, SceneMap, TabBar } from 'react-native-tab-view';
 import TourRequestsCard from '../../components/property/TourRequestsCard';
 import { useNavigation } from '@react-navigation/native';
@@ -11,6 +11,7 @@ export default function TourRequestsScreen() {
   const navigation = useNavigation();
   const { setLoading, user } = useContext(Context);
 
+  const [refreshing, setRefreshing] = useState(false);
   const [sentRequests, setSentRequests] = useState(null);
   const [receivedRequests, setReceivedRequests] = useState([]);
 
@@ -34,6 +35,7 @@ export default function TourRequestsScreen() {
       setReceivedRequests([]);
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   };
 
@@ -66,6 +68,7 @@ export default function TourRequestsScreen() {
         style={{ width: "100%" }}
         contentContainerStyle={{ alignItems: "center", paddingTop: 0, padding: 10, width: "100%" }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchRequests(); }} />}
       >
         {sentRequests.map((item) => (
           <TourRequestsCard key={item.request_id} type="sent" item={item} />
@@ -88,6 +91,7 @@ export default function TourRequestsScreen() {
         style={{ width: "100%" }}
         contentContainerStyle={{ alignItems: "center", paddingTop: 0, padding: 10, width: "100%" }}
         showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => { setRefreshing(true); fetchRequests(); }} />}
       >
         {receivedRequests.map((item) => (
           <TourRequestsCard handleAccept={handleAccept} key={item.request_id} type="received" item={item} />
