@@ -50,8 +50,7 @@ const uploadHtmlToCloudinary = (htmlContent, requestId) => {
 
 const createContractPDF = async (htmlContent, outputPath) => {
   const browser = await puppeteer.launch({
-    executablePath:
-      "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+    executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });

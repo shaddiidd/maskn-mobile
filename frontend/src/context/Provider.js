@@ -99,11 +99,12 @@ const Provider = ({ children }) => {
       setAuthorizationToken(response.data.token);
       AsyncStorage.setItem("token", response.data.token);
     } catch (error) {
-      if (error?.response?.data?.message) {
-        Alert.alert("Error", error.response.data.message, [{ text: "OK" }]);
-      } else {
-        Alert.alert("Error", "There seems to be a problem. Pease try again.", [{ text: "OK" }]);
-      }
+      // if (error?.response?.data?.message) {
+      //   Alert.alert("Error", error.response.data.message, [{ text: "OK" }]);
+      // } else {
+      //   Alert.alert("Error", "There seems to be a problem. Pease try again.", [{ text: "OK" }]);
+      // }
+      console.log(error.response.data)
     } finally {
       setLoading(false);
     }
