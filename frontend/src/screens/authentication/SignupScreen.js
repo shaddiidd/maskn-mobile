@@ -116,6 +116,9 @@ export default function SignupScreen({ navigation }) {
         formData.append("national_number", values?.national_number?.value);
         formData.append("password", values?.password?.value);
 
+        formData.append("date_of_birth", "01-01-1990");
+        formData.append("nationality", "Jordanian");
+
         signUp(formData);
       }
     }

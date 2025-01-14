@@ -52,7 +52,7 @@ export default function ProfileScreen({ route }) {
                 <Text style={styles.infoTxt}>@{profile?.username}</Text>
                 <View style={styles.ratingContainer}>
                   <Ionicons name="star" size={18} color="gold" />
-                  <Text style={styles.rating}> {!profile?.rating ? "Not rated" : profile?.rating}</Text>
+                  <Text style={styles.rating}> {profile?.rating === "0.00" ? "Not rated" : profile?.rating}</Text>
                 </View>
               </View>
             </View>
@@ -82,7 +82,7 @@ export default function ProfileScreen({ route }) {
               key={index}
               title={review?.owner?.first_name + " " + review?.owner?.last_name}
               subtitle={"@" + review?.owner?.username}
-              imageUri={review?.owner?.profile_picture?.length ? review?.owner?.profile_picture[0] : null}
+              imageUri={review?.owner?.profile_photo?.length ? review?.owner?.profile_photo[0] : null}
               review={review?.review_text}
             />
           ) : (
