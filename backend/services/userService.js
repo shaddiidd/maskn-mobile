@@ -25,7 +25,7 @@ const createUser = async (userData, files) => {
 
     // Default values
     const role = 1;
-    const defaultRating = 5;
+    const defaultRating = 0;
 
     // Handle profile photo
     const photoUrl = files.map((file) => file.path);

@@ -17,6 +17,7 @@
       margin: auto;
       width: 90%;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      background-color: #fff;
     }
     h1 {
       text-align: center;
@@ -33,7 +34,7 @@
       margin-bottom: 10px;
     }
     .info-field {
-      width: 48%;
+      width: 90%;
     }
     .info-field strong {
       display: inline-block;
@@ -61,20 +62,34 @@
     }
     .signature-section {
       margin-top: 40px;
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
       text-align: center;
     }
     .signature-block {
-      display: inline-block;
-      width: 30%;
+      width: 45%;
+      margin: 10px 0;
       text-align: center;
+      border: 1px solid #000;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+    .signature-block img {
+      width: 150px;
+      height: 100px;
+      object-fit: contain;
+      display: block;
+      margin: 10px auto;
     }
     .signature-line {
       border-top: 1px solid #000;
-      margin-top: 50px;
+      margin-top: 20px;
     }
     .footer {
       text-align: center;
       margin-top: 30px;
+      font-size: 16px;
     }
   </style>
 </head>
@@ -119,26 +134,23 @@
     <div class="signature-section">
       <div class="signature-block">
         <p>توقيع المؤجر</p>
-        <img src="{{OwnerSignature}}" style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{OwnerSignature}}" />
         <div class="signature-line"></div>
       </div>
       <div class="signature-block">
         <p>توقيع المستأجر</p>
-        <img src="{{TenantSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{TenantSignature}}" />
         <div class="signature-line"></div>
       </div>
-    </div>
-
-    <div class="signature-section">
       <div class="signature-block">
         <p>شاهد</p>
-        <img src="{{OwnerWitnessSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{OwnerWitnessSignature}}" />
         <div class="signature-line"></div>
         <div class="info-field"><strong>اسم الشاهد:</strong> <span>{{OwnerWitnessName}}</span></div>
       </div>
       <div class="signature-block">
         <p>شاهد</p>
-        <img src="{{TenantWitnessSignature}}"  style="width: 150px; height: 100px; object-fit: contain; display: block; margin: auto;" />
+        <img src="{{TenantWitnessSignature}}" />
         <div class="signature-line"></div>
         <div class="info-field"><strong>اسم الشاهد:</strong> <span>{{TenantWitnessName}}</span></div>
       </div>

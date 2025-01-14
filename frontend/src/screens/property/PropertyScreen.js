@@ -23,7 +23,7 @@ export default function PropertyScreen({ route }) {
       const response = await get(`property/get-property/${property_id}`);
       setProperty(response.data.data);
     } catch {
-      Alert.alert("Error", "Failed to get property");
+      Alert.alert("Sorry", "Property is not listed yet");
       navigation.pop();
     } finally {
       setLoading(false);
@@ -71,7 +71,7 @@ export default function PropertyScreen({ route }) {
         <Text style={styles.address}>{property?.address}</Text>
         <View style={styles.ratingContainer}>
           <Ionicons name="star" size={20} color="gold" />
-          <Text style={styles.rating}>{!property?.rating ? "Not rated" : property?.rating}</Text>
+          <Text style={styles.rating}>{property?.rating === "0.00" ? "Not rated" : property?.rating}</Text>
         </View>
         <Text style={styles.description}>{property?.description}</Text>
         <View style={styles.priceContainer}>
@@ -95,7 +95,7 @@ export default function PropertyScreen({ route }) {
               key={index}
               title={review?.tenant?.first_name + " " + review?.tenant?.last_name}
               subtitle={"@" + review?.tenant?.username}
-              imageUri={review?.tenant?.profile_picture?.length ? review?.tenant?.profile_picture[0] : null}
+              imageUri={review?.tenant?.profile_photo?.length ? review?.tenant?.profile_photo[0] : null}
               review={review?.review_text}
             />
           ) : (

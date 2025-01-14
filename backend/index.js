@@ -33,6 +33,6 @@ app.use(errorHandler);
 // Handles any other endpoints [unassigned - endpoints]
 app.use("*", (req, res) => res.status(404).json("NO content at this path"));
 
-app.listen("5002", () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`SERVER LISTENING AT http://10.47.0.2:${PORT}`);
 });
